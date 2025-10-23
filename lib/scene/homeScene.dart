@@ -8,9 +8,7 @@ class HomeScene extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Здесь используем context.watch чтобы UI обновлялся при изменениях в AuthProvider.
-    final auth = Provider.of<AuthProvider>(context); // можно .watch(context) в новом API
-
+    final auth = Provider.of<AuthProvider>(context); 
     final username = auth.user?.name ?? 'Пользователь';
 
     return Scaffold(
@@ -21,7 +19,6 @@ class HomeScene extends StatelessWidget {
             icon: const Icon(Icons.logout),
             onPressed: () async {
               await auth.logout();
-              // После logout возвращаемся на страницу логина
               Navigator.pushReplacementNamed(context, '/login');
             },
           ),

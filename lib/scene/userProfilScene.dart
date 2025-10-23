@@ -3,23 +3,23 @@ import 'package:provider/provider.dart';
 
 import 'package:tik_talk/bloc/AuthProvider.dart';
 
-class ChatnScene extends StatefulWidget {
-  const ChatnScene({super.key});
+class ProfileScene extends StatefulWidget {
+  const ProfileScene({super.key});
   
   @override
-  State<StatefulWidget> createState() => _ChatnSceneState();
+  State<StatefulWidget> createState() => _ProfileSceneState();
 }
 
-class _ChatnSceneState extends State<ChatnScene> {
+class _ProfileSceneState extends State<ProfileScene>{
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Chat Scene'),
+          title: const Text('Profile Scene'),
         ),
         body: const Center(
-          child: Text('Чат пока пуст 🗨️'),
+          child: Text('Пусто'),
         ),
       ),
     );
