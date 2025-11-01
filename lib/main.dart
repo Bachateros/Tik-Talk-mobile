@@ -1,50 +1,63 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:tik_talk/scene/codeScene.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import 'bloc/AuthProvider.dart';
+import 'package:tik_talk/data/services/auth_service.dart';
+import 'package:tik_talk/domain/repositories/auth_repository.dart';
 
-import 'scene/chatScene.dart';
-import 'scene/homeScene.dart';
-import 'scene/loginScene.dart';
-import 'scene/registrationScene.dart';
-import 'scene/userProfilScene.dart';
 
-void main() => runApp(ChangeNotifierProvider(
-  create: (_) => AuthProvider()..init(),
-  child: const MyApp(),
-));
+import 'presintation/theme/theme.dart';
+import 'presintation/router/auth_router.dart';
+
+import 'data/datasources/auth_local_data_source.dart';
+import 'data/datasources/auth_service_remote_data_source.dart';
+import 'data/repositories/auth_repository_IMPL.dart';
+
+import 'presintation/bloc/auth/auth_bloc.dart';
+import 'presintation/bloc/auth/auth_event.dart';
+import 'presintation/bloc/auth/auth_state.dart';
+
+import 'data/api_remote/ApiClient.dart';
+
+
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  Future<AuthRepository> init() async {
+    final prefs = await SharedPreferences.getInstance();
+    final local = AuthLocalDataSource(prefs);
+    final api = ApiClient(baseUrl: 'http://192.168.0.142:8080', localDataSource: local);
+    final service = AuthService(api);
+    final remote = AuthRemoteDataSource(service);
+    return AuthRepositoryImpl(remote: remote, local: local);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Tik-Talk messenger',
-      theme: ThemeData(fontFamily: 'JetBrainsMono'),
-      routes: {
-        '/login': (context) => const LoginScene(),
-        '/login/verify':(context)=> const CodeScene(),
-        '/register': (context) => const RegistrationScene(),
-        '/home': (context) => const HomeScene(),
-        '/chatScene': (context) => const ChatnScene(),
-        '/profile': (context) => const ProfileScene(),
+    return FutureBuilder<AuthRepository>(
+      future: init(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const MaterialApp(home: Scaffold(body: Center(child: CircularProgressIndicator())));
+        }
+
+        final authRepo = snapshot.data!;
+        return BlocProvider(
+          create: (_) => AuthBloc(authRepo)..add(AppStarted()),
+          child: MaterialApp(
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            home: const AuthRouter(),
+          ),
+        );
       },
-      initialRoute: '/login',
     );
   }
 }
-
-// class FirstScreen extends StatefulWidget{
-//   const FirstScreen({super.key});
-//   @override
-//   State<FirstScreen> createState() => _ScreenState();
-// }
-
-// class _ScreenState extends State<FirstScreen>{
-//   @override
-//   void initState() {
-//     super.initState();
-//   }
-// }

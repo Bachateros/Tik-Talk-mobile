@@ -1,0 +1,10 @@
+import 'package:tik_talk/domain/entities/user_entity.dart';
+
+abstract class AuthRepository {
+  Future<UserEntity> login(String tgUsername, String password);
+  Future<UserEntity> register(String surname, String name, String tgUsername, String password);
+  Future<UserEntity> verify(int userId, String code);
+  Future<void> logout();          
+  Future<UserEntity?> refreshToken();
+  Future<bool> hasValidTokens(); 
+}

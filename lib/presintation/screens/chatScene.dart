@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-import 'package:tik_talk/bloc/AuthProvider.dart';
 
 class ChatnScene extends StatefulWidget {
   const ChatnScene({super.key});

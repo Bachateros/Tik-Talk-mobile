@@ -1,34 +1,31 @@
 name: tik_talk
 description: "A new Flutter project."
-publish_to: 'none' 
+publish_to: 'none'
 version: 1.0.0+1
 
 environment:
   sdk: ^3.9.2
 
-
 dependencies:
   flutter:
     sdk: flutter
-  
   cupertino_icons: ^1.0.8
   provider: ^6.1.2
-  http: ^1.2.2                  
+  http: ^1.2.2
   shared_preferences: ^2.3.3
   go_router: ^14.0.0
   flutter_svg: ^2.0.10
   intl: ^0.19.0
-  web_socket_channel: ^3.0.1    
+  web_socket_channel: ^3.0.1
+  flutter_bloc: ^8.1.5
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
   flutter_lints: ^5.0.0
-
+  flutter_launcher_icons: ^0.13.1
 
 flutter:
-
   uses-material-design: true
 
   assets:
@@ -43,5 +40,8 @@ flutter:
     - family: JetBrainsMono
       fonts:
         - asset: fonts/JetBrainsMono-Regular.ttf
-        # - asset: fonts/Schyler-Italic.ttf
-        #   style: italic
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "images/light_them_logo1.png"
