@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tik_talk/presintation/bloc/auth/auth_bloc.dart';
-import 'package:tik_talk/presintation/bloc/auth/auth_event.dart';
-
+import 'package:tik_talk/domain/bloc/auth/auth_bloc.dart';
 
 class VerifyPage extends StatefulWidget {
   final int userId;
@@ -14,6 +12,14 @@ class VerifyPage extends StatefulWidget {
 
 class _VerifyPageState extends State<VerifyPage> {
   final code = List.generate(6, (_) => TextEditingController());
+
+  @override
+  void dispose() {
+    for (var c in code) {
+      c.dispose();
+    }
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

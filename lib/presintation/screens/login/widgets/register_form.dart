@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tik_talk/domain/bloc/auth/auth_bloc.dart';
 
-class RegisterPage extends StatefulWidget {
-  const RegisterPage({super.key});
+class RegisterForm extends StatefulWidget {
+  const RegisterForm({super.key});
 
   @override
-  State<RegisterPage> createState() => _RegisterPageState();
+  State<RegisterForm> createState() => _RegisterFormState();
 }
 
-class _RegisterPageState extends State<RegisterPage> {
+class _RegisterFormState extends State<RegisterForm> {
   final name = TextEditingController();
   final surname = TextEditingController();
   final tg = TextEditingController();
@@ -19,14 +19,23 @@ class _RegisterPageState extends State<RegisterPage> {
   bool hide1 = true;
   bool hide2 = true;
 
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  @override
+  void dispose() {
+    name.dispose();
+    surname.dispose();
+    tg.dispose();
+    pass1.dispose();
+    pass2.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Center(
-          child: SingleChildScrollView(
-            child: Column(
+    return Form(
+      key: _formKey,
+      child: Column(
               children: [
                 const Text(
                   'Регистрация',
@@ -94,23 +103,13 @@ class _RegisterPageState extends State<RegisterPage> {
                   },
                   child: const Text('Зарегистрироваться'),
                 ),
-                // const SizedBox(height: 10),
-                // TextButton(
-                //   onPressed: () {
-                //     context.read<AuthBloc>().emit(RegisterState());
-                //   },
-                //   child: const Text('Регистрация'),
-                // ),
                 const SizedBox(height: 10),
-                // TextButton(
-                //   onPressed: () => context.read<AuthBloc>().add(AuthEvent()),
-                //   child: const Text('Уже есть аккаунт? Войти'),
-                // ),
+                TextButton(
+                  onPressed: () => context.read<AuthBloc>().add(AppStarted()),
+                  child: const Text('Уже есть аккаунт? Войти'),
+                ),
               ],
-            ),
-          ),
-        ),
-      ),
-    );
+              ),
+      );
   }
 }

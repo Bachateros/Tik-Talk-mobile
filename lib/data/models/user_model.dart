@@ -42,4 +42,25 @@ class UserModel extends UserEntity {
       'link':accesBotLink,
     };
   }
+
+  @override
+  UserModel copyWith({
+    int? userId,
+    String? name,
+    String? surname,
+    String? tgUsername,
+    String? accessToken,
+    String? refreshToken,
+    String? accesBotLink,
+  }) {
+    return UserModel(
+      userId: userId ?? this.userId,
+      name: name ?? this.name,
+      surname: surname ?? this.name,
+      tgUsername: tgUsername ?? this.tgUsername,
+      accessToken: accessToken ?? this.accessToken,
+      refreshToken: refreshToken ?? this.refreshToken,
+      accesBotLink: accessToken ?? this.accesBotLink,
+    );
+  }
 }

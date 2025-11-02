@@ -1,6 +1,9 @@
+part of 'auth_bloc.dart';
+
 abstract class AuthEvent {}
 
 class AppStarted extends AuthEvent {} // Проверка токенов при запуске
+
 class LoginEvent extends AuthEvent {
   final String tgUsername;
   final String password;
@@ -21,7 +24,10 @@ class VerifyEvent extends AuthEvent {
   VerifyEvent(this.userId, this.code);
 }
 
-class LogoutEvent extends AuthEvent {}
-class RefreshTokenEvent extends AuthEvent {}
-class CheckAuthEvent extends AuthEvent {}
+class RegisterPressedEvent extends AuthEvent{}
 
+class LogoutEvent extends AuthEvent {}
+
+class RefreshTokenEvent extends AuthEvent {}
+
+class CheckAuthEvent extends AuthEvent {}

@@ -8,20 +8,22 @@ class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remote;
   final AuthLocalDataSource local;
 
-  AuthRepositoryImpl({
-    required this.remote,
-    required this.local,
-  });
+  AuthRepositoryImpl({required this.remote, required this.local});
 
   @override
   Future<UserEntity> login(String tgUsername, String password) async {
     final resp = await remote.login(tgUsername, password);
-    
+
     if (resp.isEmpty || resp.containsKey('error')) {
       throw Exception(resp['error'] ?? 'Ошибка логина');
     }
     // if server returns user_id only:
-    final userId = resp['user_id'] is int ? resp['user_id'] as int : (resp['user_id'] != null ? int.tryParse(resp['user_id'].toString()) : null);
+    final userId =
+        resp['user_id'] is int
+            ? resp['user_id'] as int
+            : (resp['user_id'] != null
+                ? int.tryParse(resp['user_id'].toString())
+                : null);
 
     // NOTE: If server returns tokens here — save them. If not, tokens will come after verify.
     final access = resp['accessToken'] as String?;
@@ -48,13 +50,18 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<UserEntity> register(String surname, String name, String tgUsername, String password) async {
+  Future<UserEntity> register(
+    String surname,
+    String name,
+    String tgUsername,
+    String password,
+  ) async {
     final resp = await remote.register(name, surname, tgUsername, password);
     final user = UserModel(
       name: name,
       surname: surname,
       tgUsername: tgUsername,
-      accesBotLink: resp['link']
+      accesBotLink: resp['link'],
     );
     return user;
   }
@@ -139,5 +146,4 @@ class AuthRepositoryImpl implements AuthRepository {
       return false;
     }
   }
-    
 }

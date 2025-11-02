@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tik_talk/presintation/bloc/auth/auth_bloc.dart';
-import 'package:tik_talk/presintation/bloc/auth/auth_event.dart';
+import 'package:tik_talk/domain/bloc/auth/auth_bloc.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
