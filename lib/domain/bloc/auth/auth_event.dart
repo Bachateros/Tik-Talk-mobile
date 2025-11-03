@@ -19,9 +19,8 @@ class RegisterEvent extends AuthEvent {
 }
 
 class VerifyEvent extends AuthEvent {
-  final int userId;
   final String code;
-  VerifyEvent(this.userId, this.code);
+  VerifyEvent(this.code);
 }
 
 class RegisterPressedEvent extends AuthEvent{}

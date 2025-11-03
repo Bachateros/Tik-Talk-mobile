@@ -1,18 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:tik_talk/domain/entities/user_entity.dart';
+import 'package:tik_talk/presintation/screens/login/widgets/register_complete_form.dart';
 import 'package:tik_talk/presintation/screens/login/widgets/register_form.dart';
+import 'package:tik_talk/presintation/widgets/background_picture.dart';
 
 class RegisterView extends StatelessWidget {
-  const RegisterView({super.key});
+  final UserEntity? user;
+  const RegisterView({super.key, this.user});
+
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Center(
-        child:SingleChildScrollView(
-          child: RegisterForm(),
+
+    if (user?.accesBotLink ==null){
+      return BackgroundPicture(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Center(
+            child:SingleChildScrollView(
+              child: RegisterForm(),//<= вот сюда передать 
+            ),
         ),
-      ),
-    );
+        )
+      );
+    } else {
+        return BackgroundPicture(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: RegisterCompleteForm(botLink: user!.accesBotLink!),
+          )
+        );
+    }
   }
 }

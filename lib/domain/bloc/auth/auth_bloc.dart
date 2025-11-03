@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tik_talk/data/models/user_model.dart';
 import 'package:tik_talk/domain/entities/user_entity.dart';
@@ -24,11 +26,13 @@ Future<void> _onAppStarted(AppStarted event, Emitter<AuthState> emit) async {
   try {
     final hasTokens = await repository.hasValidTokens();
     if (hasTokens) {
+      await repository.refreshToken();
       emit(state.copyWith(status: AuthStatus.autheficated));
     } else {
       emit(state.copyWith(status: AuthStatus.unautheficated));
     }
   } catch (e) {
+    print('Ошибка проверки токена: $e');
     emit(state.copyWith(
       status: AuthStatus.unautheficated,
       errorMessage: 'Ошибка проверки токена: $e',
@@ -40,10 +44,11 @@ Future<void> _onAppStarted(AppStarted event, Emitter<AuthState> emit) async {
     try {
       final user = await repository.login(event.tgUsername, event.password);
       if (user.userId != null) {
-        emit(state.copyWith(status: AuthStatus.verify, userModel: user));
+        emit(state.copyWith(status: AuthStatus.verify, userModel: state.userModel.copyWith(userId: user.userId, tgUsername: user.tgUsername)));
       }
     } catch (e) {
-      emit(state.copyWith(status: AuthStatus.unknown,userModel: UserEntity(), errorMessage:  'Ошибка входа: $e'));
+      log('Ошибка входа: $e' as num);
+      emit(state.copyWith(status: AuthStatus.unautheficated, userModel: UserEntity(), errorMessage:  'Ошибка входа: $e'));
     }
   }
 
@@ -55,24 +60,48 @@ Future<void> _onAppStarted(AppStarted event, Emitter<AuthState> emit) async {
         event.tgUsername,
         event.password,
       );
-      if (user.userId != null) {
-        emit(state.copyWith(status: AuthStatus.verify,userModel: user));
+      if (user.accesBotLink != null) {
+        emit(state.copyWith(status: AuthStatus.registerBotLink,userModel: state.userModel.copyWith(name: event.name,surname: event.surname,tgUsername: event.tgUsername,accesBotLink: user.accesBotLink)));
       } else {
         emit(state.copyWith(status: AuthStatus.unautheficated));
       }
     } catch (e) {
-      emit(state.copyWith(status: AuthStatus.unknown,errorMessage: 'Ошибка регистрации: $e'));
+      print('Ошибка регистрации: $e');
+      emit(state.copyWith(status: AuthStatus.register,errorMessage: 'Ошибка регистрации: $e'));
+   
     }
   }
 
-  Future<void> _onVerify(VerifyEvent event, Emitter<AuthState> emit) async {
-    try {
-      final user = await repository.verify(event.userId, event.code);
-      emit(state.copyWith(status: AuthStatus.autheficated,userModel: user));
-    } catch (e) {
-      emit(state.copyWith(status: AuthStatus.unknown,errorMessage: 'Ошибка верификации: $e'));
-    }
+Future<void> _onVerify(VerifyEvent event, Emitter<AuthState> emit) async {
+  final userId = state.userModel.userId;
+  if (userId == null) {
+    emit(state.copyWith(
+      status: AuthStatus.unautheficated,
+      errorMessage: 'Ошибка: отсутствует идентификатор пользователя',
+    ));
+    return;
   }
+
+  try {
+    final user = await repository.verify(userId, event.code);
+    if (user.accessToken!=null && user.refreshToken!=null){
+      emit(state.copyWith(
+            status: AuthStatus.autheficated,
+            userModel: state.userModel.copyWith(
+              accessToken: user.accessToken,
+              refreshToken: user.refreshToken,
+              name: user.name,
+      ),
+    ));
+    }
+  } catch (e) {
+    print('Ошибка верификации: $e');
+    emit(state.copyWith(
+      status: AuthStatus.unautheficated,
+      errorMessage: 'Ошибка верификации: $e',
+    ));
+  }
+}
 
   Future<void> _onLogout(LogoutEvent event, Emitter<AuthState> emit) async {
     await repository.logout();
@@ -86,7 +115,8 @@ Future<void> _onAppStarted(AppStarted event, Emitter<AuthState> emit) async {
     try {
       await repository.refreshToken();
     } catch (e) {
-      emit(state.copyWith(status: AuthStatus.unautheficated));
+      print('Ошибка logout: $e');
+      emit(state.copyWith(status: AuthStatus.unautheficated, errorMessage: 'Ошибка logout: $e'));
     }
   }
 
@@ -106,6 +136,7 @@ Future<void> _onAppStarted(AppStarted event, Emitter<AuthState> emit) async {
     try {
       emit(state.copyWith(status: AuthStatus.register));
     } catch (e) {
+      print('Ошибка регистрации: $e');
       emit(state.copyWith(status: AuthStatus.unautheficated));
     }
   }

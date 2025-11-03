@@ -34,7 +34,7 @@ class AuthService {
     required String code,
   }) async {
     return apiClient.postJson('/login/verify', {
-      'user_id': userId,
+      'user_id': userId.toString(),
       'code': code,
     });
   }

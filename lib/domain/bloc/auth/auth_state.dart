@@ -2,14 +2,17 @@ part of 'auth_bloc.dart';
 
 class AuthState {
   final AuthStatus status;
-  final UserEntity? userModel;
+  final UserEntity userModel;
   final String? errorMessage;
 
   const AuthState({
     required this.status,
     this.errorMessage,
-    this.userModel,
+    required this.userModel,
   });
+
+  UserEntity get user => userModel;
+  String? get accesBotLink => userModel.accesBotLink;
 
   factory AuthState.initial() =>
       AuthState(status: AuthStatus.unknown, userModel: UserEntity());
@@ -25,5 +28,5 @@ class AuthState {
   );
 }
 
-enum AuthStatus { unknown, autheficated, unautheficated, register, verify }
+enum AuthStatus { unknown, autheficated, unautheficated, register, verify, registerBotLink }
 

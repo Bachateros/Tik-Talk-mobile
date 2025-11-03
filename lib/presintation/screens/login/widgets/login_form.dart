@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tik_talk/domain/bloc/auth/auth_bloc.dart';
+import 'package:tik_talk/presintation/theme/theme_colors.dart';
+import 'package:tik_talk/presintation/theme/theme_text.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -32,17 +34,22 @@ class _LoginFormState extends State<LoginForm> {
           children: [
             const Text(
               'Вход' , 
-              style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white),
+              style: AppTextStyles.authHeading48,
+              textAlign: TextAlign.left,
+
+              
             ),
             const SizedBox(height: 20),
             TextFormField(
               controller: _loginController,
-              validator: (value) {
-                if (value == null || value == '') {
-                  return "Это поле должно быть заполнено";
-                }
-                return null;
-              },
+              style: TextStyle(color: Colors.white), 
+              autovalidateMode: AutovalidateMode.onUserInteraction, // Автовалидация
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Это поле должно быть заполнено";
+                  }
+                  return null;
+                },
               decoration: const InputDecoration(
                 labelText: 'Telegram Username',
               ),
@@ -50,12 +57,14 @@ class _LoginFormState extends State<LoginForm> {
             const SizedBox(height: 10),
             TextFormField(
               controller: _passwordController,
-              validator: (value) {
-                if (value == null || value == '') {
-                  return "Это поле должно быть заполнено";
-                }
-                return null;
-              },
+              style: TextStyle(color: Colors.white), 
+              autovalidateMode: AutovalidateMode.onUserInteraction, // Автовалидация
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Это поле должно быть заполнено";
+                  }
+                  return null;
+                },
               obscureText: _hidePassword,
               decoration: InputDecoration(
                 labelText: 'Пароль',
@@ -70,10 +79,13 @@ class _LoginFormState extends State<LoginForm> {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
+              style:ButtonStyle(),
               onPressed: () {
-                context.read<AuthBloc>().add(LoginEvent(_loginController.toString(),_passwordController.toString()));
+                if (_formKey.currentState!.validate()){
+                  context.read<AuthBloc>().add(LoginEvent(_loginController.text,_passwordController.text));
+                }
               },
-              child: const Text('Войти'),
+              child: const Text('Войти',),
             ),
             const SizedBox(height: 10),
             TextButton(

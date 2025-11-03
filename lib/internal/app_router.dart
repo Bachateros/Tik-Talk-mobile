@@ -1,5 +1,5 @@
 import 'package:go_router/go_router.dart';
-import 'package:tik_talk/presintation/screens/home_page.dart';
+import 'package:tik_talk/presintation/screens/home/view/home_page.dart';
 import 'package:tik_talk/presintation/screens/login/view/login_page.dart';
 import 'package:tik_talk/presintation/screens/splash/splash_screen.dart';
 

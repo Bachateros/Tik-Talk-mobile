@@ -1,23 +1,29 @@
 import 'package:flutter/material.dart';
+import 'theme_colors.dart';
+import 'theme_text.dart';
 
 class AppTheme {
-  static ThemeData lightTheme = ThemeData(
+  static final lightTheme = ThemeData(
+    brightness: Brightness.light,
+    primaryColor: AppColors.primary,
+    scaffoldBackgroundColor: AppColors.lightBackground,
     fontFamily: 'JetBrainsMono',
-    primaryColor: Color.fromRGBO(174, 122, 255, 1),
-    scaffoldBackgroundColor: Colors.white,
     textTheme: const TextTheme(
-      bodyLarge: TextStyle(fontSize: 16, color: Colors.black),
-      titleLarge: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      bodyLarge: AppTextStyles.body14,
+      bodyMedium: AppTextStyles.container12,
+      titleLarge: AppTextStyles.heading20,
     ),
   );
 
-  static ThemeData darkTheme = ThemeData(
+  static final darkTheme = ThemeData(
+    brightness: Brightness.dark,
+    primaryColor: AppColors.primary,
+    scaffoldBackgroundColor: AppColors.darkBackground,
     fontFamily: 'JetBrainsMono',
-    primaryColor: Color.fromRGBO(174, 122, 255, 1),
-    scaffoldBackgroundColor: Colors.black,
     textTheme: const TextTheme(
-      bodyLarge: TextStyle(fontSize: 16, color: Colors.white70),
-      titleLarge: TextStyle(fontSize: 20, color: Colors.white),
+      bodyLarge: AppTextStyles.body14,
+      bodyMedium: AppTextStyles.container12,
+      titleLarge: AppTextStyles.heading20,
     ),
   );
 }

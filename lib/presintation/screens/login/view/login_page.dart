@@ -23,6 +23,8 @@ class LoginPage extends StatelessWidget {
           return Scaffold(body: LoginView());
         } else if (state.status == AuthStatus.register){
           return Scaffold(body: RegisterView());
+        } else if (state.status == AuthStatus.registerBotLink){
+          return Scaffold(body: RegisterView(user: state.userModel));
         } else if (state.status == AuthStatus.verify){
           return Scaffold(body: VerifyView());
         } return SplashScreen();
