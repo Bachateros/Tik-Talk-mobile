@@ -37,6 +37,7 @@ flutter:
     - images/dark_theme_logo1.png
     - images/dark_theme.png
     - images/light_theme.png
+    - images/dark_theme_serch_bar.png
 
   fonts:
     - family: JetBrainsMono

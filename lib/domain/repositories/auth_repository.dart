@@ -1,4 +1,4 @@
-import 'package:tik_talk/domain/entities/user_entity.dart';
+import 'package:tik_talk/domain/entities/user_entitie.dart';
 
 abstract class AuthRepository {
   Future<UserEntity> login(String tgUsername, String password);

@@ -1,8 +1,8 @@
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tik_talk/data/api_remote/ApiClient.dart';
-import 'package:tik_talk/data/datasources/auth_local_data_source.dart';
-import 'package:tik_talk/data/datasources/auth_service_remote_data_source.dart';
+import 'package:tik_talk/data/datasources/local/auth_local_data_source.dart';
+import 'package:tik_talk/data/datasources/remote/auth_service_remote_data_source.dart';
 import 'package:tik_talk/data/repositories/auth_repository_IMPL.dart';
 import 'package:tik_talk/data/services/auth_service.dart';
 import 'package:tik_talk/domain/repositories/auth_repository.dart';
@@ -66,4 +66,5 @@ class DIContainer {
       ),
     );
   }
+
 }

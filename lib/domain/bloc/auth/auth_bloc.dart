@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tik_talk/data/models/user_model.dart';
-import 'package:tik_talk/domain/entities/user_entity.dart';
+import 'package:tik_talk/domain/entities/user_entitie.dart';
 import 'package:tik_talk/domain/repositories/auth_repository.dart';
 
 part 'auth_event.dart';

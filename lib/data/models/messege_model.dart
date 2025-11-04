@@ -1,4 +1,4 @@
-class Message{ 
+class MessegeModel { 
   final String idMessage;
   final String idChat;
   final String idUser;
@@ -11,7 +11,7 @@ class Message{
   String? mimeType;
   final DateTime createdAt;
 
-  Message({
+  MessegeModel({
     required this.idMessage,
     required this.idChat,
     required this.idUser,
@@ -25,8 +25,8 @@ class Message{
     required this.createdAt
     });
     
-  factory Message.fromJson(Map<String, dynamic> json) {
-    return Message(
+  factory MessegeModel.fromJson(Map<String, dynamic> json) {
+    return MessegeModel(
       idMessage: json['id'] as String,
       idChat: json['chat_id'] as String,
       idUser: json['user_id'] as String,

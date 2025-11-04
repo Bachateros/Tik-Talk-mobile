@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tik_talk/data/datasources/auth_local_data_source.dart';
-import 'package:tik_talk/data/datasources/auth_service_remote_data_source.dart';
+import 'package:tik_talk/data/datasources/local/auth_local_data_source.dart';
+import 'package:tik_talk/data/datasources/remote/auth_service_remote_data_source.dart';
 import 'package:tik_talk/data/repositories/auth_repository_IMPL.dart';
+import 'package:tik_talk/data/repositories/home_repository_MOK.dart';
 import 'package:tik_talk/data/services/auth_service.dart';
 import 'package:tik_talk/domain/bloc/auth/auth_bloc.dart';
+import 'package:tik_talk/domain/bloc/home/home_bloc.dart';
 import 'package:tik_talk/internal/app_router.dart';
 import 'package:tik_talk/internal/application.dart';
 import 'package:tik_talk/internal/di.dart';
@@ -26,7 +28,10 @@ class GlobalBlocProvider extends StatelessWidget {
               local: DIContainer().container.get<AuthLocalDataSource>()
               
               ),
-          ) ..add(AppStarted())
+          ) ..add(AppStarted()),
+        ),
+        BlocProvider(create: (ctx) => HomeBloc(MockHomeRepository())..add(LoadEvent()),
+
         ),
       ],
       child: Application(router:  AppRouter().router),

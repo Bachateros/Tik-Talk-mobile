@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tik_talk/domain/bloc/auth/auth_bloc.dart';
 import 'package:tik_talk/presintation/theme/theme_text.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class RegisterForm extends StatefulWidget {
   const RegisterForm({super.key});

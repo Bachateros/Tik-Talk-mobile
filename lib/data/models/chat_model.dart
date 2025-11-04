@@ -1,4 +1,4 @@
-class Chat {
+class ChatModel {
   final String idChat;
   final String nameChat;
   String? descriptionChat;
@@ -8,7 +8,7 @@ class Chat {
   final DateTime createdAt;
   DateTime updatedAt;
   
-  Chat({
+  ChatModel({
     required this.idChat,
     required this.nameChat,
     this.descriptionChat,
@@ -19,8 +19,8 @@ class Chat {
     required this.updatedAt
     });
 
-  factory Chat.fromJson(Map<String, dynamic> json) {
-    return Chat(
+  factory ChatModel.fromJson(Map<String, dynamic> json) {
+    return ChatModel(
       idChat: json['id'],
       nameChat: json['name'],
       descriptionChat: json['description'],

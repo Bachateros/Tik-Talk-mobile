@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:tik_talk/data/datasources/auth_local_data_source.dart';
+import 'package:tik_talk/data/datasources/local/auth_local_data_source.dart';
 
 class ApiClient {
   final String baseUrl;

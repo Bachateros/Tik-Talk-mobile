@@ -4,6 +4,11 @@ import 'theme_colors.dart';
 class AppTextStyles {
   static const _fontFamily = 'JetBrainsMono';
 
+  static const h6Logo = TextStyle(
+    fontFamily: _fontFamily,
+    fontSize: 20,
+  );
+
   static const body14 = TextStyle(
     fontFamily: _fontFamily,
     fontSize: 14,

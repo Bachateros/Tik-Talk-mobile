@@ -1,7 +1,7 @@
 import 'package:tik_talk/domain/repositories/auth_repository.dart';
-import 'package:tik_talk/domain/entities/user_entity.dart';
-import 'package:tik_talk/data/datasources/auth_local_data_source.dart';
-import 'package:tik_talk/data/datasources/auth_service_remote_data_source.dart';
+import 'package:tik_talk/domain/entities/user_entitie.dart';
+import 'package:tik_talk/data/datasources/local/auth_local_data_source.dart';
+import 'package:tik_talk/data/datasources/remote/auth_service_remote_data_source.dart';
 import 'package:tik_talk/data/models/user_model.dart';
 
 class AuthRepositoryImpl implements AuthRepository {

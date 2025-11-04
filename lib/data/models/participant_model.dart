@@ -1,11 +1,11 @@
-class Participant{
+class ParticipantModel{
   String idPartic;
   String userId;
   String chatId;
   String role;
   String joinedAt;
 
-  Participant({
+  ParticipantModel({
     required this.idPartic,
     required this.userId,
     required this.chatId,
@@ -13,8 +13,8 @@ class Participant{
     required this.joinedAt,
   });
 
-  factory Participant.fromJson(Map<String, dynamic> json){
-    return Participant(
+  factory ParticipantModel.fromJson(Map<String, dynamic> json){
+    return ParticipantModel(
       idPartic: json['id'], 
       userId: json['user_id'], 
       chatId: json['chat_id'], 

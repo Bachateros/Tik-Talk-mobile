@@ -1,4 +1,4 @@
-import 'package:tik_talk/domain/entities/user_entity.dart';
+import 'package:tik_talk/domain/entities/user_entitie.dart';
 import 'package:tik_talk/domain/repositories/auth_repository.dart';
 
 class LoginUser{

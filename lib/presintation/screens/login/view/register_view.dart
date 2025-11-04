@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:tik_talk/domain/entities/user_entity.dart';
-import 'package:tik_talk/presintation/screens/login/widgets/register_complete_form.dart';
+import 'package:tik_talk/domain/entities/user_entitie.dart';
+import 'package:tik_talk/presintation/screens/login/widgets/register_complete_url_aligin.dart';
 import 'package:tik_talk/presintation/screens/login/widgets/register_form.dart';
 import 'package:tik_talk/presintation/widgets/background_picture.dart';
 

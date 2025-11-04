@@ -13,4 +13,6 @@ class AppColors {
   // Тёмная тема
   static const darkBackground = Colors.black;
   static const darkText = Colors.white;
+  static const chatConteiner = Color.fromRGBO(28, 28, 28, 1);
+  static const menuGrey = Colors.white70;
 }
