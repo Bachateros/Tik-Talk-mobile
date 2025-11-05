@@ -7,6 +7,8 @@ import 'package:tik_talk/data/models/user_model.dart';
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remote;
   final AuthLocalDataSource local;
+  //TODO: add db
+  //final db = DIContainer._continer().get<AppDB>
 
   AuthRepositoryImpl({required this.remote, required this.local});
 
@@ -18,12 +20,7 @@ class AuthRepositoryImpl implements AuthRepository {
       throw Exception(resp['error'] ?? 'Ошибка логина');
     }
     // if server returns user_id only:
-    final userId =
-        resp['user_id'] is int
-            ? resp['user_id'] as int
-            : (resp['user_id'] != null
-                ? int.tryParse(resp['user_id'].toString())
-                : null);
+      final String? userId = resp['user_id']?.toString();
 
     // NOTE: If server returns tokens here — save them. If not, tokens will come after verify.
     final access = resp['accessToken'] as String?;
@@ -67,7 +64,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<UserEntity> verify(int userId, String code) async {
+  Future<UserEntity> verify(String userId, String code) async {
     final resp = await remote.verify(userId, code);
     // expected to return accessToken and refreshToken
     final access = resp['accessToken'] as String?;
@@ -78,7 +75,7 @@ class AuthRepositoryImpl implements AuthRepository {
     }
 
     await local.saveTokens(access, refresh);
-    final int? userIdInt = userId;
+    final String? userIdInt = userId;
 
     if (userIdInt != null) {
       await local.saveUserId(userIdInt);
@@ -104,6 +101,8 @@ class AuthRepositoryImpl implements AuthRepository {
       }
     }
     await local.clearTokens();
+    //TODO: удалить полностью базу данных
+    //await db.clearAll(); 
   }
 
   @override
@@ -133,7 +132,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<bool> hasValidTokens() async {
+  Future<String?> hasValidTokens() async {
     final resp = await local.getTokens();
 
     final access = resp['accessToken'];
@@ -141,9 +140,34 @@ class AuthRepositoryImpl implements AuthRepository {
     final userId = resp['userId'];
 
     if (access != null && refresh != null && userId != null) {
-      return true;
+      return userId;
     } else {
-      return false;
+      return null;
     }
+  }
+
+  @override
+  Future<UserEntity> initDB() {
+    // TODO: implement initDB
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<UserEntity> getMe(String id) async {
+    // TODO: переделать так что бы получать пользователя с бд
+    final problemURL = 'https://steamuserimages-a.akamaihd.net/ugc/1013815977500130683/9C4899F4B8F3CF1CFA277BBB156E2C3DBF41F512/?imw=512&amp;imh=512&amp;ima=fit&amp;impolicy=Letterbox&amp;imcolor=%23000000&amp;letterbox=true';
+
+    final user = UserEntity(
+      userId: '30',
+      tgUsername: 'MrFunnyFace',
+      name: 'Антон',
+      surname: 'Круг',
+      profile: Profile(
+        avatarUrl: problemURL,
+        aboutMe: 'Flutter разработчик',
+        birthdayDate: DateTime(1990, 5, 15),
+      ),
+    );
+    return  user;
   }
 }

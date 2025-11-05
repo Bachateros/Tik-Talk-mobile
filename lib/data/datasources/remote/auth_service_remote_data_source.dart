@@ -26,7 +26,7 @@ class AuthRemoteDataSource {
   }
 
   /// verify returns tokens
-  Future<Map<String, dynamic>> verify(int userId, String code) {
+  Future<Map<String, dynamic>> verify(String userId, String code) {
     return service.verify(userId: userId, code: code);
   }
 

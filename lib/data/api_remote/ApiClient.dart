@@ -94,7 +94,6 @@ class ApiClient {
   Map<String, dynamic> _decodeOrThrow(http.Response response) {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       if (response.body.isEmpty) return {};
-      print(response.body);
       return jsonDecode(response.body) as Map<String, dynamic>;
     } else {
       throw ApiException(response.statusCode, response.body);

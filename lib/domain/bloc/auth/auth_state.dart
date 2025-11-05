@@ -28,5 +28,5 @@ class AuthState {
   );
 }
 
-enum AuthStatus { unknown, autheficated, unautheficated, register, verify, registerBotLink }
+enum AuthStatus { unknown, autheficated, unautheficated, register, verify, registerBotLink,  }
 

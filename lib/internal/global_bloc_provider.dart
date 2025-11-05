@@ -14,27 +14,39 @@ import 'package:tik_talk/internal/di.dart';
 class GlobalBlocProvider extends StatelessWidget {
   const GlobalBlocProvider({super.key});
 
-
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (ctx) => AuthBloc(
-            AuthRepositoryImpl(
-              remote: AuthRemoteDataSource(
-                service: DIContainer().container.get<AuthService>(),
-              ),
-              local: DIContainer().container.get<AuthLocalDataSource>()
-              
-              ),
-          ) ..add(AppStarted()),
+    return BlocProvider(
+      create: (ctx) => AuthBloc(
+        AuthRepositoryImpl(
+          remote: AuthRemoteDataSource(
+            service: DIContainer().container.get<AuthService>(),
+          ),
+          local: DIContainer().container.get<AuthLocalDataSource>(),
         ),
-        BlocProvider(create: (ctx) => HomeBloc(MockHomeRepository())..add(LoadEvent()),
+      )..add(AppStarted()),
+      child: BlocBuilder<AuthBloc, AuthState>(
+        buildWhen: (prev, curr) => prev.status != curr.status,
+        builder: (context, authState) {
+          if (authState.status == AuthStatus.autheficated) {
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider.value(value: context.read<AuthBloc>()),
+                BlocProvider(
+                  create: (ctx) => HomeBloc(
+                    MockHomeRepository(),
+                    ctx.read<AuthBloc>(),
+                  )..add(LoadEvent()),
+                ),
+              ],
+              child: Application(router: AppRouter().router),
+            );
+          }
 
-        ),
-      ],
-      child: Application(router:  AppRouter().router),
+          // до авторизации (Splash, Auth)
+          return Application(router: AppRouter().router);
+        },
+      ),
     );
   }
 }

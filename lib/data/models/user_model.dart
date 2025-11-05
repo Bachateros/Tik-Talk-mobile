@@ -2,13 +2,14 @@ import 'package:tik_talk/domain/entities/user_entitie.dart';
 
 class UserModel extends UserEntity {
   const UserModel({
-    int? userId,
+    String? userId,
     String? name,
     String? surname,
     String? tgUsername,
     String? accessToken,
     String? refreshToken,
     String? accesBotLink,
+    Profile? profile,
   }) : super(
           userId: userId,
           name: name,
@@ -17,17 +18,19 @@ class UserModel extends UserEntity {
           accessToken: accessToken,
           refreshToken: refreshToken,
           accesBotLink: accesBotLink,
+          profile: profile,
         );
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      userId: json['id'] as int?,
+      userId: json['id'] as String?,
       name: json['name'] as String?,
       surname: json['surname'] as String?,
       tgUsername: json['tg_username'] as String?,
       accessToken: json['accessToken'] as String?,
       refreshToken: json['refreshToken'] as String?,
       accesBotLink: json['link'] as String?,
+      //TODO:Profile
     );
   }
 
@@ -40,18 +43,20 @@ class UserModel extends UserEntity {
       'accessToken': accessToken,
       'refreshToken': refreshToken,
       'link':accesBotLink,
+      //TODO:Profile
     };
   }
 
   @override
   UserModel copyWith({
-    int? userId,
+    String? userId,
     String? name,
     String? surname,
     String? tgUsername,
     String? accessToken,
     String? refreshToken,
     String? accesBotLink,
+    Profile? profile,
   }) {
     return UserModel(
       userId: userId ?? this.userId,
@@ -61,6 +66,7 @@ class UserModel extends UserEntity {
       accessToken: accessToken ?? this.accessToken,
       refreshToken: refreshToken ?? this.refreshToken,
       accesBotLink: accessToken ?? this.accesBotLink,
+      profile: profile ?? this.profile,
     );
   }
 }

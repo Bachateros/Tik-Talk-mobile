@@ -2,8 +2,8 @@ import 'package:tik_talk/domain/entities/chat_entitie.dart';
 import 'package:tik_talk/domain/entities/messege_entitie.dart';
 
 class HomeEntitie {
-  final List<ChatEntitie> chats;
-  final List<ChatWithLastMessegeEntitie> lastMesseges;
+  final List<ChatEntitie?> chats;
+  final List<ChatWithLastMessegeEntitie?> lastMesseges;
   final ChatEntitie? selectedChat;
   final String? errorMessage;
 
@@ -15,8 +15,8 @@ class HomeEntitie {
   });
 
   HomeEntitie copyWith({
-    List<ChatEntitie>? chats,
-    List<ChatWithLastMessegeEntitie>? lastMesseges,
+    List<ChatEntitie?>? chats,
+    List<ChatWithLastMessegeEntitie?>? lastMesseges,
     ChatEntitie? selectedChat,
     String? errorMessage,
   }){

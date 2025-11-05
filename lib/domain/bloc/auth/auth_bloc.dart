@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tik_talk/data/models/user_model.dart';
 import 'package:tik_talk/domain/entities/user_entitie.dart';
@@ -24,10 +22,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
 Future<void> _onAppStarted(AppStarted event, Emitter<AuthState> emit) async {
   try {
-    final hasTokens = await repository.hasValidTokens();
-    if (hasTokens) {
+    final id = await repository.hasValidTokens();
+    if (id!=null) {
+      final userFull = await repository.getMe(id);
       await repository.refreshToken();
-      emit(state.copyWith(status: AuthStatus.autheficated));
+      emit(state.copyWith(status: AuthStatus.autheficated,userModel: userFull));
     } else {
       emit(state.copyWith(status: AuthStatus.unautheficated));
     }
@@ -47,7 +46,7 @@ Future<void> _onAppStarted(AppStarted event, Emitter<AuthState> emit) async {
         emit(state.copyWith(status: AuthStatus.verify, userModel: state.userModel.copyWith(userId: user.userId, tgUsername: user.tgUsername)));
       }
     } catch (e) {
-      log('Ошибка входа: $e' as num);
+      print('Ошибка входа: $e');
       emit(state.copyWith(status: AuthStatus.unautheficated, userModel: UserEntity(), errorMessage:  'Ошибка входа: $e'));
     }
   }
@@ -74,6 +73,7 @@ Future<void> _onAppStarted(AppStarted event, Emitter<AuthState> emit) async {
 
 Future<void> _onVerify(VerifyEvent event, Emitter<AuthState> emit) async {
   final userId = state.userModel.userId;
+
   if (userId == null) {
     emit(state.copyWith(
       status: AuthStatus.unautheficated,
@@ -94,6 +94,8 @@ Future<void> _onVerify(VerifyEvent event, Emitter<AuthState> emit) async {
       ),
     ));
     }
+    final userFull = await repository.getMe(userId);
+    emit(state.copyWith(status: state.status, userModel: userFull));
   } catch (e) {
     print('Ошибка верификации: $e');
     emit(state.copyWith(
@@ -124,8 +126,8 @@ Future<void> _onVerify(VerifyEvent event, Emitter<AuthState> emit) async {
     CheckAuthEvent event,
     Emitter<AuthState> emit,
   ) async {
-    final hasTokens = await repository.hasValidTokens();
-    if (hasTokens) {
+    final id = await repository.hasValidTokens();
+    if (id!=null) {
       emit(state.copyWith(status: AuthStatus.autheficated));
     } else {
       emit(state.copyWith(status: AuthStatus.unautheficated, userModel: UserModel()));
@@ -140,5 +142,6 @@ Future<void> _onVerify(VerifyEvent event, Emitter<AuthState> emit) async {
       emit(state.copyWith(status: AuthStatus.unautheficated));
     }
   }
+
 }
 

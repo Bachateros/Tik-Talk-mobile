@@ -30,7 +30,7 @@ class AuthService {
   }
 
   Future<Map<String, dynamic>> verify({
-    required int userId,
+    required String userId,
     required String code,
   }) async {
     return apiClient.postJson('/login/verify', {

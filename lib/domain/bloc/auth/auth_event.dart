@@ -4,6 +4,8 @@ abstract class AuthEvent {}
 
 class AppStarted extends AuthEvent {} // Проверка токенов при запуске
 
+class initDB extends AuthEvent {}
+
 class LoginEvent extends AuthEvent {
   final String tgUsername;
   final String password;
@@ -30,3 +32,4 @@ class LogoutEvent extends AuthEvent {}
 class RefreshTokenEvent extends AuthEvent {}
 
 class CheckAuthEvent extends AuthEvent {}
+

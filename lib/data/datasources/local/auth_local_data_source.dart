@@ -14,18 +14,18 @@ class AuthLocalDataSource {
     await prefs.setString(_refreshKey, refreshToken);
   }
 
-  Future<void> saveUserId(int userId) async {
-    await prefs.setInt(_userIdKey, userId);
+  Future<void> saveUserId(String userId) async {
+    await prefs.setString(_userIdKey, userId);
   }
 
   String? getAccessToken() => prefs.getString(_accessKey);
   String? getRefreshToken() => prefs.getString(_refreshKey);
-  int? getUserId() => prefs.getInt(_userIdKey);
+  String? getUserId() => prefs.getString(_userIdKey);
 
   Map<String, dynamic> getTokens() => {
         'accessToken': prefs.getString(_accessKey),
         'refreshToken': prefs.getString(_refreshKey),
-        'userId': prefs.getInt(_userIdKey),
+        'userId': prefs.getString(_userIdKey),
       };
 
   Future<void> clearTokens() async {
