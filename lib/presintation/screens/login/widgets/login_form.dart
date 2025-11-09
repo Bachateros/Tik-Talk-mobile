@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:tik_talk/domain/bloc/auth/auth_bloc.dart';
 import 'package:tik_talk/presintation/theme/theme_text.dart';
 
@@ -26,6 +27,7 @@ class _LoginFormState extends State<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
+
     return Form(
       key: _formKey,
       child: Column(
@@ -34,8 +36,6 @@ class _LoginFormState extends State<LoginForm> {
               'Вход' , 
               style: AppTextStyles.authHeading48,
               textAlign: TextAlign.left,
-
-              
             ),
             const SizedBox(height: 20),
             TextFormField(
@@ -79,9 +79,8 @@ class _LoginFormState extends State<LoginForm> {
             ElevatedButton(
               style:ButtonStyle(),
               onPressed: () {
-                if (_formKey.currentState!.validate()){
-                  context.read<AuthBloc>().add(LoginEvent(_loginController.text,_passwordController.text));
-                }
+                if (_formKey.currentState!.validate()) {
+                  context.read<AuthBloc>().add(LoginEvent(_loginController.text, _passwordController.text));                 }
               },
               child: const Text('Войти',),
             ),

@@ -8,5 +8,5 @@ abstract class AuthRepository {
   Future<UserEntity?> refreshToken();
   Future<String?> hasValidTokens(); 
   Future<UserEntity> initDB();
-  Future<UserEntity> getMe(String id);
+  Future<UserEntity> getMy();
 }

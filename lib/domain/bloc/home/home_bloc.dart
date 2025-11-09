@@ -1,6 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tik_talk/domain/bloc/auth/auth_bloc.dart';
-import 'package:tik_talk/domain/entities/chat_entitie.dart';
 import 'package:tik_talk/domain/entities/home_entitie.dart';
 import 'package:tik_talk/domain/entities/participant_entitie.dart';
 import 'package:tik_talk/domain/entities/user_entitie.dart';
@@ -10,25 +11,45 @@ part 'home_state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final HomeRepository repository;
+  late final StreamSubscription _sub;
   final AuthBloc authBloc;
 
-  HomeBloc( this.repository, this.authBloc) : super(HomeState.initial(authBloc.state.userModel.userId!)){
+  HomeBloc({required this.repository, required this.authBloc}) : super(HomeState.initial()){
+    _sub = authBloc.stream.listen((event) {
+      if (event.status == AuthStatus.autheficated) {
+        // load data
+        Future.delayed(Duration(milliseconds: 100),
+         () {
+          add(LoadEvent());
+        }
+        );
+
+      }
+    });
+    
     on<LoadEvent>(_onLoadDate);
     on<UpdateEvent>(_onUpdateDate);
   }
 
+  @override
+  Future<void> close() {
+    _sub.cancel();  // отписываемся при закрытии
+    return super.close();
+  }
 
   Future<void> _onLoadDate(LoadEvent event, Emitter emit) async {
     try {
-      final chats = await repository.getChats(state.userId!);
+      final id = authBloc.state.userModel.userId;
+      final chats = await repository.getChats();
       final contacts = await repository.getParticipant(chats);
       final users = await repository.getUsers();
-      final lastmesseges = await repository.getLastMessages(chats);
+      final lastMessages = await repository.getLastMessages(chats);
       emit(state.copyWith(
         status: HomeStatus.success, 
-        homeModel: state.homeModel.copyWith(chats: chats , lastMesseges: lastmesseges.whereType<ChatWithLastMessegeEntitie>().toList()),
+        homeModel: state.homeModel.copyWith(chats: chats , lastMessages: lastMessages.whereType<ChatWithLastMessageEntitie>().toList()),
         listContacts: contacts,
         users: users,
+        userId: id,
         ),);    
       } catch (e) {
       print('Ошибка загрузки данных: $e');
@@ -38,13 +59,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
   Future<void> _onUpdateDate(UpdateEvent event, Emitter emit) async {
     try {
-      final chats = await repository.getChats(state.userId!);
+      final chats = await repository.getChats();
       final contacts = await repository.getParticipant(chats);
       final users = await repository.getUsers();
-      final lastmesseges = await repository.getLastMessages(chats);
+      final lastMessages = await repository.getLastMessages(chats);
       emit(state.copyWith(
         status: HomeStatus.success, 
-        homeModel: state.homeModel.copyWith(chats: chats , lastMesseges: lastmesseges.whereType<ChatWithLastMessegeEntitie>().toList()),
+        homeModel: state.homeModel.copyWith(chats: chats , lastMessages: lastMessages.whereType<ChatWithLastMessageEntitie>().toList()),
         listContacts: contacts,
         users: users),);
     } catch (e) {

@@ -2,30 +2,42 @@ part of 'chat_bloc.dart';
 
 abstract class ChatEvent{}
 
-class ChangeChatEvent extends ChatEvent{} //изменение выбраного чата
-
-class CreateChatEvent extends ChatEvent{ //создание чата
-  final ChatEntitie chat;
-  CreateChatEvent({required this.chat});
+//ChatPage
+class LoadChatEvent extends ChatEvent{
+  final String chatId;
+  LoadChatEvent({required this.chatId}); //обновляем данные по id (здесь именно чат и участники)
 }
 
+class UpdateEvent extends ChatEvent{} //обновляем после отправки или получения сообщения должен срабатывать при изменении с данными
+                                      //обновление всего чата
+class LoadMessagesEvent extends ChatEvent{}//загрузка сообщений (здесь только сообщения)
+
+class SendMessageEvent extends ChatEvent{
+  final MessageEntitie message;
+  SendMessageEvent({required this.message});
+}
+
+//пока не знаю будет ли работать
+class UpdateMessegeEvent extends ChatEvent{ //удаление сообщения или его изменение для этого можно добавить флаг сообщению что оно удалено или изменено
+  final MessageEntitie message;
+  UpdateMessegeEvent({required this.message});
+}
+
+// Инициализаци личного чата direct в котором есть только мы
 class CreateDirectEvent extends ChatEvent{ //создание личного чата сделано автоматически новым
   final ChatEntitie chat;
   CreateDirectEvent({required this.chat});
 }
 
-class GetSelectedChatEvent extends ChatEvent{ //получить данные с которым работаем для изменения (участники чата тоже)
-  final String chatId;
-  GetSelectedChatEvent({required this.chatId});
-}
 
+//ChatPage/Settings
 class DeleteChatEvent extends ChatEvent{} //удалить чат из памяти автоматический Leave из него (подходит для direct)
 
 class LeaveFromChat extends ChatEvent{} //выход из чата без удаления (для каналов и бесед)
 
-class AddParticipantEvent extends ChatEvent{} //добавить участника
-
-class UpdateParticipantEvent extends ChatEvent{} //обновить роль участника 
-
-class DeleteParticipantEvent extends ChatEvent{} //удалить участника
-
+// это для CreatePage
+class CreateChatEvent extends ChatEvent{ //создание чата
+  final ChatEntitie chat;
+  final List<ParticipantEntitie?> participantList;
+  CreateChatEvent({required this.chat,required this.participantList});
+}

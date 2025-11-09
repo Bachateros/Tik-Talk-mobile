@@ -5,11 +5,10 @@ import 'package:tik_talk/domain/bloc/auth/auth_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class RegisterCompleteForm extends StatelessWidget {
-  final String botLink;
-
+   final String botLink;  
   const RegisterCompleteForm({super.key, required this.botLink});
 
-  Future<void> _launchLink(BuildContext context) async {
+  Future<void> _launchLink(BuildContext context,String botLink) async {
     try {
       // Пробуем открыть ссылку напрямую
       await launchUrl(
@@ -24,7 +23,8 @@ class RegisterCompleteForm extends StatelessWidget {
     }
   }
 
-  void _copyLink(BuildContext context) {
+  void _copyLink(BuildContext context,botLink) {
+    
     Clipboard.setData(ClipboardData(text: botLink));
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Ссылка скопирована')),
@@ -49,7 +49,7 @@ class RegisterCompleteForm extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           InkWell(
-            onTap: () => _launchLink(context),
+            onTap: () => _launchLink(context,botLink),
             child: Text(
               botLink,
               style: const TextStyle(
@@ -60,7 +60,7 @@ class RegisterCompleteForm extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           OutlinedButton(
-            onPressed: () => _copyLink(context),
+            onPressed: () => _copyLink(context,botLink),
             style: OutlinedButton.styleFrom(
               foregroundColor: Colors.white,
               side: const BorderSide(color: Colors.white70),

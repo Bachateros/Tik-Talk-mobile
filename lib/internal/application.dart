@@ -14,10 +14,14 @@ class Application extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
 
-      listenWhen: (previous, current) => previous.status != current.status,
+      listenWhen: (previous, current) => 
+      previous.status != current.status && 
+      (current.status == AuthStatus.autheficated || 
+      current.status == AuthStatus.unautheficated),
       listener: (context, state) {
         switch (state.status) {
           case AuthStatus.autheficated:{
+            context.read<HomeBloc>().add(LoadEvent());
             router.go('/home/');
             break;
           }          

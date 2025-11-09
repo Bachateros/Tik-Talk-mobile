@@ -28,5 +28,13 @@ class AuthState {
   );
 }
 
-enum AuthStatus { unknown, autheficated, unautheficated, register, verify, registerBotLink,  }
+enum AuthStatus { 
+                  unknown, 
+                          autheficated, 
+                          unautheficated, 
+                          failure,//TODO: сделать event все сломалось если потребуется event со всего приложения
+                                    register, 
+                                    verify, 
+                                    registerBotLink,  
+                  }
 

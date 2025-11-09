@@ -1,19 +1,18 @@
-class MessegeEntitie {
-  final String idMessege;
+class MessageEntitie {
+  final String? idMessage;
   final String idChat;
   final String idUser;
   final String content;
-  final MessegeType typeMessage;
+  final MessageType typeMessage;
   final DateTime createdAt;
-
   final String? replyToId;
   final String? fileUrl;
   final String? fileName;
   final int? fileSize;
   final String? mimeType;
 
-  const MessegeEntitie({
-    required this.idMessege,
+  MessageEntitie({
+    this.idMessage,
     required this.idChat,
     required this.idUser,
     required this.content,
@@ -26,15 +25,16 @@ class MessegeEntitie {
     this.mimeType, 
   });
 
-  MessegeEntitie copyWith({
+  MessageEntitie copyWith({
+    String? idMessage,
     String? replyToId,
     String? fileUrl,
     String? fileName,
     int? fileSize,
     String? mimeType,
   }) {
-    return MessegeEntitie(
-      idMessege: idMessege,
+    return MessageEntitie(
+      idMessage: idMessage,
       idChat: idChat,
       idUser: idUser,
       content: content,
@@ -50,7 +50,7 @@ class MessegeEntitie {
 }
 
 
-enum MessegeType {
+enum MessageType {
   text,
   image,
   file,

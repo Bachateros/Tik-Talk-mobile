@@ -1,3 +1,5 @@
+import 'package:tik_talk/domain/entities/message_entitie.dart';
+
 class ChatEntitie {
   final String idChat;
   final String nameChat;
@@ -7,6 +9,9 @@ class ChatEntitie {
   bool isPrivate;
   final DateTime createdAt;
   DateTime updatedAt;
+  String? createdBy;
+  int? maxMembers;
+  DateTime? lastActivityAt;
 
   ChatEntitie({
     required this.idChat,
@@ -16,7 +21,10 @@ class ChatEntitie {
     this.avatarUrl,
     required this.isPrivate,
     required this.createdAt,
-    required this.updatedAt
+    required this.updatedAt,
+    this.createdBy,
+    required this.maxMembers,
+    this.lastActivityAt,
     });
 
   ChatEntitie copyWith({
@@ -28,6 +36,9 @@ class ChatEntitie {
     bool? isPrivate,
     DateTime? createdAt,
     DateTime? updatedAt,
+    String? createdBy,
+    int? maxMembers,
+    DateTime? lastActivityAt,
     }) { return ChatEntitie(
       idChat: idChat ?? this.idChat, 
       nameChat: nameChat ?? this.nameChat, 
@@ -37,8 +48,13 @@ class ChatEntitie {
       isPrivate: isPrivate ?? this.isPrivate, 
       createdAt: createdAt ?? this.createdAt, 
       updatedAt: updatedAt ?? this.updatedAt,
+      createdBy: createdBy ?? this.createdBy,
+      maxMembers: maxMembers ?? this.maxMembers,
+      lastActivityAt: lastActivityAt ?? this.lastActivityAt,
       );
     }
+
+
 }
 
 enum ChatType{

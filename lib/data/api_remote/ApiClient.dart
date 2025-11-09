@@ -85,9 +85,33 @@ class ApiClient {
     return _decodeOrThrow(response);
   }
 
-  Future<Map<String, dynamic>> getJson(String endpoint) async {
-    final response = await _sendRaw(endpoint, method: 'GET');
+  Future<Map<String, dynamic>> deleteJson(String endpoint, Map<String, dynamic> body) async {
+    final response = await _sendRaw(
+      endpoint,
+      method: 'DELETE',
+      body: jsonEncode(body),
+    );
     return _decodeOrThrow(response);
+  }
+  
+   Future<Map<String, dynamic>> putJson(String endpoint, Map<String, dynamic> body) async {
+    final response = await _sendRaw(
+      endpoint,
+      method: 'PUT',
+      body: jsonEncode(body),
+    );
+    return _decodeOrThrow(response);
+  }
+
+  Future<dynamic> getJson(String endpoint) async {
+    final response = await _sendRaw(endpoint, method: 'GET');
+    
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      if (response.body.isEmpty) return {};
+      return jsonDecode(response.body);
+    } else {
+      throw ApiException(response.statusCode, response.body);
+    }
   }
 
   // 🔹 Декодер + исключение

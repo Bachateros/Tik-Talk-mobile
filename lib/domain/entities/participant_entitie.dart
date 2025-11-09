@@ -1,31 +1,57 @@
 class ParticipantEntitie{
-  final String idPartic;
-  final String userId;
+  final String id;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final DateTime? deletedAt;
   final String chatId;
-  String role;
-  String joinedAt;
-
+  final String userId;
+  final RoleParticipant role;
+  final DateTime? joinedAt;
+  final bool isMuted;
+  final bool notificationsEnabled;
+  
   ParticipantEntitie({
-    required this.idPartic,
-    required this.userId,
+    required this.id ,
+    this.createdAt,
+    this.updatedAt,
+    this.deletedAt,
     required this.chatId,
+    required this.userId,
     required this.role,
-    required this.joinedAt,
+    this.joinedAt,
+    required this.isMuted,
+    required this.notificationsEnabled,
   });
 
   ParticipantEntitie copyWith({
-    String? idPartic,
-    String? userId,
+    String? id,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    DateTime? deletedAt,
     String? chatId,
-    String? role,
-    String? joinedAt,
+    String? userId,
+    RoleParticipant? role,
+    DateTime? joinedAt,
+    bool? isMuted,
+    bool? notificationsEnabled,
   }) { return ParticipantEntitie(
-    idPartic: idPartic ?? this.idPartic, 
-    userId: userId ?? this.userId, 
-    chatId: chatId ?? this.chatId, 
-    role: role ?? this.role, 
-    joinedAt: joinedAt ?? this.joinedAt
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt ?? this.deletedAt,
+    chatId: chatId ?? this.chatId,
+    userId: userId ?? this.userId,
+    role: role ?? this.role,
+    joinedAt: joinedAt ?? this.joinedAt,
+    isMuted: isMuted ?? this.isMuted,
+    notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
     );
 
   }
+}
+
+enum RoleParticipant{
+  member,
+  admin,
+  owner
 }

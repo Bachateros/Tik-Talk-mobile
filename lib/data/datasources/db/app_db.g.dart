@@ -931,7 +931,7 @@ class Message extends DataClass implements Insertable<Message> {
     content: content ?? this.content,
     type: type ?? this.type,
     replyToId: replyToId.present ? replyToId.value : this.replyToId,
-    fileUrl: fileUrl.present ? fileUrl.value : this.fileUrl,
+    fileUrl: fileUrl.present  ? fileUrl.value : this.fileUrl,
     fileName: fileName.present ? fileName.value : this.fileName,
     fileSize: fileSize.present ? fileSize.value : this.fileSize,
     mimeType: mimeType.present ? mimeType.value : this.mimeType,

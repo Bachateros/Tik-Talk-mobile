@@ -1,28 +1,29 @@
+import 'dart:convert';
+
 import 'package:tik_talk/domain/repositories/auth_repository.dart';
 import 'package:tik_talk/domain/entities/user_entitie.dart';
 import 'package:tik_talk/data/datasources/local/auth_local_data_source.dart';
 import 'package:tik_talk/data/datasources/remote/auth_service_remote_data_source.dart';
-import 'package:tik_talk/data/models/user_model.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remote;
   final AuthLocalDataSource local;
-  //TODO: add db
-  //final db = DIContainer._continer().get<AppDB>
 
-  AuthRepositoryImpl({required this.remote, required this.local});
+  AuthRepositoryImpl({
+    required this.remote,
+    required this.local,
+  });
 
+  /// ---------- LOGIN ----------
   @override
   Future<UserEntity> login(String tgUsername, String password) async {
-    final resp = await remote.login(tgUsername, password);
+    final resp = await remote.login(tgUsername: tgUsername, password: password);
 
     if (resp.isEmpty || resp.containsKey('error')) {
       throw Exception(resp['error'] ?? 'Ошибка логина');
     }
-    // if server returns user_id only:
-      final String? userId = resp['user_id']?.toString();
 
-    // NOTE: If server returns tokens here — save them. If not, tokens will come after verify.
+    final userId = resp['user_id']?.toString();
     final access = resp['accessToken'] as String?;
     final refresh = resp['refreshToken'] as String?;
 
@@ -34,18 +35,17 @@ class AuthRepositoryImpl implements AuthRepository {
       await local.saveUserId(userId);
     }
 
-    final user = UserModel(
-      userId: userId,
+    return UserEntity(
+      userId: userId ?? '',
       tgUsername: tgUsername,
-      name: resp['name'] as String?,
-      surname: resp['surname'] as String?,
+      name: resp['name']?.toString() ?? '',
+      surname: resp['surname']?.toString() ?? '',
       accessToken: access,
       refreshToken: refresh,
-    );
-
-    return user;
+      );
   }
 
+  /// ---------- REGISTER ----------
   @override
   Future<UserEntity> register(
     String surname,
@@ -53,20 +53,26 @@ class AuthRepositoryImpl implements AuthRepository {
     String tgUsername,
     String password,
   ) async {
-    final resp = await remote.register(name, surname, tgUsername, password);
-    final user = UserModel(
+    final resp = await remote.register(
+      surname: surname,
+      name: name,
+      tgUsername: tgUsername,
+      password: password,
+    );
+
+    return UserEntity(
       name: name,
       surname: surname,
       tgUsername: tgUsername,
-      accesBotLink: resp['link'],
+      accesBotLink: resp['link']?.toString(),
     );
-    return user;
   }
 
+  /// ---------- VERIFY ----------
   @override
   Future<UserEntity> verify(String userId, String code) async {
-    final resp = await remote.verify(userId, code);
-    // expected to return accessToken and refreshToken
+    final resp = await remote.verify(userId: userId, code: code);
+
     final access = resp['accessToken'] as String?;
     final refresh = resp['refreshToken'] as String?;
 
@@ -75,99 +81,100 @@ class AuthRepositoryImpl implements AuthRepository {
     }
 
     await local.saveTokens(access, refresh);
-    final String? userIdInt = userId;
+    await local.saveUserId(userId);
 
-    if (userIdInt != null) {
-      await local.saveUserId(userIdInt);
-    }
-
-    final user = UserModel(
-      userId: userIdInt,
+    return UserEntity(
+      userId: userId,
       accessToken: access,
       refreshToken: refresh,
     );
-    return user;
   }
 
+  /// ---------- LOGOUT ----------
   @override
   Future<void> logout() async {
-    // Optionally notify server
     final access = await local.getAccessToken();
     if (access != null) {
       try {
-        await remote.logout(access);
+        await remote.logout(accessToken: access);
       } catch (_) {
-        // ignore remote logout errors and continue clearing local tokens
+        // игнорируем ошибку при logout на сервере
       }
     }
     await local.clearTokens();
-    //TODO: удалить полностью базу данных
-    //await db.clearAll(); 
+    // TODO: при подключении локальной БД можно добавить db.clearAll();
   }
 
+  /// ---------- REFRESH TOKEN ----------
   @override
   Future<UserEntity?> refreshToken() async {
     final refresh = await local.getRefreshToken();
     if (refresh == null) return null;
 
     try {
-      final resp = await remote.refresh(refresh);
+      final resp = await remote.refresh(refreshToken: refresh);
       final access = resp['accessToken'] as String?;
       final refreshNew = resp['refreshToken'] as String?;
+
       if (access != null && refreshNew != null) {
         await local.saveTokens(access, refreshNew);
         final userId = await local.getUserId();
-        return UserModel(
-          userId: userId,
+        return UserEntity(
+          userId: userId!,
           accessToken: access,
           refreshToken: refreshNew,
         );
       }
       return null;
     } catch (_) {
-      // refresh failed
       await local.clearTokens();
       return null;
     }
   }
 
+  /// ---------- CHECK TOKENS ----------
   @override
   Future<String?> hasValidTokens() async {
     final resp = await local.getTokens();
-
     final access = resp['accessToken'];
     final refresh = resp['refreshToken'];
     final userId = resp['userId'];
 
     if (access != null && refresh != null && userId != null) {
       return userId;
-    } else {
-      return null;
     }
+    return null;
   }
 
+  /// ---------- INIT DB ----------
   @override
   Future<UserEntity> initDB() {
-    // TODO: implement initDB
+    // TODO: реализовать инициализацию локальной базы
     throw UnimplementedError();
   }
 
+  /// ---------- GET MY PROFILE ----------
   @override
-  Future<UserEntity> getMe(String id) async {
-    // TODO: переделать так что бы получать пользователя с бд
-    final problemURL = 'https://steamuserimages-a.akamaihd.net/ugc/1013815977500130683/9C4899F4B8F3CF1CFA277BBB156E2C3DBF41F512/?imw=512&amp;imh=512&amp;ima=fit&amp;impolicy=Letterbox&amp;imcolor=%23000000&amp;letterbox=true';
+  Future<UserEntity> getMy() async {
+    final userInfo = await remote.getMy();
 
-    final user = UserEntity(
-      userId: '30',
-      tgUsername: 'MrFunnyFace',
-      name: 'Антон',
-      surname: 'Круг',
-      profile: Profile(
-        avatarUrl: problemURL,
-        aboutMe: 'Flutter разработчик',
-        birthdayDate: DateTime(1990, 5, 15),
-      ),
-    );
-    return  user;
+    // безопасное извлечение всех данных
+    final userId = userInfo['user_id']?.toString() ?? '';
+    final name = userInfo['name']?.toString() ?? '';
+    final surname = userInfo['surname']?.toString() ?? '';
+    final tgUsername = userInfo['tgUsername']?.toString() ?? '';
+    final avatar = userInfo['avatar']?.toString() ?? '';
+    final bio = userInfo['bio']?.toString();
+    final dateOfBirth = DateTime.tryParse(userInfo['date_of_birth']?.toString() ?? '0');
+
+    return UserEntity(
+      userId: userId,
+      name: name,
+      surname: surname,
+      tgUsername: tgUsername,
+      aboutMe: bio,
+      avatarUrl: avatar,
+      birthdayDate: dateOfBirth,
+      );
   }
 }

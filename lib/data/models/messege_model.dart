@@ -1,43 +1,55 @@
-class MessegeModel { 
-  final String idMessage;
-  final String idChat;
-  final String idUser;
-  final String content;
-  final MessageType typeMessage;
-  String? replyToId;
-  String? fileUrl;
-  String? fileName;
-  int? fileSize;
-  String? mimeType;
-  final DateTime createdAt;
+import 'package:tik_talk/domain/entities/message_entitie.dart';
 
-  MessegeModel({
-    required this.idMessage,
-    required this.idChat,
-    required this.idUser,
-    required this.content, 
-    required  this.typeMessage, 
-    this.replyToId,
-    this.fileUrl,
-    this.fileName,
-    this.fileSize,
-    this.mimeType,
-    required this.createdAt
-    });
+class MessageModel extends MessageEntitie{ 
+// "ID" 
+// "CreatedAt" 
+// "UpdatedAt" 
+// "DeletedAt" 
+// "chatId" 
+// "userId"
+// "type"
+// "content"
+// "status"
+// "clientId"
+  MessageModel({
+    String? idMessage,
+    required String idChat,
+    required String idUser,
+    required String content, 
+    required MessageType typeMessage,
+    String? replyToId,
+    String? fileUrl,
+    String? fileName,
+    int? fileSize,
+    String? mimeType,
+    required DateTime createdAt,
+    }) : super(
+      idMessage: idMessage,
+      idChat: idChat,
+      idUser: idUser,
+      content: content,
+      typeMessage: typeMessage,
+      replyToId: replyToId,
+      fileUrl: fileUrl,
+      fileName: fileName,
+      fileSize: fileSize,
+      mimeType: mimeType,
+      createdAt: createdAt
+      );
     
-  factory MessegeModel.fromJson(Map<String, dynamic> json) {
-    return MessegeModel(
-      idMessage: json['id'] as String,
-      idChat: json['chat_id'] as String,
-      idUser: json['user_id'] as String,
-      content: json['content'] as String,
+  factory MessageModel.fromJson(Map<String, dynamic> json) {
+    return MessageModel(
+      idMessage: json['ID']?.toString() ?? '',
+      idChat: json['chatId']?.toString() ?? '',
+      idUser: json['userId']?.toString() ?? '',
+      content: json['content']?.toString() ?? '',
       typeMessage: MessageTypeExtension.fromString(json['type']),
-      createdAt: DateTime.parse(json['created_at']),
-      replyToId: json['reply_to_id'],
-      fileUrl: json['file_url'],
-      fileName: json['file_name'],
-      fileSize: json['file_size'],
-      mimeType: json['mime_type'],
+      createdAt: DateTime.parse(json['CreatedAt'] ?? "0"),
+      replyToId: json['reply_to_id']?.toString() ?? '',
+      fileUrl: json['file_url']?.toString() ?? '',
+      fileName: json['file_name']?.toString() ?? '',
+      fileSize: json['file_size'] != null ? int.parse(json['file_size']) : null,
+      mimeType: json['mime_type']?.toString() ?? '',
     );
   }
 
@@ -55,12 +67,7 @@ class MessegeModel {
     'mime_type': mimeType,
   };
 }
-enum MessageType {
-  text,
-  image,
-  file,
-  system,
-}
+
 extension MessageTypeExtension on MessageType {
   static MessageType fromString(String? value) {
     switch (value) {

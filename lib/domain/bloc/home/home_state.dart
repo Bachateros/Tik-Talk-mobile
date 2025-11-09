@@ -17,8 +17,8 @@ class HomeState {
     this.errorMessage
   });
 
-  factory HomeState.initial(String userID) =>
-      HomeState(status: HomeStatus.unknown, homeModel: HomeEntitie(), userId: userID);
+  factory HomeState.initial() =>
+      HomeState(status: HomeStatus.unknown, homeModel: HomeEntitie());
 
   HomeEntitie get model => homeModel;
 
@@ -28,10 +28,8 @@ class HomeState {
     
     return listContacts.any((participant) => 
         participant?.userId == user.userId.toString() && participant?.userId != userId);
-  }).toList();
-  
-}
-
+    }).toList();
+  }
 
   HomeState copyWith({
     HomeStatus? status,
@@ -39,15 +37,19 @@ class HomeState {
     List<UserEntity?>? users,
     List<ParticipantEntitie?>? listContacts,
     HomeEntitie? homeModel,
+    String? userId,
   }) => HomeState(
     status: status ?? this.status,
     errorMessage: errorMessage,
     homeModel: homeModel ?? this.homeModel,
     listContacts: listContacts ?? this.listContacts,
-    userId: userId,
+    userId: userId ?? this.userId,
     users: users ?? this.users,
   );
 }
+
+
+
 
 
 enum HomeStatus { unknown, loading, success, failure}

@@ -1,40 +1,40 @@
 import 'package:tik_talk/domain/entities/chat_entitie.dart';
-import 'package:tik_talk/domain/entities/messege_entitie.dart';
+import 'package:tik_talk/domain/entities/message_entitie.dart';
 
 class HomeEntitie {
   final List<ChatEntitie?> chats;
-  final List<ChatWithLastMessegeEntitie?> lastMesseges;
+  final List<ChatWithLastMessageEntitie?> lastMessages;
   final ChatEntitie? selectedChat;
   final String? errorMessage;
 
   const HomeEntitie({
     this.chats = const [],
-    this.lastMesseges = const [],
+    this.lastMessages = const [],
     this.selectedChat,
     this.errorMessage,
   });
 
   HomeEntitie copyWith({
     List<ChatEntitie?>? chats,
-    List<ChatWithLastMessegeEntitie?>? lastMesseges,
+    List<ChatWithLastMessageEntitie?>? lastMessages,
     ChatEntitie? selectedChat,
     String? errorMessage,
   }){
     return HomeEntitie(
       chats: chats ?? this.chats,
-      lastMesseges: lastMesseges ?? this.lastMesseges,
+      lastMessages: lastMessages ?? this.lastMessages,
       selectedChat: selectedChat ?? this.selectedChat,
       errorMessage: errorMessage ?? this.errorMessage,
       );
   }
 }
 
-class ChatWithLastMessegeEntitie {
+class ChatWithLastMessageEntitie {
   final ChatEntitie chat;
-  final MessegeEntitie? lastMessege;
+  final MessageEntitie? lastMessage;
 
-  ChatWithLastMessegeEntitie({
+  ChatWithLastMessageEntitie({
     required this.chat,
-    this.lastMessege,
+    this.lastMessage,
   });
 }

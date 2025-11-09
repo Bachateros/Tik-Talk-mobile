@@ -101,7 +101,7 @@ class UserCard extends StatelessWidget {
                     radius: 20,
                     backgroundColor: Colors.blueGrey,
                     backgroundImage: NetworkImage(
-                      me.profile?.avatarUrl ?? 'https://cdn-icons-png.flaticon.com/512/149/149071.png',
+                      me.avatarUrl,
                     ),
                   ),
                   const SizedBox(width: 10),

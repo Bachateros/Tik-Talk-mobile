@@ -9,7 +9,7 @@ part 'auth_state.dart';
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository repository;
 
-  AuthBloc(this.repository) : super(AuthState.initial()) {
+  AuthBloc({required this.repository}) : super(AuthState.initial()) {
     on<AppStarted>(_onAppStarted);
     on<LoginEvent>(_onLogin);
     on<RegisterEvent>(_onRegister);
@@ -18,13 +18,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<RefreshTokenEvent>(_onRefreshToken);
     on<CheckAuthEvent>(_onCheckAuth);
     on<RegisterPressedEvent>(_onRegisterPressed);
+    on<LoginPressedEvent>(_onLoginPressed);
   }
 
 Future<void> _onAppStarted(AppStarted event, Emitter<AuthState> emit) async {
   try {
+    // final user = await repository.logout();
     final id = await repository.hasValidTokens();
     if (id!=null) {
-      final userFull = await repository.getMe(id);
+      final userFull = await repository.getMy();
       await repository.refreshToken();
       emit(state.copyWith(status: AuthStatus.autheficated,userModel: userFull));
     } else {
@@ -42,8 +44,16 @@ Future<void> _onAppStarted(AppStarted event, Emitter<AuthState> emit) async {
   Future<void> _onLogin(LoginEvent event, Emitter<AuthState> emit) async {
     try {
       final user = await repository.login(event.tgUsername, event.password);
-      if (user.userId != null) {
-        emit(state.copyWith(status: AuthStatus.verify, userModel: state.userModel.copyWith(userId: user.userId, tgUsername: user.tgUsername)));
+      if (user.userId != '') {
+        emit(
+          state.copyWith(
+            status: AuthStatus.verify, 
+            userModel: state.userModel.copyWith(
+                                        userId: user.userId, 
+                                        tgUsername: user.tgUsername),
+                errorMessage: null
+              )
+            );
       }
     } catch (e) {
       print('Ошибка входа: $e');
@@ -60,21 +70,26 @@ Future<void> _onAppStarted(AppStarted event, Emitter<AuthState> emit) async {
         event.password,
       );
       if (user.accesBotLink != null) {
-        emit(state.copyWith(status: AuthStatus.registerBotLink,userModel: state.userModel.copyWith(name: event.name,surname: event.surname,tgUsername: event.tgUsername,accesBotLink: user.accesBotLink)));
+        emit(state.copyWith(
+          status: AuthStatus.registerBotLink,
+          userModel: user,
+          errorMessage: null
+          )
+        );
       } else {
-        emit(state.copyWith(status: AuthStatus.unautheficated));
+        emit(state.copyWith(status: AuthStatus.register));
       }
     } catch (e) {
       print('Ошибка регистрации: $e');
-      emit(state.copyWith(status: AuthStatus.register,errorMessage: 'Ошибка регистрации: $e'));
+      emit(state.copyWith(status: AuthStatus.register, errorMessage: 'Ошибка регистрации: $e'));
    
     }
   }
 
 Future<void> _onVerify(VerifyEvent event, Emitter<AuthState> emit) async {
   final userId = state.userModel.userId;
-
-  if (userId == null) {
+  
+  if (userId == '') {
     emit(state.copyWith(
       status: AuthStatus.unautheficated,
       errorMessage: 'Ошибка: отсутствует идентификатор пользователя',
@@ -85,17 +100,13 @@ Future<void> _onVerify(VerifyEvent event, Emitter<AuthState> emit) async {
   try {
     final user = await repository.verify(userId, event.code);
     if (user.accessToken!=null && user.refreshToken!=null){
+      final userFull = await repository.getMy();
       emit(state.copyWith(
             status: AuthStatus.autheficated,
-            userModel: state.userModel.copyWith(
-              accessToken: user.accessToken,
-              refreshToken: user.refreshToken,
-              name: user.name,
-      ),
-    ));
+            userModel:  userFull,
+            errorMessage: null,
+      ),);
     }
-    final userFull = await repository.getMe(userId);
-    emit(state.copyWith(status: state.status, userModel: userFull));
   } catch (e) {
     print('Ошибка верификации: $e');
     emit(state.copyWith(
@@ -130,7 +141,7 @@ Future<void> _onVerify(VerifyEvent event, Emitter<AuthState> emit) async {
     if (id!=null) {
       emit(state.copyWith(status: AuthStatus.autheficated));
     } else {
-      emit(state.copyWith(status: AuthStatus.unautheficated, userModel: UserModel()));
+      emit(state.copyWith(status: AuthStatus.unautheficated, userModel: UserModel(),errorMessage: null),);
     }
   }
 
@@ -138,7 +149,17 @@ Future<void> _onVerify(VerifyEvent event, Emitter<AuthState> emit) async {
     try {
       emit(state.copyWith(status: AuthStatus.register));
     } catch (e) {
-      print('Ошибка регистрации: $e');
+      print('Ошибка перехода на страницу регистрации: $e');
+      emit(state.copyWith(status: AuthStatus.unautheficated));
+    }
+  }
+
+
+  Future<void> _onLoginPressed(LoginPressedEvent event,Emitter<AuthState> emit) async {
+    try {
+      emit(state.copyWith(status: AuthStatus.unautheficated));
+    } catch (e) {
+      print('Ошибка перехода на страницу авторизации: $e');
       emit(state.copyWith(status: AuthStatus.unautheficated));
     }
   }

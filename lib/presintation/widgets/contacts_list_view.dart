@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tik_talk/data/datasources/db/app_db.dart';
 import 'package:tik_talk/domain/bloc/home/home_bloc.dart';
-import 'package:tik_talk/presintation/theme/theme_background.dart';
 import 'package:tik_talk/presintation/theme/theme_colors.dart';
 
 
@@ -16,7 +14,7 @@ class ContactsListView extends StatefulWidget {
 
 class _ContactsListViewState extends State<ContactsListView> {
   final problemURI =
-    'https://avatars.mds.yandex.net/i?id=4bd2c998700eb1be43aa21e815d1355f0ed178b0-5734047-images-thumbs&n=13';
+    'https://cdn-icons-png.flaticon.com/512/149/149071.png';
   @override
   void initState() {
     super.initState();
@@ -60,7 +58,7 @@ class _ContactsListViewState extends State<ContactsListView> {
                 leading: CircleAvatar(
                   backgroundColor: Colors.blueGrey.shade300,
                   backgroundImage: NetworkImage(
-                    contact.profile?.avatarUrl ?? problemURI,
+                    contact.avatarUrl != '' ? contact.avatarUrl! : problemURI,
                   ),
                 ),
                 title: Text(

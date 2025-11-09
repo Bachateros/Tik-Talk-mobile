@@ -26,6 +26,7 @@ class VerifyEvent extends AuthEvent {
 }
 
 class RegisterPressedEvent extends AuthEvent{}
+class LoginPressedEvent extends AuthEvent{}
 
 class LogoutEvent extends AuthEvent {}
 

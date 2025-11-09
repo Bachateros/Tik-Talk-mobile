@@ -1,64 +1,99 @@
-class ChatModel {
-  final String idChat;
-  final String nameChat;
-  String? descriptionChat;
-  final ChatType typeChat ;
-  String? avatarUrl;
-  bool isPrivate;
-  final DateTime createdAt;
-  DateTime updatedAt;
-  
+import 'package:tik_talk/domain/entities/chat_entitie.dart';
+import 'package:tik_talk/domain/entities/chat_entitie.dart';
+
+class ChatModel extends ChatEntitie {
+// "ID"
+// "CreatedAt" 
+// "UpdatedAt"
+// "DeletedAt"
+// "name"
+// "description"
+// "type"
+// "createdBy"
+// "isPrivate"
+// "maxMembers"
+// "lastActivityAt"
   ChatModel({
-    required this.idChat,
-    required this.nameChat,
-    this.descriptionChat,
-    required this.typeChat,
-    this.avatarUrl,
-    required this.isPrivate,
-    required this.createdAt,
-    required this.updatedAt
-    });
+    required String idChat,
+    required String nameChat,
+    String? descriptionChat,
+    required ChatType typeChat,
+    String? avatarUrl,
+    required bool isPrivate,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    String? createdBy,
+    int? maxMembers,
+    DateTime? lastActivityAt,
+  }) : super(
+          idChat: idChat,
+          nameChat: nameChat,
+          descriptionChat: descriptionChat,
+          typeChat: typeChat,
+          avatarUrl: avatarUrl,
+          isPrivate: isPrivate,
+          createdAt: createdAt,
+          updatedAt: updatedAt,
+          createdBy: createdBy,
+          maxMembers: maxMembers,
+          lastActivityAt: lastActivityAt,
+        );
 
   factory ChatModel.fromJson(Map<String, dynamic> json) {
+    DateTime safeParse(String? value) {
+      if (value == null || value.isEmpty) return DateTime.now();
+      try {
+        return DateTime.parse(value);
+      } catch (_) {
+        return DateTime.now();
+      }
+    }
+
     return ChatModel(
-      idChat: json['id'],
-      nameChat: json['name'],
-      descriptionChat: json['description'],
+      idChat: json['ID']?.toString() ?? '',
+      nameChat: json['name']?.toString() ?? '',
+      descriptionChat: json['description']?.toString(),
       typeChat: ChatTypeExtension.fromString(json['type']),
-      avatarUrl: json['avatarUrl'],
-      isPrivate: json['is_private'] ?? false,
-      createdAt: DateTime.parse(json['created_at']),
-      updatedAt: DateTime.parse(json['updated_at']),
+      avatarUrl: json['avatarUrl']?.toString(),
+      isPrivate: json['isPrivate'] ?? false,
+      createdAt: safeParse(json['CreatedAt']),
+      updatedAt: safeParse(json['UpdatedAt']),
+      createdBy: json['createdBy']?.toString(),
+      maxMembers: json['maxMembers'] is int
+          ? json['maxMembers']
+          : int.tryParse(json['maxMembers']?.toString() ?? '0'),
+       lastActivityAt: (json['lastActivityAt'] != null)
+          ? safeParse(json['lastActivityAt'])
+          : null,
     );
   }
 
-  Map<String,dynamic> toJson() => {
-      'id': idChat,
-      'name': nameChat,
-      'description': descriptionChat,
-      'type': typeChat.toString(),
-      'avatarUrl': avatarUrl,
-      'is_private': isPrivate,
-      'created_at': createdAt,
-      'updated_at': updatedAt,
-  };
-
-}
-enum ChatType{
-  direct, group, channel
+  Map<String, dynamic> toJson() => {
+        'id': idChat,
+        'name': nameChat,
+        'description': descriptionChat,
+        'type': typeChat.name,
+        'avatarUrl': avatarUrl,
+        'is_private': isPrivate,
+        'created_at': createdAt.toIso8601String(),
+        'updated_at': updatedAt.toIso8601String(),
+        'created_by': createdBy,
+        'max_members': maxMembers,
+        'last_activity_at': lastActivityAt?.toIso8601String(),
+      };
 }
 
 extension ChatTypeExtension on ChatType {
   static ChatType fromString(String? value) {
     switch (value) {
-      case 'text':
+      case 'direct':
         return ChatType.direct;
-      case 'image':
+      case 'group':
         return ChatType.group;
-      case 'file':
+      case 'channel':
         return ChatType.channel;
       default:
-        throw ArgumentError('Unknown message type: $value');
+        return ChatType.direct;
     }
   }
 }

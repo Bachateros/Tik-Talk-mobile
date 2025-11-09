@@ -1,42 +1,73 @@
-import '../../services/auth_service.dart';
+import 'dart:core';
+
+import 'package:http/http.dart';
+import 'package:tik_talk/data/api_remote/ApiClient.dart';
 
 class AuthRemoteDataSource {
-  final AuthService service;
+  final ApiClient apiClient;
 
-  AuthRemoteDataSource({required this.service});
+  AuthRemoteDataSource({required this.apiClient});
 
-  /// register returns the raw server map (may contain link and result)
-  Future<Map<String, dynamic>> register(
-    String name,
-    String surname,
-    String tgUsername,
-    String password,
-  ) {
-    return service.register(
-      name: name,
-      surname: surname,
-      tgUsername: tgUsername,
-      password: password,
-    );
+  Future<Map<String, dynamic>> register({
+    required String name,
+    required String surname,
+    required String tgUsername,
+    required String password,
+  }) async {
+    return apiClient.postJson('/register', {
+      'name': name,
+      'surname': surname,
+      'tg_username': tgUsername,
+      'password': password,
+    });
   }
 
-  /// login expected to return either { "user_id": n } or { "error": "..."} per your API
-  Future<Map<String, dynamic>> login(String tgUsername, String password) {
-    return service.login(tgUsername: tgUsername, password: password);
+  Future<Map<String, dynamic>> login({
+    required String tgUsername,
+    required String password,
+  }) async {
+    return apiClient.postJson('/login', {
+      'tg_username': tgUsername,
+      'password': password,
+    });
   }
 
-  /// verify returns tokens
-  Future<Map<String, dynamic>> verify(String userId, String code) {
-    return service.verify(userId: userId, code: code);
+  Future<Map<String, dynamic>> verify({
+    required String userId,
+    required String code,}) async {
+    return apiClient.postJson('/login/verify', {
+      'user_id': userId.toString(),
+      'code': code,
+    });
   }
 
-  /// convenience: call refresh via service
-  Future<Map<String, dynamic>> refresh(String refreshToken) {
-    return service.refresh(refreshToken: refreshToken);
+  Future<Map<String, dynamic>> refresh({
+    required String refreshToken,
+  }) async {
+    return apiClient.postJson('/refresh', {
+      'refresh_token': refreshToken,
+    });
   }
 
   /// convenience: logout via service
-  Future<Map<String, dynamic>> logout(String accessToken) {
-    return service.logout(accessToken: accessToken);
+  Future<Map<String, dynamic>> logout({
+    required String accessToken,
+  }) async {
+    // Some APIs expect token in header; here we send body as example.
+    return apiClient.postJson('/logout', {
+      'access_token': accessToken,
+    }
+    );
   }
+
+  Future<Map<String, dynamic>> getMy() async {
+    final response = await apiClient.getJson('/my');
+
+    if (response.isEmpty) {
+      throw Exception(response['error'] ?? 'Ошибка получения профиля пользователя');
+    } else {
+      return Map<String, dynamic>.from(response['profile'] as Map);
+    }
+  }
+
 }

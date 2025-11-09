@@ -33,7 +33,7 @@ class _RegisterFormState extends State<RegisterForm> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) {    
     return Form(
       key: _formKey,
       child: Column(
@@ -45,17 +45,38 @@ class _RegisterFormState extends State<RegisterForm> {
           const SizedBox(height: 20),
           TextFormField(
             controller: surname,
-            style: TextStyle(color: Colors.white), 
+            style: TextStyle(color: Colors.white),
+            autovalidateMode: AutovalidateMode.onUserInteraction, // Автовалидация
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return "Это поле должно быть заполнено";
+                }
+                return null;
+              },  
             decoration: const InputDecoration(labelText: 'Фамилия'),
           ),
           TextFormField(
             controller: name,
-            style: TextStyle(color: Colors.white), 
+            style: TextStyle(color: Colors.white),
+            autovalidateMode: AutovalidateMode.onUserInteraction, // Автовалидация
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return "Это поле должно быть заполнено";
+                }
+                return null;
+              }, 
             decoration: const InputDecoration(labelText: 'Имя'),
           ),
           TextFormField(
             controller: tg,
             style: TextStyle(color: Colors.white), 
+            autovalidateMode: AutovalidateMode.onUserInteraction, // Автовалидация
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return "Это поле должно быть заполнено";
+                }
+                return null;
+              },            
             decoration: const InputDecoration(
               labelText: 'Telegram Username',
             ),
@@ -65,6 +86,13 @@ class _RegisterFormState extends State<RegisterForm> {
             controller: pass1,
             style: TextStyle(color: Colors.white), 
             obscureText: hide1,
+            autovalidateMode: AutovalidateMode.onUserInteraction, // Автовалидация
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return "Это поле должно быть заполнено";
+                }
+                return null;
+              },
             decoration: InputDecoration(
               labelText: 'Пароль',
               suffixIcon: IconButton(
@@ -79,39 +107,52 @@ class _RegisterFormState extends State<RegisterForm> {
             controller: pass2,
             obscureText: hide2,
             style: TextStyle(color: Colors.white),
+            autovalidateMode: AutovalidateMode.onUserInteraction, // Автовалидация
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return "Это поле должно быть заполнено";
+                }
+                return null;
+              },
             decoration: InputDecoration(
               labelText: 'Повтор пароля',
               suffixIcon: IconButton(
                 icon: Icon(
                   hide2 ? Icons.visibility : Icons.visibility_off,
                 ),
-                onPressed: () => setState(() => hide2 = !hide2),
+                onPressed: () {
+                  setState(() => hide2 = !hide2);
+                }
               ),
             ),
           ),
           const SizedBox(height: 20),
           ElevatedButton(
             onPressed: () {
-              if (pass1.text == pass2.text) {
-                context.read<AuthBloc>().add(
-                  RegisterEvent(
-                    name.text,
-                    surname.text,
-                    tg.text,
-                    pass1.text,
-                  ),
-                );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Пароли не совпадают')),
-                );
+               if (_formKey.currentState!.validate()) {
+                if (pass1.text == pass2.text) {
+                  context.read<AuthBloc>().add(
+                    RegisterEvent(
+                      name.text,
+                      surname.text,
+                      tg.text,
+                      pass1.text,
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Пароли не совпадают')),
+                  );
+                }
               }
             },
             child: const Text('Зарегистрироваться'),
           ),
           const SizedBox(height: 10),
           TextButton(
-            onPressed: () => context.read<AuthBloc>().add(AppStarted()),
+            onPressed: () {
+              context.read<AuthBloc>().add(AppStarted());
+            },
             child: const Text('Уже есть аккаунт? Войти'),
           ),
         ],

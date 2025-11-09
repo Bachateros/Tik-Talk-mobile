@@ -1,25 +1,33 @@
 import 'package:tik_talk/domain/entities/settings_entitie.dart';
 
+import 'package:tik_talk/domain/entities/settings_entitie.dart';
+
+
 class UserEntity {
-  final String? userId;
-  final String? name;
-  final String? surname;
-  final String? tgUsername;
+  final String userId;
+  final String name;
+  final String surname;
+  final String tgUsername;
   final String? accessToken;
   final String? refreshToken;
   final String? accesBotLink;
-  final Profile? profile;
+  final String avatarUrl;
+  final String? aboutMe;
+  final DateTime? birthdayDate;
+  final SettingsEntitie? settings;
 
-  
   const UserEntity({
-    this.userId,
-    this.name,
-    this.surname,
-    this.tgUsername,
+    this.userId = '',
+    this.name = '',
+    this.surname = '',
+    this.tgUsername = '',
     this.accessToken,
     this.refreshToken,
     this.accesBotLink,
-    this.profile
+    this.avatarUrl = 'https://cdn-icons-png.flaticon.com/512/149/149071.png',
+    this.aboutMe = '',
+    this.birthdayDate,
+    this.settings,
   });
 
   UserEntity copyWith({
@@ -30,7 +38,10 @@ class UserEntity {
     String? accessToken,
     String? refreshToken,
     String? accesBotLink,
-    Profile? profile,
+    String? avatarUrl,
+    String? aboutMe,
+    DateTime? birthdayDate,
+    SettingsEntitie? settings,
   }) {
     return UserEntity(
       userId: userId ?? this.userId,
@@ -40,21 +51,10 @@ class UserEntity {
       accessToken: accessToken ?? this.accessToken,
       refreshToken: refreshToken ?? this.refreshToken,
       accesBotLink: accesBotLink ?? this.accesBotLink,
-      profile: profile ?? this.profile,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      aboutMe: aboutMe ?? this.aboutMe ,
+      birthdayDate: birthdayDate ?? this.birthdayDate,
+      settings: settings ?? this.settings,
     );
   }
-}
-
-class Profile{
-  final String? avatarUrl;
-  final String? aboutMe;
-  final DateTime? birthdayDate;
-  final SettingsEntitie? settings;
-
-  Profile({
-    this.avatarUrl,
-    this.aboutMe,
-    this.birthdayDate,
-    this.settings,
-  });
 }

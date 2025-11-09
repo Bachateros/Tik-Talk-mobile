@@ -18,7 +18,7 @@ class ChatListView extends StatelessWidget {
     return BlocBuilder<HomeBloc, HomeState>(
       builder: (context, state) {
         final chats = state.homeModel.chats;
-        final lastMessages = state.homeModel.lastMesseges;
+        final lastMessages = state.homeModel.lastMessages;
 
         if (chats.isEmpty) {
           return const Center(child: Text('Нет доступных чатов'));
@@ -31,7 +31,7 @@ class ChatListView extends StatelessWidget {
             final chat = chats[index];
             final lastMessage = lastMessages.firstWhere(
               (m) => m!.chat.idChat == chat!.idChat,
-              orElse: () => ChatWithLastMessegeEntitie(chat: chat!, lastMessege: null),
+              orElse: () => ChatWithLastMessageEntitie(chat: chat!, lastMessage: null),
             );
 
             return Card(
@@ -52,13 +52,16 @@ class ChatListView extends StatelessWidget {
                   style: const TextStyle(color: AppColors.menuGrey, fontWeight: FontWeight.bold),
                 ),
                 subtitle: Text(
-                  lastMessage!.lastMessege?.content ?? 'Нет сообщений',
+                  lastMessage!.lastMessage?.content ?? 'Нет сообщений',
                   style: const TextStyle(color: AppColors.darkText),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                //TODO: ChatEvent update model to chat with id
-                onTap: () => context.push('/home/chat/${chat!.idChat}'),
+                
+                onTap: () {
+                  context.push('/home/chat/${chat!.idChat}');
+                  
+                }
               ),
             );
           },
@@ -87,13 +90,6 @@ String _getDirectChatUserName(ChatEntitie? chat, BuildContext context) {
   final otherParticipant = chatParticipants
       .firstWhere(
         (participant) => participant.userId != currentUserId,
-        orElse: () => ParticipantEntitie(
-          idPartic: '',
-          userId: '',
-          chatId: chat.idChat,
-          role: 'member',
-          joinedAt: DateTime.now().toIso8601String(),
-        ),
       );
   
   // Находим пользователя по ID
