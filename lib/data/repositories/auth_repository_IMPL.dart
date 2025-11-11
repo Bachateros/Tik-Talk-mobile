@@ -1,9 +1,11 @@
 import 'dart:convert';
 
+import 'package:tik_talk/data/datasources/db/app_db.dart';
 import 'package:tik_talk/domain/repositories/auth_repository.dart';
 import 'package:tik_talk/domain/entities/user_entitie.dart';
 import 'package:tik_talk/data/datasources/local/auth_local_data_source.dart';
 import 'package:tik_talk/data/datasources/remote/auth_service_remote_data_source.dart';
+import 'package:tik_talk/internal/di.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remote;
@@ -101,8 +103,10 @@ class AuthRepositoryImpl implements AuthRepository {
         // игнорируем ошибку при logout на сервере
       }
     }
+    final id = await local.getUserId();
+    await DIContainer().deleteUserDb(id!);
+
     await local.clearTokens();
-    // TODO: при подключении локальной БД можно добавить db.clearAll();
   }
 
   /// ---------- REFRESH TOKEN ----------
@@ -139,42 +143,11 @@ class AuthRepositoryImpl implements AuthRepository {
     final access = resp['accessToken'];
     final refresh = resp['refreshToken'];
     final userId = resp['userId'];
-
+    
     if (access != null && refresh != null && userId != null) {
       return userId;
     }
+
     return null;
-  }
-
-  /// ---------- INIT DB ----------
-  @override
-  Future<UserEntity> initDB() {
-    // TODO: реализовать инициализацию локальной базы
-    throw UnimplementedError();
-  }
-
-  /// ---------- GET MY PROFILE ----------
-  @override
-  Future<UserEntity> getMy() async {
-    final userInfo = await remote.getMy();
-
-    // безопасное извлечение всех данных
-    final userId = userInfo['user_id']?.toString() ?? '';
-    final name = userInfo['name']?.toString() ?? '';
-    final surname = userInfo['surname']?.toString() ?? '';
-    final tgUsername = userInfo['tgUsername']?.toString() ?? '';
-    final avatar = userInfo['avatar']?.toString() ?? '';
-    final bio = userInfo['bio']?.toString();
-    final dateOfBirth = DateTime.tryParse(userInfo['date_of_birth']?.toString() ?? '0');
-
-    return UserEntity(
-      userId: userId,
-      name: name,
-      surname: surname,
-      tgUsername: tgUsername,
-      aboutMe: bio,
-      avatarUrl: avatar,
-      birthdayDate: dateOfBirth,
-      );
   }
 }

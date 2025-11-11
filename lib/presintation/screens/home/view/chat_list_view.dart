@@ -1,14 +1,14 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tik_talk/domain/bloc/home/home_bloc.dart';
-import 'package:tik_talk/presintation/screens/home/widgets/chats_list.dart';
+import 'package:tik_talk/presintation/screens/home/widgets/chats_list widget.dart';
 
-class ChatListPage extends StatelessWidget {
-  const ChatListPage({super.key});
+class ChatListView extends StatelessWidget {
+  const ChatListView({super.key});
 
   @override
   Widget build(BuildContext context) {
     context.read<HomeBloc>().add(UpdateEvent());
-    return ChatListView();
+    return ChatList();
   }
 }

@@ -8,7 +8,7 @@ class ChatEntitie {
   String? avatarUrl;
   bool isPrivate;
   final DateTime createdAt;
-  DateTime updatedAt;
+  DateTime? updatedAt;
   String? createdBy;
   int? maxMembers;
   DateTime? lastActivityAt;

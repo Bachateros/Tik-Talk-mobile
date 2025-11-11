@@ -5,7 +5,7 @@ import 'package:tik_talk/domain/bloc/home/home_bloc.dart';
 import 'package:tik_talk/domain/entities/chat_entitie.dart';
 import 'package:tik_talk/domain/entities/participant_entitie.dart';
 import 'package:tik_talk/domain/entities/user_entitie.dart';
-import 'package:tik_talk/presintation/theme/theme_background.dart';
+import 'package:tik_talk/presintation/theme/theme_assets.dart';
 
 part 'search_list_builder.dart';
 

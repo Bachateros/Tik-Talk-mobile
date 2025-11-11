@@ -1,7 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tik_talk/data/models/user_model.dart';
+import 'package:tik_talk/data/DTO/user_DTO.dart';
+import 'package:tik_talk/data/repositories/sync_repository_IMPL.dart';
 import 'package:tik_talk/domain/entities/user_entitie.dart';
 import 'package:tik_talk/domain/repositories/auth_repository.dart';
+import 'package:tik_talk/domain/repositories/sync_repository.dart';
+import 'package:tik_talk/internal/di.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';
@@ -21,25 +24,25 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LoginPressedEvent>(_onLoginPressed);
   }
 
-Future<void> _onAppStarted(AppStarted event, Emitter<AuthState> emit) async {
-  try {
-    // final user = await repository.logout();
-    final id = await repository.hasValidTokens();
-    if (id!=null) {
-      final userFull = await repository.getMy();
-      await repository.refreshToken();
-      emit(state.copyWith(status: AuthStatus.autheficated,userModel: userFull));
-    } else {
-      emit(state.copyWith(status: AuthStatus.unautheficated));
+  Future<void> _onAppStarted(AppStarted event, Emitter<AuthState> emit) async {
+    try {
+      // final user = await repository.logout();
+      final id = await repository.hasValidTokens();
+      if (id!=null) {
+        await repository.refreshToken();
+        emit(state.copyWith(status: AuthStatus.autheficated));
+      } else {
+        emit(state.copyWith(status: AuthStatus.unautheficated));
+      }
+    } catch (e) {
+      print('Ошибка проверки токена: $e');
+      await repository.logout();
+      emit(state.copyWith(
+        status: AuthStatus.unautheficated,
+        errorMessage: 'Ошибка проверки токена: $e',
+      ));
     }
-  } catch (e) {
-    print('Ошибка проверки токена: $e');
-    emit(state.copyWith(
-      status: AuthStatus.unautheficated,
-      errorMessage: 'Ошибка проверки токена: $e',
-    ));
   }
-}
 
   Future<void> _onLogin(LoginEvent event, Emitter<AuthState> emit) async {
     try {
@@ -100,10 +103,8 @@ Future<void> _onVerify(VerifyEvent event, Emitter<AuthState> emit) async {
   try {
     final user = await repository.verify(userId, event.code);
     if (user.accessToken!=null && user.refreshToken!=null){
-      final userFull = await repository.getMy();
       emit(state.copyWith(
             status: AuthStatus.autheficated,
-            userModel:  userFull,
             errorMessage: null,
       ),);
     }
@@ -118,7 +119,7 @@ Future<void> _onVerify(VerifyEvent event, Emitter<AuthState> emit) async {
 
   Future<void> _onLogout(LogoutEvent event, Emitter<AuthState> emit) async {
     await repository.logout();
-    emit(state.copyWith(status: AuthStatus.unautheficated, userModel: UserModel()));
+    emit(state.copyWith(status: AuthStatus.unautheficated));
   }
 
   Future<void> _onRefreshToken(
@@ -129,6 +130,7 @@ Future<void> _onVerify(VerifyEvent event, Emitter<AuthState> emit) async {
       await repository.refreshToken();
     } catch (e) {
       print('Ошибка logout: $e');
+      await repository.logout();
       emit(state.copyWith(status: AuthStatus.unautheficated, errorMessage: 'Ошибка logout: $e'));
     }
   }
@@ -141,7 +143,8 @@ Future<void> _onVerify(VerifyEvent event, Emitter<AuthState> emit) async {
     if (id!=null) {
       emit(state.copyWith(status: AuthStatus.autheficated));
     } else {
-      emit(state.copyWith(status: AuthStatus.unautheficated, userModel: UserModel(),errorMessage: null),);
+      await repository.logout();
+      emit(state.copyWith(status: AuthStatus.unautheficated,errorMessage: null),);
     }
   }
 

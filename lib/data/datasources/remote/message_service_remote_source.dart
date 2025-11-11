@@ -16,6 +16,7 @@ class MessageServiceRemoteSource {
     String? fileName,
     int? fileSize,
     String? mimeType,
+    String? status,
   }) async {
     final response = await apiClient.postJson('/message/send', {
       "chatId": chatId,
@@ -27,6 +28,7 @@ class MessageServiceRemoteSource {
       if (fileName != null) 'file_name': fileName,
       if (fileSize != null) 'file_size': fileSize,
       if (mimeType != null) 'mime_type': mimeType,
+      if (status != null ) 'status' : status,
     });
 
     if (response.containsKey('message_id')) {

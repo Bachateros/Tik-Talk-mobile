@@ -1,6 +1,4 @@
 import 'dart:core';
-
-import 'package:http/http.dart';
 import 'package:tik_talk/data/api_remote/ApiClient.dart';
 
 class AuthRemoteDataSource {
@@ -59,15 +57,4 @@ class AuthRemoteDataSource {
     }
     );
   }
-
-  Future<Map<String, dynamic>> getMy() async {
-    final response = await apiClient.getJson('/my');
-
-    if (response.isEmpty) {
-      throw Exception(response['error'] ?? 'Ошибка получения профиля пользователя');
-    } else {
-      return Map<String, dynamic>.from(response['profile'] as Map);
-    }
-  }
-
 }

@@ -3,26 +3,30 @@ class MessageEntitie {
   final String idChat;
   final String idUser;
   final String content;
-  final MessageType typeMessage;
+  final MessageType? typeMessage;
   final DateTime createdAt;
   final String? replyToId;
   final String? fileUrl;
   final String? fileName;
   final int? fileSize;
   final String? mimeType;
+  final String? status;
+  final bool isDeleted;
 
   MessageEntitie({
     this.idMessage,
     required this.idChat,
     required this.idUser,
     required this.content,
-    required this.typeMessage,
+    this.typeMessage,
     required this.createdAt,
     this.replyToId,
     this.fileUrl,
     this.fileName,
     this.fileSize,
     this.mimeType, 
+    this.status,
+    required this.isDeleted
   });
 
   MessageEntitie copyWith({
@@ -32,6 +36,8 @@ class MessageEntitie {
     String? fileName,
     int? fileSize,
     String? mimeType,
+    String? status,
+    bool? isDeleted,
   }) {
     return MessageEntitie(
       idMessage: idMessage,
@@ -45,6 +51,8 @@ class MessageEntitie {
       fileName: fileName ?? this.fileName,
       fileSize: fileSize ?? this.fileSize,
       mimeType: mimeType ?? this.mimeType,
+      status:  status ?? this.status,
+      isDeleted: isDeleted ?? this.isDeleted,
     );
   }
 }

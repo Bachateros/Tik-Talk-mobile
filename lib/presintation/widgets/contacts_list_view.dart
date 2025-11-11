@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tik_talk/domain/bloc/home/home_bloc.dart';
+import 'package:tik_talk/presintation/theme/theme_assets.dart';
 import 'package:tik_talk/presintation/theme/theme_colors.dart';
 
 
@@ -13,9 +14,7 @@ class ContactsListView extends StatefulWidget {
 }
 
 class _ContactsListViewState extends State<ContactsListView> {
-  final problemURI =
-    'https://cdn-icons-png.flaticon.com/512/149/149071.png';
-  @override
+ @override
   void initState() {
     super.initState();
     Future.microtask(() {
@@ -58,11 +57,11 @@ class _ContactsListViewState extends State<ContactsListView> {
                 leading: CircleAvatar(
                   backgroundColor: Colors.blueGrey.shade300,
                   backgroundImage: NetworkImage(
-                    contact.avatarUrl != '' ? contact.avatarUrl! : problemURI,
+                    contact.avatarUrl != '' ? contact.avatarUrl! : ThemeAssets.noAvatar(context),
                   ),
                 ),
                 title: Text(
-                  '${contact.name ?? ''} ${contact.surname ?? ''}',
+                  '${contact.name} ${contact.surname}',
                   style: const TextStyle(
                     color: AppColors.menuGrey,
                     fontWeight: FontWeight.bold,

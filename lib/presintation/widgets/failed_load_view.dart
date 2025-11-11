@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:tik_talk/presintation/theme/theme_background.dart';
+import 'package:tik_talk/presintation/theme/theme_assets.dart';
 import 'package:tik_talk/presintation/theme/theme_text.dart';
 
 class FailedLoadView extends StatelessWidget {

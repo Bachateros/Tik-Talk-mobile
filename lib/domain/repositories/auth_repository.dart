@@ -7,6 +7,4 @@ abstract class AuthRepository {
   Future<void> logout();          
   Future<UserEntity?> refreshToken();
   Future<String?> hasValidTokens(); 
-  Future<UserEntity> initDB();
-  Future<UserEntity> getMy();
 }

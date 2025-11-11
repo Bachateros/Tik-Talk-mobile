@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tik_talk/data/datasources/remote/chats_service_remote_source.dart';
@@ -11,17 +9,13 @@ import 'package:tik_talk/domain/bloc/chat/chat_bloc.dart';
 import 'package:tik_talk/internal/di.dart';
 import 'package:tik_talk/presintation/screens/chat/view/chat_page.dart';
 import 'package:tik_talk/presintation/screens/chat/view/chat_settings_page.dart';
-import 'package:tik_talk/presintation/screens/home/view/chat_list_page.dart';
+import 'package:tik_talk/presintation/screens/home/view/chat_list_view.dart';
 import 'package:tik_talk/presintation/screens/home/view/home_page.dart';
 import 'package:tik_talk/presintation/screens/login/view/auth_page.dart';
 import 'package:tik_talk/presintation/screens/login/widgets/login_form.dart';
-import 'package:tik_talk/presintation/screens/login/widgets/register_complete_url_aligin.dart';
-import 'package:tik_talk/presintation/screens/login/widgets/register_form.dart';
-import 'package:tik_talk/presintation/screens/login/widgets/verify_form.dart';
-import 'package:tik_talk/presintation/screens/profile/view/profile_page.dart';
+import 'package:tik_talk/presintation/screens/profile/view/profile_view.dart';
 import 'package:tik_talk/presintation/screens/setting/view/setting_page.dart';
 import 'package:tik_talk/presintation/screens/splash/splash_screen.dart';
-import 'package:tik_talk/presintation/widgets/failed_load_view.dart';
 
 class AppRouter {
   //=============================================================================
@@ -48,10 +42,18 @@ final GoRouter _router = GoRouter(
       if(state.fullPath == '/auth') {
         return "/auth/login";
       }
+
+      // if(state.fullPath == '/home/profile'){
+      //   return '/home/profile';
+      // }
       return null;
     },
   initialLocation: '/splash',
   routes: [
+    GoRoute(
+      path: '/',
+      redirect: (context, state) => '/home',
+    ),
     GoRoute(
       path: '/splash',
       builder: (context, state) => const SplashScreen(),
@@ -84,7 +86,9 @@ final GoRouter _router = GoRouter(
       routes: [
         GoRoute(
           path: '/home',
-          builder: (context, state) => const ChatListPage(),
+          builder: (context, state) {
+            return ChatListView();
+          }
         ),
         GoRoute(
           path: '/home/chat/:chatId',
@@ -110,7 +114,9 @@ final GoRouter _router = GoRouter(
         ),
         GoRoute(
           path: '/home/profile',
-          builder: (context, state) => const ProfilePage(isCurrentUser: true, userId: '',),
+          builder: (context, state) {
+            return  ProfileView(isCurrentUser: true, userId:  context.read<AuthBloc>().state.user.userId);
+          }
         ),
         GoRoute(
           path: '/home/profile/:userId',
@@ -122,7 +128,7 @@ final GoRouter _router = GoRouter(
           // );
           builder: (context, state) {
             final userId = state.pathParameters['userId']!;
-            return ProfilePage(isCurrentUser: false, userId: userId);
+            return ProfileView(isCurrentUser: false, userId: userId);
           },
         ),
         GoRoute(

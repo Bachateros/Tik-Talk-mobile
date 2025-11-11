@@ -28,9 +28,19 @@ class AuthLocalDataSource {
         'userId': prefs.getString(_userIdKey),
       };
 
+
   Future<void> clearTokens() async {
     await prefs.remove(_accessKey);
     await prefs.remove(_refreshKey);
     await prefs.remove(_userIdKey);
+  }
+
+    // Проверка наличия токена
+  bool get hasToken => getAccessToken() != null && getAccessToken()!.isNotEmpty;
+
+  // Получение заголовка авторизации
+  String? get authorizationHeader {
+    final token = getAccessToken();
+    return token != null ? 'Bearer $token' : null;
   }
 }

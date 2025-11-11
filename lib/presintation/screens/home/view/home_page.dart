@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tik_talk/domain/bloc/home/home_bloc.dart';
+import 'package:tik_talk/presintation/widgets/app_bar_chat.dart';
+import 'package:tik_talk/presintation/widgets/app_bar_profile.dart';
 import 'package:tik_talk/presintation/widgets/failed_load_view.dart';
 import 'package:tik_talk/presintation/screens/splash/splash_screen.dart';
-import 'package:tik_talk/presintation/theme/theme_background.dart';
+import 'package:tik_talk/presintation/theme/theme_assets.dart';
 import 'package:tik_talk/presintation/widgets/custom_app_bar.dart';
 import 'package:tik_talk/presintation/widgets/side_menu.dart';
 
@@ -14,6 +16,7 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final location = GoRouter.of(context).routerDelegate.currentConfiguration.last.matchedLocation;
     return BlocBuilder<HomeBloc, HomeState>(
       buildWhen: (previous, current) => previous.status != current.status,
       builder: (BuildContext context, HomeState state) {
@@ -37,7 +40,10 @@ class HomePage extends StatelessWidget {
           case HomeStatus.success:
             return Scaffold(
               drawer: const SideMenu(),
-              appBar: GoRouter.of(context).state.path! == '/home' ? const CustomAppBar() : null,
+              appBar: location == '/home' ? const CustomAppBar() 
+                    : location.startsWith('/home/profile') ? AppBarProfile()  
+                    : location.startsWith('/home/chat') ? AppBarChat()
+                    : null,
               body: child, 
             );
 

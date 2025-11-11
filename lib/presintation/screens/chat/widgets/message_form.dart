@@ -44,10 +44,12 @@ class _MessageFormState extends State<MessageForm> {
     if (text.isEmpty) return;
     final msg = MessageEntitie(
       idChat: chat!.idChat, 
-      idUser: id!, 
+      idUser: id, 
       content: text, 
       typeMessage: MessageType.text, 
-      createdAt: date);
+      createdAt: date,
+      isDeleted: false
+      );
 
     context.read<ChatBloc>().add(SendMessageEvent(message: msg));
     _controller.clear();

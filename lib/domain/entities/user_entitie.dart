@@ -11,7 +11,7 @@ class UserEntity {
   final String? accessToken;
   final String? refreshToken;
   final String? accesBotLink;
-  final String avatarUrl;
+  final String? avatarUrl;
   final String? aboutMe;
   final DateTime? birthdayDate;
   final SettingsEntitie? settings;
@@ -24,7 +24,7 @@ class UserEntity {
     this.accessToken,
     this.refreshToken,
     this.accesBotLink,
-    this.avatarUrl = 'https://cdn-icons-png.flaticon.com/512/149/149071.png',
+    this.avatarUrl,
     this.aboutMe = '',
     this.birthdayDate,
     this.settings,

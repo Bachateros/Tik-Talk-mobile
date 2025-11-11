@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:tik_talk/domain/bloc/auth/auth_bloc.dart';
-import 'package:tik_talk/presintation/theme/theme_background.dart';
+import 'package:tik_talk/presintation/theme/theme_assets.dart';
 import 'package:tik_talk/presintation/theme/theme_colors.dart';
 import 'package:tik_talk/presintation/widgets/contacts_list_view.dart';
 
@@ -97,12 +97,15 @@ class UserCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
               child: Row(
                 children: [
-                  CircleAvatar(
+                  IconButton( 
+                    icon:  CircleAvatar(
                     radius: 20,
                     backgroundColor: Colors.blueGrey,
                     backgroundImage: NetworkImage(
-                      me.avatarUrl,
+                      me.avatarUrl == null || me.avatarUrl == '' ?   me.avatarUrl! : ThemeAssets.noAvatar(context),
                     ),
+                  ),
+                  onPressed: () => context.push('/home/profile'),
                   ),
                   const SizedBox(width: 10),
                   Expanded(

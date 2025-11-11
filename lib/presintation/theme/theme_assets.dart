@@ -15,4 +15,8 @@ class ThemeAssets {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return isDark ? 'images/dark_theme_serch_bar.png' : 'images/light_them_logo1.png';
   }
+
+  static String noAvatar(BuildContext context){
+    return 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+  }
 }

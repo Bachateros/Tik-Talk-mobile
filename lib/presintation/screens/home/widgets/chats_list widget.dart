@@ -8,8 +8,8 @@ import 'package:tik_talk/domain/entities/user_entitie.dart';
 import 'package:tik_talk/presintation/theme/theme_colors.dart';
 import 'package:tik_talk/domain/entities/chat_entitie.dart';
 
-class ChatListView extends StatelessWidget {
-  const ChatListView({super.key});
+class ChatList extends StatelessWidget {
+  const ChatList({super.key});
 
   final withoutURI = 'https://wp.logos-download.com/wp-content/uploads/2022/01/ChatCoin_Logo-2048x2048.png';
 

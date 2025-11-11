@@ -46,6 +46,17 @@ class $ChatsTable extends Chats with TableInfo<$ChatsTable, Chat> {
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _createdByMeta = const VerificationMeta(
+    'createdBy',
+  );
+  @override
+  late final GeneratedColumn<String> createdBy = GeneratedColumn<String>(
+    'created_by',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _avatarUrlMeta = const VerificationMeta(
     'avatarUrl',
   );
@@ -57,6 +68,29 @@ class $ChatsTable extends Chats with TableInfo<$ChatsTable, Chat> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _maxMembersMeta = const VerificationMeta(
+    'maxMembers',
+  );
+  @override
+  late final GeneratedColumn<int> maxMembers = GeneratedColumn<int>(
+    'max_members',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _lastActivityAtMeta = const VerificationMeta(
+    'lastActivityAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastActivityAt =
+      GeneratedColumn<DateTime>(
+        'last_activity_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
   static const VerificationMeta _isPrivateMeta = const VerificationMeta(
     'isPrivate',
   );
@@ -69,6 +103,21 @@ class $ChatsTable extends Chats with TableInfo<$ChatsTable, Chat> {
     requiredDuringInsert: false,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
       'CHECK ("is_private" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _isDeletedMeta = const VerificationMeta(
+    'isDeleted',
+  );
+  @override
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+    'is_deleted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_deleted" IN (0, 1))',
     ),
     defaultValue: const Constant(false),
   );
@@ -90,9 +139,20 @@ class $ChatsTable extends Chats with TableInfo<$ChatsTable, Chat> {
   late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
     'updated_at',
     aliasedName,
-    false,
+    true,
     type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
   );
   @override
   List<GeneratedColumn> get $columns => [
@@ -100,10 +160,15 @@ class $ChatsTable extends Chats with TableInfo<$ChatsTable, Chat> {
     name,
     description,
     type,
+    createdBy,
     avatarUrl,
+    maxMembers,
+    lastActivityAt,
     isPrivate,
+    isDeleted,
     createdAt,
     updatedAt,
+    deletedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -147,16 +212,45 @@ class $ChatsTable extends Chats with TableInfo<$ChatsTable, Chat> {
     } else if (isInserting) {
       context.missing(_typeMeta);
     }
+    if (data.containsKey('created_by')) {
+      context.handle(
+        _createdByMeta,
+        createdBy.isAcceptableOrUnknown(data['created_by']!, _createdByMeta),
+      );
+    }
     if (data.containsKey('avatar_url')) {
       context.handle(
         _avatarUrlMeta,
         avatarUrl.isAcceptableOrUnknown(data['avatar_url']!, _avatarUrlMeta),
       );
     }
+    if (data.containsKey('max_members')) {
+      context.handle(
+        _maxMembersMeta,
+        maxMembers.isAcceptableOrUnknown(data['max_members']!, _maxMembersMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_maxMembersMeta);
+    }
+    if (data.containsKey('last_activity_at')) {
+      context.handle(
+        _lastActivityAtMeta,
+        lastActivityAt.isAcceptableOrUnknown(
+          data['last_activity_at']!,
+          _lastActivityAtMeta,
+        ),
+      );
+    }
     if (data.containsKey('is_private')) {
       context.handle(
         _isPrivateMeta,
         isPrivate.isAcceptableOrUnknown(data['is_private']!, _isPrivateMeta),
+      );
+    }
+    if (data.containsKey('is_deleted')) {
+      context.handle(
+        _isDeletedMeta,
+        isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
       );
     }
     if (data.containsKey('created_at')) {
@@ -172,8 +266,12 @@ class $ChatsTable extends Chats with TableInfo<$ChatsTable, Chat> {
         _updatedAtMeta,
         updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
       );
-    } else if (isInserting) {
-      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
     }
     return context;
   }
@@ -200,13 +298,29 @@ class $ChatsTable extends Chats with TableInfo<$ChatsTable, Chat> {
         DriftSqlType.string,
         data['${effectivePrefix}type'],
       )!,
+      createdBy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}created_by'],
+      ),
       avatarUrl: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}avatar_url'],
       ),
+      maxMembers: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}max_members'],
+      )!,
+      lastActivityAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_activity_at'],
+      ),
       isPrivate: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}is_private'],
+      )!,
+      isDeleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_deleted'],
       )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
@@ -215,7 +329,11 @@ class $ChatsTable extends Chats with TableInfo<$ChatsTable, Chat> {
       updatedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
-      )!,
+      ),
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
     );
   }
 
@@ -230,19 +348,29 @@ class Chat extends DataClass implements Insertable<Chat> {
   final String name;
   final String? description;
   final String type;
+  final String? createdBy;
   final String? avatarUrl;
+  final int maxMembers;
+  final DateTime? lastActivityAt;
   final bool isPrivate;
+  final bool isDeleted;
   final DateTime createdAt;
-  final DateTime updatedAt;
+  final DateTime? updatedAt;
+  final DateTime? deletedAt;
   const Chat({
     required this.id,
     required this.name,
     this.description,
     required this.type,
+    this.createdBy,
     this.avatarUrl,
+    required this.maxMembers,
+    this.lastActivityAt,
     required this.isPrivate,
+    required this.isDeleted,
     required this.createdAt,
-    required this.updatedAt,
+    this.updatedAt,
+    this.deletedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -253,12 +381,25 @@ class Chat extends DataClass implements Insertable<Chat> {
       map['description'] = Variable<String>(description);
     }
     map['type'] = Variable<String>(type);
+    if (!nullToAbsent || createdBy != null) {
+      map['created_by'] = Variable<String>(createdBy);
+    }
     if (!nullToAbsent || avatarUrl != null) {
       map['avatar_url'] = Variable<String>(avatarUrl);
     }
+    map['max_members'] = Variable<int>(maxMembers);
+    if (!nullToAbsent || lastActivityAt != null) {
+      map['last_activity_at'] = Variable<DateTime>(lastActivityAt);
+    }
     map['is_private'] = Variable<bool>(isPrivate);
+    map['is_deleted'] = Variable<bool>(isDeleted);
     map['created_at'] = Variable<DateTime>(createdAt);
-    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
     return map;
   }
 
@@ -270,12 +411,25 @@ class Chat extends DataClass implements Insertable<Chat> {
           ? const Value.absent()
           : Value(description),
       type: Value(type),
+      createdBy: createdBy == null && nullToAbsent
+          ? const Value.absent()
+          : Value(createdBy),
       avatarUrl: avatarUrl == null && nullToAbsent
           ? const Value.absent()
           : Value(avatarUrl),
+      maxMembers: Value(maxMembers),
+      lastActivityAt: lastActivityAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastActivityAt),
       isPrivate: Value(isPrivate),
+      isDeleted: Value(isDeleted),
       createdAt: Value(createdAt),
-      updatedAt: Value(updatedAt),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
     );
   }
 
@@ -289,10 +443,15 @@ class Chat extends DataClass implements Insertable<Chat> {
       name: serializer.fromJson<String>(json['name']),
       description: serializer.fromJson<String?>(json['description']),
       type: serializer.fromJson<String>(json['type']),
+      createdBy: serializer.fromJson<String?>(json['createdBy']),
       avatarUrl: serializer.fromJson<String?>(json['avatarUrl']),
+      maxMembers: serializer.fromJson<int>(json['maxMembers']),
+      lastActivityAt: serializer.fromJson<DateTime?>(json['lastActivityAt']),
       isPrivate: serializer.fromJson<bool>(json['isPrivate']),
+      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
-      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
     );
   }
   @override
@@ -303,10 +462,15 @@ class Chat extends DataClass implements Insertable<Chat> {
       'name': serializer.toJson<String>(name),
       'description': serializer.toJson<String?>(description),
       'type': serializer.toJson<String>(type),
+      'createdBy': serializer.toJson<String?>(createdBy),
       'avatarUrl': serializer.toJson<String?>(avatarUrl),
+      'maxMembers': serializer.toJson<int>(maxMembers),
+      'lastActivityAt': serializer.toJson<DateTime?>(lastActivityAt),
       'isPrivate': serializer.toJson<bool>(isPrivate),
+      'isDeleted': serializer.toJson<bool>(isDeleted),
       'createdAt': serializer.toJson<DateTime>(createdAt),
-      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
     };
   }
 
@@ -315,19 +479,31 @@ class Chat extends DataClass implements Insertable<Chat> {
     String? name,
     Value<String?> description = const Value.absent(),
     String? type,
+    Value<String?> createdBy = const Value.absent(),
     Value<String?> avatarUrl = const Value.absent(),
+    int? maxMembers,
+    Value<DateTime?> lastActivityAt = const Value.absent(),
     bool? isPrivate,
+    bool? isDeleted,
     DateTime? createdAt,
-    DateTime? updatedAt,
+    Value<DateTime?> updatedAt = const Value.absent(),
+    Value<DateTime?> deletedAt = const Value.absent(),
   }) => Chat(
     id: id ?? this.id,
     name: name ?? this.name,
     description: description.present ? description.value : this.description,
     type: type ?? this.type,
+    createdBy: createdBy.present ? createdBy.value : this.createdBy,
     avatarUrl: avatarUrl.present ? avatarUrl.value : this.avatarUrl,
+    maxMembers: maxMembers ?? this.maxMembers,
+    lastActivityAt: lastActivityAt.present
+        ? lastActivityAt.value
+        : this.lastActivityAt,
     isPrivate: isPrivate ?? this.isPrivate,
+    isDeleted: isDeleted ?? this.isDeleted,
     createdAt: createdAt ?? this.createdAt,
-    updatedAt: updatedAt ?? this.updatedAt,
+    updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
   );
   Chat copyWithCompanion(ChatsCompanion data) {
     return Chat(
@@ -337,10 +513,19 @@ class Chat extends DataClass implements Insertable<Chat> {
           ? data.description.value
           : this.description,
       type: data.type.present ? data.type.value : this.type,
+      createdBy: data.createdBy.present ? data.createdBy.value : this.createdBy,
       avatarUrl: data.avatarUrl.present ? data.avatarUrl.value : this.avatarUrl,
+      maxMembers: data.maxMembers.present
+          ? data.maxMembers.value
+          : this.maxMembers,
+      lastActivityAt: data.lastActivityAt.present
+          ? data.lastActivityAt.value
+          : this.lastActivityAt,
       isPrivate: data.isPrivate.present ? data.isPrivate.value : this.isPrivate,
+      isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
     );
   }
 
@@ -351,10 +536,15 @@ class Chat extends DataClass implements Insertable<Chat> {
           ..write('name: $name, ')
           ..write('description: $description, ')
           ..write('type: $type, ')
+          ..write('createdBy: $createdBy, ')
           ..write('avatarUrl: $avatarUrl, ')
+          ..write('maxMembers: $maxMembers, ')
+          ..write('lastActivityAt: $lastActivityAt, ')
           ..write('isPrivate: $isPrivate, ')
+          ..write('isDeleted: $isDeleted, ')
           ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
           ..write(')'))
         .toString();
   }
@@ -365,10 +555,15 @@ class Chat extends DataClass implements Insertable<Chat> {
     name,
     description,
     type,
+    createdBy,
     avatarUrl,
+    maxMembers,
+    lastActivityAt,
     isPrivate,
+    isDeleted,
     createdAt,
     updatedAt,
+    deletedAt,
   );
   @override
   bool operator ==(Object other) =>
@@ -378,10 +573,15 @@ class Chat extends DataClass implements Insertable<Chat> {
           other.name == this.name &&
           other.description == this.description &&
           other.type == this.type &&
+          other.createdBy == this.createdBy &&
           other.avatarUrl == this.avatarUrl &&
+          other.maxMembers == this.maxMembers &&
+          other.lastActivityAt == this.lastActivityAt &&
           other.isPrivate == this.isPrivate &&
+          other.isDeleted == this.isDeleted &&
           other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt);
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
 }
 
 class ChatsCompanion extends UpdateCompanion<Chat> {
@@ -389,20 +589,30 @@ class ChatsCompanion extends UpdateCompanion<Chat> {
   final Value<String> name;
   final Value<String?> description;
   final Value<String> type;
+  final Value<String?> createdBy;
   final Value<String?> avatarUrl;
+  final Value<int> maxMembers;
+  final Value<DateTime?> lastActivityAt;
   final Value<bool> isPrivate;
+  final Value<bool> isDeleted;
   final Value<DateTime> createdAt;
-  final Value<DateTime> updatedAt;
+  final Value<DateTime?> updatedAt;
+  final Value<DateTime?> deletedAt;
   final Value<int> rowid;
   const ChatsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.description = const Value.absent(),
     this.type = const Value.absent(),
+    this.createdBy = const Value.absent(),
     this.avatarUrl = const Value.absent(),
+    this.maxMembers = const Value.absent(),
+    this.lastActivityAt = const Value.absent(),
     this.isPrivate = const Value.absent(),
+    this.isDeleted = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ChatsCompanion.insert({
@@ -410,25 +620,35 @@ class ChatsCompanion extends UpdateCompanion<Chat> {
     required String name,
     this.description = const Value.absent(),
     required String type,
+    this.createdBy = const Value.absent(),
     this.avatarUrl = const Value.absent(),
+    required int maxMembers,
+    this.lastActivityAt = const Value.absent(),
     this.isPrivate = const Value.absent(),
+    this.isDeleted = const Value.absent(),
     required DateTime createdAt,
-    required DateTime updatedAt,
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        name = Value(name),
        type = Value(type),
-       createdAt = Value(createdAt),
-       updatedAt = Value(updatedAt);
+       maxMembers = Value(maxMembers),
+       createdAt = Value(createdAt);
   static Insertable<Chat> custom({
     Expression<String>? id,
     Expression<String>? name,
     Expression<String>? description,
     Expression<String>? type,
+    Expression<String>? createdBy,
     Expression<String>? avatarUrl,
+    Expression<int>? maxMembers,
+    Expression<DateTime>? lastActivityAt,
     Expression<bool>? isPrivate,
+    Expression<bool>? isDeleted,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -436,10 +656,15 @@ class ChatsCompanion extends UpdateCompanion<Chat> {
       if (name != null) 'name': name,
       if (description != null) 'description': description,
       if (type != null) 'type': type,
+      if (createdBy != null) 'created_by': createdBy,
       if (avatarUrl != null) 'avatar_url': avatarUrl,
+      if (maxMembers != null) 'max_members': maxMembers,
+      if (lastActivityAt != null) 'last_activity_at': lastActivityAt,
       if (isPrivate != null) 'is_private': isPrivate,
+      if (isDeleted != null) 'is_deleted': isDeleted,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -449,10 +674,15 @@ class ChatsCompanion extends UpdateCompanion<Chat> {
     Value<String>? name,
     Value<String?>? description,
     Value<String>? type,
+    Value<String?>? createdBy,
     Value<String?>? avatarUrl,
+    Value<int>? maxMembers,
+    Value<DateTime?>? lastActivityAt,
     Value<bool>? isPrivate,
+    Value<bool>? isDeleted,
     Value<DateTime>? createdAt,
-    Value<DateTime>? updatedAt,
+    Value<DateTime?>? updatedAt,
+    Value<DateTime?>? deletedAt,
     Value<int>? rowid,
   }) {
     return ChatsCompanion(
@@ -460,10 +690,15 @@ class ChatsCompanion extends UpdateCompanion<Chat> {
       name: name ?? this.name,
       description: description ?? this.description,
       type: type ?? this.type,
+      createdBy: createdBy ?? this.createdBy,
       avatarUrl: avatarUrl ?? this.avatarUrl,
+      maxMembers: maxMembers ?? this.maxMembers,
+      lastActivityAt: lastActivityAt ?? this.lastActivityAt,
       isPrivate: isPrivate ?? this.isPrivate,
+      isDeleted: isDeleted ?? this.isDeleted,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -483,17 +718,32 @@ class ChatsCompanion extends UpdateCompanion<Chat> {
     if (type.present) {
       map['type'] = Variable<String>(type.value);
     }
+    if (createdBy.present) {
+      map['created_by'] = Variable<String>(createdBy.value);
+    }
     if (avatarUrl.present) {
       map['avatar_url'] = Variable<String>(avatarUrl.value);
     }
+    if (maxMembers.present) {
+      map['max_members'] = Variable<int>(maxMembers.value);
+    }
+    if (lastActivityAt.present) {
+      map['last_activity_at'] = Variable<DateTime>(lastActivityAt.value);
+    }
     if (isPrivate.present) {
       map['is_private'] = Variable<bool>(isPrivate.value);
+    }
+    if (isDeleted.present) {
+      map['is_deleted'] = Variable<bool>(isDeleted.value);
     }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -508,10 +758,15 @@ class ChatsCompanion extends UpdateCompanion<Chat> {
           ..write('name: $name, ')
           ..write('description: $description, ')
           ..write('type: $type, ')
+          ..write('createdBy: $createdBy, ')
           ..write('avatarUrl: $avatarUrl, ')
+          ..write('maxMembers: $maxMembers, ')
+          ..write('lastActivityAt: $lastActivityAt, ')
           ..write('isPrivate: $isPrivate, ')
+          ..write('isDeleted: $isDeleted, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -573,12 +828,21 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
     requiredDuringInsert: false,
     defaultValue: const Constant('text'),
   );
-  static const VerificationMeta _replyToIdMeta = const VerificationMeta(
-    'replyToId',
+  static const VerificationMeta _clientIdMeta = const VerificationMeta(
+    'clientId',
   );
   @override
-  late final GeneratedColumn<String> replyToId = GeneratedColumn<String>(
-    'reply_to_id',
+  late final GeneratedColumn<String> clientId = GeneratedColumn<String>(
+    'client_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
     aliasedName,
     true,
     type: DriftSqlType.string,
@@ -628,6 +892,32 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _replyToIdMeta = const VerificationMeta(
+    'replyToId',
+  );
+  @override
+  late final GeneratedColumn<String> replyToId = GeneratedColumn<String>(
+    'reply_to_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _isDeletedMeta = const VerificationMeta(
+    'isDeleted',
+  );
+  @override
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+    'is_deleted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_deleted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -640,6 +930,28 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
     requiredDuringInsert: false,
     clientDefault: () => DateTime.now(),
   );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -647,12 +959,17 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
     userId,
     content,
     type,
-    replyToId,
+    clientId,
+    status,
     fileUrl,
     fileName,
     fileSize,
     mimeType,
+    replyToId,
+    isDeleted,
     createdAt,
+    updatedAt,
+    deletedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -699,10 +1016,16 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
         type.isAcceptableOrUnknown(data['type']!, _typeMeta),
       );
     }
-    if (data.containsKey('reply_to_id')) {
+    if (data.containsKey('client_id')) {
       context.handle(
-        _replyToIdMeta,
-        replyToId.isAcceptableOrUnknown(data['reply_to_id']!, _replyToIdMeta),
+        _clientIdMeta,
+        clientId.isAcceptableOrUnknown(data['client_id']!, _clientIdMeta),
+      );
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
       );
     }
     if (data.containsKey('file_url')) {
@@ -729,10 +1052,34 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
         mimeType.isAcceptableOrUnknown(data['mime_type']!, _mimeTypeMeta),
       );
     }
+    if (data.containsKey('reply_to_id')) {
+      context.handle(
+        _replyToIdMeta,
+        replyToId.isAcceptableOrUnknown(data['reply_to_id']!, _replyToIdMeta),
+      );
+    }
+    if (data.containsKey('is_deleted')) {
+      context.handle(
+        _isDeletedMeta,
+        isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
         createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
       );
     }
     return context;
@@ -764,9 +1111,13 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
         DriftSqlType.string,
         data['${effectivePrefix}type'],
       )!,
-      replyToId: attachedDatabase.typeMapping.read(
+      clientId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}reply_to_id'],
+        data['${effectivePrefix}client_id'],
+      ),
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
       ),
       fileUrl: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -784,10 +1135,26 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
         DriftSqlType.string,
         data['${effectivePrefix}mime_type'],
       ),
+      replyToId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reply_to_id'],
+      ),
+      isDeleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_deleted'],
+      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
       )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      ),
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
     );
   }
 
@@ -803,24 +1170,34 @@ class Message extends DataClass implements Insertable<Message> {
   final String userId;
   final String content;
   final String type;
-  final String? replyToId;
+  final String? clientId;
+  final String? status;
   final String? fileUrl;
   final String? fileName;
   final int? fileSize;
   final String? mimeType;
+  final String? replyToId;
+  final bool isDeleted;
   final DateTime createdAt;
+  final DateTime? updatedAt;
+  final DateTime? deletedAt;
   const Message({
     required this.id,
     required this.chatId,
     required this.userId,
     required this.content,
     required this.type,
-    this.replyToId,
+    this.clientId,
+    this.status,
     this.fileUrl,
     this.fileName,
     this.fileSize,
     this.mimeType,
+    this.replyToId,
+    required this.isDeleted,
     required this.createdAt,
+    this.updatedAt,
+    this.deletedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -830,8 +1207,11 @@ class Message extends DataClass implements Insertable<Message> {
     map['user_id'] = Variable<String>(userId);
     map['content'] = Variable<String>(content);
     map['type'] = Variable<String>(type);
-    if (!nullToAbsent || replyToId != null) {
-      map['reply_to_id'] = Variable<String>(replyToId);
+    if (!nullToAbsent || clientId != null) {
+      map['client_id'] = Variable<String>(clientId);
+    }
+    if (!nullToAbsent || status != null) {
+      map['status'] = Variable<String>(status);
     }
     if (!nullToAbsent || fileUrl != null) {
       map['file_url'] = Variable<String>(fileUrl);
@@ -845,7 +1225,17 @@ class Message extends DataClass implements Insertable<Message> {
     if (!nullToAbsent || mimeType != null) {
       map['mime_type'] = Variable<String>(mimeType);
     }
+    if (!nullToAbsent || replyToId != null) {
+      map['reply_to_id'] = Variable<String>(replyToId);
+    }
+    map['is_deleted'] = Variable<bool>(isDeleted);
     map['created_at'] = Variable<DateTime>(createdAt);
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
     return map;
   }
 
@@ -856,9 +1246,12 @@ class Message extends DataClass implements Insertable<Message> {
       userId: Value(userId),
       content: Value(content),
       type: Value(type),
-      replyToId: replyToId == null && nullToAbsent
+      clientId: clientId == null && nullToAbsent
           ? const Value.absent()
-          : Value(replyToId),
+          : Value(clientId),
+      status: status == null && nullToAbsent
+          ? const Value.absent()
+          : Value(status),
       fileUrl: fileUrl == null && nullToAbsent
           ? const Value.absent()
           : Value(fileUrl),
@@ -871,7 +1264,17 @@ class Message extends DataClass implements Insertable<Message> {
       mimeType: mimeType == null && nullToAbsent
           ? const Value.absent()
           : Value(mimeType),
+      replyToId: replyToId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(replyToId),
+      isDeleted: Value(isDeleted),
       createdAt: Value(createdAt),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
     );
   }
 
@@ -886,12 +1289,17 @@ class Message extends DataClass implements Insertable<Message> {
       userId: serializer.fromJson<String>(json['userId']),
       content: serializer.fromJson<String>(json['content']),
       type: serializer.fromJson<String>(json['type']),
-      replyToId: serializer.fromJson<String?>(json['replyToId']),
+      clientId: serializer.fromJson<String?>(json['clientId']),
+      status: serializer.fromJson<String?>(json['status']),
       fileUrl: serializer.fromJson<String?>(json['fileUrl']),
       fileName: serializer.fromJson<String?>(json['fileName']),
       fileSize: serializer.fromJson<int?>(json['fileSize']),
       mimeType: serializer.fromJson<String?>(json['mimeType']),
+      replyToId: serializer.fromJson<String?>(json['replyToId']),
+      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
     );
   }
   @override
@@ -903,12 +1311,17 @@ class Message extends DataClass implements Insertable<Message> {
       'userId': serializer.toJson<String>(userId),
       'content': serializer.toJson<String>(content),
       'type': serializer.toJson<String>(type),
-      'replyToId': serializer.toJson<String?>(replyToId),
+      'clientId': serializer.toJson<String?>(clientId),
+      'status': serializer.toJson<String?>(status),
       'fileUrl': serializer.toJson<String?>(fileUrl),
       'fileName': serializer.toJson<String?>(fileName),
       'fileSize': serializer.toJson<int?>(fileSize),
       'mimeType': serializer.toJson<String?>(mimeType),
+      'replyToId': serializer.toJson<String?>(replyToId),
+      'isDeleted': serializer.toJson<bool>(isDeleted),
       'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
     };
   }
 
@@ -918,24 +1331,34 @@ class Message extends DataClass implements Insertable<Message> {
     String? userId,
     String? content,
     String? type,
-    Value<String?> replyToId = const Value.absent(),
+    Value<String?> clientId = const Value.absent(),
+    Value<String?> status = const Value.absent(),
     Value<String?> fileUrl = const Value.absent(),
     Value<String?> fileName = const Value.absent(),
     Value<int?> fileSize = const Value.absent(),
     Value<String?> mimeType = const Value.absent(),
+    Value<String?> replyToId = const Value.absent(),
+    bool? isDeleted,
     DateTime? createdAt,
+    Value<DateTime?> updatedAt = const Value.absent(),
+    Value<DateTime?> deletedAt = const Value.absent(),
   }) => Message(
     id: id ?? this.id,
     chatId: chatId ?? this.chatId,
     userId: userId ?? this.userId,
     content: content ?? this.content,
     type: type ?? this.type,
-    replyToId: replyToId.present ? replyToId.value : this.replyToId,
-    fileUrl: fileUrl.present  ? fileUrl.value : this.fileUrl,
+    clientId: clientId.present ? clientId.value : this.clientId,
+    status: status.present ? status.value : this.status,
+    fileUrl: fileUrl.present ? fileUrl.value : this.fileUrl,
     fileName: fileName.present ? fileName.value : this.fileName,
     fileSize: fileSize.present ? fileSize.value : this.fileSize,
     mimeType: mimeType.present ? mimeType.value : this.mimeType,
+    replyToId: replyToId.present ? replyToId.value : this.replyToId,
+    isDeleted: isDeleted ?? this.isDeleted,
     createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
   );
   Message copyWithCompanion(MessagesCompanion data) {
     return Message(
@@ -944,12 +1367,17 @@ class Message extends DataClass implements Insertable<Message> {
       userId: data.userId.present ? data.userId.value : this.userId,
       content: data.content.present ? data.content.value : this.content,
       type: data.type.present ? data.type.value : this.type,
-      replyToId: data.replyToId.present ? data.replyToId.value : this.replyToId,
+      clientId: data.clientId.present ? data.clientId.value : this.clientId,
+      status: data.status.present ? data.status.value : this.status,
       fileUrl: data.fileUrl.present ? data.fileUrl.value : this.fileUrl,
       fileName: data.fileName.present ? data.fileName.value : this.fileName,
       fileSize: data.fileSize.present ? data.fileSize.value : this.fileSize,
       mimeType: data.mimeType.present ? data.mimeType.value : this.mimeType,
+      replyToId: data.replyToId.present ? data.replyToId.value : this.replyToId,
+      isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
     );
   }
 
@@ -961,12 +1389,17 @@ class Message extends DataClass implements Insertable<Message> {
           ..write('userId: $userId, ')
           ..write('content: $content, ')
           ..write('type: $type, ')
-          ..write('replyToId: $replyToId, ')
+          ..write('clientId: $clientId, ')
+          ..write('status: $status, ')
           ..write('fileUrl: $fileUrl, ')
           ..write('fileName: $fileName, ')
           ..write('fileSize: $fileSize, ')
           ..write('mimeType: $mimeType, ')
-          ..write('createdAt: $createdAt')
+          ..write('replyToId: $replyToId, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
           ..write(')'))
         .toString();
   }
@@ -978,12 +1411,17 @@ class Message extends DataClass implements Insertable<Message> {
     userId,
     content,
     type,
-    replyToId,
+    clientId,
+    status,
     fileUrl,
     fileName,
     fileSize,
     mimeType,
+    replyToId,
+    isDeleted,
     createdAt,
+    updatedAt,
+    deletedAt,
   );
   @override
   bool operator ==(Object other) =>
@@ -994,12 +1432,17 @@ class Message extends DataClass implements Insertable<Message> {
           other.userId == this.userId &&
           other.content == this.content &&
           other.type == this.type &&
-          other.replyToId == this.replyToId &&
+          other.clientId == this.clientId &&
+          other.status == this.status &&
           other.fileUrl == this.fileUrl &&
           other.fileName == this.fileName &&
           other.fileSize == this.fileSize &&
           other.mimeType == this.mimeType &&
-          other.createdAt == this.createdAt);
+          other.replyToId == this.replyToId &&
+          other.isDeleted == this.isDeleted &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
 }
 
 class MessagesCompanion extends UpdateCompanion<Message> {
@@ -1008,12 +1451,17 @@ class MessagesCompanion extends UpdateCompanion<Message> {
   final Value<String> userId;
   final Value<String> content;
   final Value<String> type;
-  final Value<String?> replyToId;
+  final Value<String?> clientId;
+  final Value<String?> status;
   final Value<String?> fileUrl;
   final Value<String?> fileName;
   final Value<int?> fileSize;
   final Value<String?> mimeType;
+  final Value<String?> replyToId;
+  final Value<bool> isDeleted;
   final Value<DateTime> createdAt;
+  final Value<DateTime?> updatedAt;
+  final Value<DateTime?> deletedAt;
   final Value<int> rowid;
   const MessagesCompanion({
     this.id = const Value.absent(),
@@ -1021,12 +1469,17 @@ class MessagesCompanion extends UpdateCompanion<Message> {
     this.userId = const Value.absent(),
     this.content = const Value.absent(),
     this.type = const Value.absent(),
-    this.replyToId = const Value.absent(),
+    this.clientId = const Value.absent(),
+    this.status = const Value.absent(),
     this.fileUrl = const Value.absent(),
     this.fileName = const Value.absent(),
     this.fileSize = const Value.absent(),
     this.mimeType = const Value.absent(),
+    this.replyToId = const Value.absent(),
+    this.isDeleted = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   MessagesCompanion.insert({
@@ -1035,12 +1488,17 @@ class MessagesCompanion extends UpdateCompanion<Message> {
     required String userId,
     this.content = const Value.absent(),
     this.type = const Value.absent(),
-    this.replyToId = const Value.absent(),
+    this.clientId = const Value.absent(),
+    this.status = const Value.absent(),
     this.fileUrl = const Value.absent(),
     this.fileName = const Value.absent(),
     this.fileSize = const Value.absent(),
     this.mimeType = const Value.absent(),
+    this.replyToId = const Value.absent(),
+    this.isDeleted = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        chatId = Value(chatId),
@@ -1051,12 +1509,17 @@ class MessagesCompanion extends UpdateCompanion<Message> {
     Expression<String>? userId,
     Expression<String>? content,
     Expression<String>? type,
-    Expression<String>? replyToId,
+    Expression<String>? clientId,
+    Expression<String>? status,
     Expression<String>? fileUrl,
     Expression<String>? fileName,
     Expression<int>? fileSize,
     Expression<String>? mimeType,
+    Expression<String>? replyToId,
+    Expression<bool>? isDeleted,
     Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1065,12 +1528,17 @@ class MessagesCompanion extends UpdateCompanion<Message> {
       if (userId != null) 'user_id': userId,
       if (content != null) 'content': content,
       if (type != null) 'type': type,
-      if (replyToId != null) 'reply_to_id': replyToId,
+      if (clientId != null) 'client_id': clientId,
+      if (status != null) 'status': status,
       if (fileUrl != null) 'file_url': fileUrl,
       if (fileName != null) 'file_name': fileName,
       if (fileSize != null) 'file_size': fileSize,
       if (mimeType != null) 'mime_type': mimeType,
+      if (replyToId != null) 'reply_to_id': replyToId,
+      if (isDeleted != null) 'is_deleted': isDeleted,
       if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1081,12 +1549,17 @@ class MessagesCompanion extends UpdateCompanion<Message> {
     Value<String>? userId,
     Value<String>? content,
     Value<String>? type,
-    Value<String?>? replyToId,
+    Value<String?>? clientId,
+    Value<String?>? status,
     Value<String?>? fileUrl,
     Value<String?>? fileName,
     Value<int?>? fileSize,
     Value<String?>? mimeType,
+    Value<String?>? replyToId,
+    Value<bool>? isDeleted,
     Value<DateTime>? createdAt,
+    Value<DateTime?>? updatedAt,
+    Value<DateTime?>? deletedAt,
     Value<int>? rowid,
   }) {
     return MessagesCompanion(
@@ -1095,12 +1568,17 @@ class MessagesCompanion extends UpdateCompanion<Message> {
       userId: userId ?? this.userId,
       content: content ?? this.content,
       type: type ?? this.type,
-      replyToId: replyToId ?? this.replyToId,
+      clientId: clientId ?? this.clientId,
+      status: status ?? this.status,
       fileUrl: fileUrl ?? this.fileUrl,
       fileName: fileName ?? this.fileName,
       fileSize: fileSize ?? this.fileSize,
       mimeType: mimeType ?? this.mimeType,
+      replyToId: replyToId ?? this.replyToId,
+      isDeleted: isDeleted ?? this.isDeleted,
       createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1123,8 +1601,11 @@ class MessagesCompanion extends UpdateCompanion<Message> {
     if (type.present) {
       map['type'] = Variable<String>(type.value);
     }
-    if (replyToId.present) {
-      map['reply_to_id'] = Variable<String>(replyToId.value);
+    if (clientId.present) {
+      map['client_id'] = Variable<String>(clientId.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
     }
     if (fileUrl.present) {
       map['file_url'] = Variable<String>(fileUrl.value);
@@ -1138,8 +1619,20 @@ class MessagesCompanion extends UpdateCompanion<Message> {
     if (mimeType.present) {
       map['mime_type'] = Variable<String>(mimeType.value);
     }
+    if (replyToId.present) {
+      map['reply_to_id'] = Variable<String>(replyToId.value);
+    }
+    if (isDeleted.present) {
+      map['is_deleted'] = Variable<bool>(isDeleted.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -1155,12 +1648,17 @@ class MessagesCompanion extends UpdateCompanion<Message> {
           ..write('userId: $userId, ')
           ..write('content: $content, ')
           ..write('type: $type, ')
-          ..write('replyToId: $replyToId, ')
+          ..write('clientId: $clientId, ')
+          ..write('status: $status, ')
           ..write('fileUrl: $fileUrl, ')
           ..write('fileName: $fileName, ')
           ..write('fileSize: $fileSize, ')
           ..write('mimeType: $mimeType, ')
+          ..write('replyToId: $replyToId, ')
+          ..write('isDeleted: $isDeleted, ')
           ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1211,6 +1709,50 @@ class $ParticipantsTable extends Participants
     requiredDuringInsert: false,
     defaultValue: const Constant('member'),
   );
+  static const VerificationMeta _isMutedMeta = const VerificationMeta(
+    'isMuted',
+  );
+  @override
+  late final GeneratedColumn<bool> isMuted = GeneratedColumn<bool>(
+    'is_muted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_muted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _notificationsEnabledMeta =
+      const VerificationMeta('notificationsEnabled');
+  @override
+  late final GeneratedColumn<bool> notificationsEnabled = GeneratedColumn<bool>(
+    'notifications_enabled',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("notifications_enabled" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _isDeletedMeta = const VerificationMeta(
+    'isDeleted',
+  );
+  @override
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+    'is_deleted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_deleted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   static const VerificationMeta _joinedAtMeta = const VerificationMeta(
     'joinedAt',
   );
@@ -1223,8 +1765,54 @@ class $ParticipantsTable extends Participants
     requiredDuringInsert: false,
     clientDefault: () => DateTime.now(),
   );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
   @override
-  List<GeneratedColumn> get $columns => [id, userId, chatId, role, joinedAt];
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    clientDefault: () => DateTime.now(),
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    userId,
+    chatId,
+    role,
+    isMuted,
+    notificationsEnabled,
+    isDeleted,
+    joinedAt,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -1264,10 +1852,49 @@ class $ParticipantsTable extends Participants
         role.isAcceptableOrUnknown(data['role']!, _roleMeta),
       );
     }
+    if (data.containsKey('is_muted')) {
+      context.handle(
+        _isMutedMeta,
+        isMuted.isAcceptableOrUnknown(data['is_muted']!, _isMutedMeta),
+      );
+    }
+    if (data.containsKey('notifications_enabled')) {
+      context.handle(
+        _notificationsEnabledMeta,
+        notificationsEnabled.isAcceptableOrUnknown(
+          data['notifications_enabled']!,
+          _notificationsEnabledMeta,
+        ),
+      );
+    }
+    if (data.containsKey('is_deleted')) {
+      context.handle(
+        _isDeletedMeta,
+        isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
+      );
+    }
     if (data.containsKey('joined_at')) {
       context.handle(
         _joinedAtMeta,
         joinedAt.isAcceptableOrUnknown(data['joined_at']!, _joinedAtMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
       );
     }
     return context;
@@ -1295,10 +1922,34 @@ class $ParticipantsTable extends Participants
         DriftSqlType.string,
         data['${effectivePrefix}role'],
       )!,
+      isMuted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_muted'],
+      )!,
+      notificationsEnabled: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}notifications_enabled'],
+      )!,
+      isDeleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_deleted'],
+      )!,
       joinedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}joined_at'],
       )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      ),
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
     );
   }
 
@@ -1313,13 +1964,25 @@ class Participant extends DataClass implements Insertable<Participant> {
   final String userId;
   final String chatId;
   final String role;
+  final bool isMuted;
+  final bool notificationsEnabled;
+  final bool isDeleted;
   final DateTime joinedAt;
+  final DateTime createdAt;
+  final DateTime? updatedAt;
+  final DateTime? deletedAt;
   const Participant({
     required this.id,
     required this.userId,
     required this.chatId,
     required this.role,
+    required this.isMuted,
+    required this.notificationsEnabled,
+    required this.isDeleted,
     required this.joinedAt,
+    required this.createdAt,
+    this.updatedAt,
+    this.deletedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1328,7 +1991,17 @@ class Participant extends DataClass implements Insertable<Participant> {
     map['user_id'] = Variable<String>(userId);
     map['chat_id'] = Variable<String>(chatId);
     map['role'] = Variable<String>(role);
+    map['is_muted'] = Variable<bool>(isMuted);
+    map['notifications_enabled'] = Variable<bool>(notificationsEnabled);
+    map['is_deleted'] = Variable<bool>(isDeleted);
     map['joined_at'] = Variable<DateTime>(joinedAt);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
     return map;
   }
 
@@ -1338,7 +2011,17 @@ class Participant extends DataClass implements Insertable<Participant> {
       userId: Value(userId),
       chatId: Value(chatId),
       role: Value(role),
+      isMuted: Value(isMuted),
+      notificationsEnabled: Value(notificationsEnabled),
+      isDeleted: Value(isDeleted),
       joinedAt: Value(joinedAt),
+      createdAt: Value(createdAt),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
     );
   }
 
@@ -1352,7 +2035,15 @@ class Participant extends DataClass implements Insertable<Participant> {
       userId: serializer.fromJson<String>(json['userId']),
       chatId: serializer.fromJson<String>(json['chatId']),
       role: serializer.fromJson<String>(json['role']),
+      isMuted: serializer.fromJson<bool>(json['isMuted']),
+      notificationsEnabled: serializer.fromJson<bool>(
+        json['notificationsEnabled'],
+      ),
+      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
       joinedAt: serializer.fromJson<DateTime>(json['joinedAt']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
     );
   }
   @override
@@ -1363,7 +2054,13 @@ class Participant extends DataClass implements Insertable<Participant> {
       'userId': serializer.toJson<String>(userId),
       'chatId': serializer.toJson<String>(chatId),
       'role': serializer.toJson<String>(role),
+      'isMuted': serializer.toJson<bool>(isMuted),
+      'notificationsEnabled': serializer.toJson<bool>(notificationsEnabled),
+      'isDeleted': serializer.toJson<bool>(isDeleted),
       'joinedAt': serializer.toJson<DateTime>(joinedAt),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
     };
   }
 
@@ -1372,13 +2069,25 @@ class Participant extends DataClass implements Insertable<Participant> {
     String? userId,
     String? chatId,
     String? role,
+    bool? isMuted,
+    bool? notificationsEnabled,
+    bool? isDeleted,
     DateTime? joinedAt,
+    DateTime? createdAt,
+    Value<DateTime?> updatedAt = const Value.absent(),
+    Value<DateTime?> deletedAt = const Value.absent(),
   }) => Participant(
     id: id ?? this.id,
     userId: userId ?? this.userId,
     chatId: chatId ?? this.chatId,
     role: role ?? this.role,
+    isMuted: isMuted ?? this.isMuted,
+    notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
+    isDeleted: isDeleted ?? this.isDeleted,
     joinedAt: joinedAt ?? this.joinedAt,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
   );
   Participant copyWithCompanion(ParticipantsCompanion data) {
     return Participant(
@@ -1386,7 +2095,15 @@ class Participant extends DataClass implements Insertable<Participant> {
       userId: data.userId.present ? data.userId.value : this.userId,
       chatId: data.chatId.present ? data.chatId.value : this.chatId,
       role: data.role.present ? data.role.value : this.role,
+      isMuted: data.isMuted.present ? data.isMuted.value : this.isMuted,
+      notificationsEnabled: data.notificationsEnabled.present
+          ? data.notificationsEnabled.value
+          : this.notificationsEnabled,
+      isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
       joinedAt: data.joinedAt.present ? data.joinedAt.value : this.joinedAt,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
     );
   }
 
@@ -1397,13 +2114,31 @@ class Participant extends DataClass implements Insertable<Participant> {
           ..write('userId: $userId, ')
           ..write('chatId: $chatId, ')
           ..write('role: $role, ')
-          ..write('joinedAt: $joinedAt')
+          ..write('isMuted: $isMuted, ')
+          ..write('notificationsEnabled: $notificationsEnabled, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('joinedAt: $joinedAt, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, userId, chatId, role, joinedAt);
+  int get hashCode => Object.hash(
+    id,
+    userId,
+    chatId,
+    role,
+    isMuted,
+    notificationsEnabled,
+    isDeleted,
+    joinedAt,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1412,7 +2147,13 @@ class Participant extends DataClass implements Insertable<Participant> {
           other.userId == this.userId &&
           other.chatId == this.chatId &&
           other.role == this.role &&
-          other.joinedAt == this.joinedAt);
+          other.isMuted == this.isMuted &&
+          other.notificationsEnabled == this.notificationsEnabled &&
+          other.isDeleted == this.isDeleted &&
+          other.joinedAt == this.joinedAt &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
 }
 
 class ParticipantsCompanion extends UpdateCompanion<Participant> {
@@ -1420,14 +2161,26 @@ class ParticipantsCompanion extends UpdateCompanion<Participant> {
   final Value<String> userId;
   final Value<String> chatId;
   final Value<String> role;
+  final Value<bool> isMuted;
+  final Value<bool> notificationsEnabled;
+  final Value<bool> isDeleted;
   final Value<DateTime> joinedAt;
+  final Value<DateTime> createdAt;
+  final Value<DateTime?> updatedAt;
+  final Value<DateTime?> deletedAt;
   final Value<int> rowid;
   const ParticipantsCompanion({
     this.id = const Value.absent(),
     this.userId = const Value.absent(),
     this.chatId = const Value.absent(),
     this.role = const Value.absent(),
+    this.isMuted = const Value.absent(),
+    this.notificationsEnabled = const Value.absent(),
+    this.isDeleted = const Value.absent(),
     this.joinedAt = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ParticipantsCompanion.insert({
@@ -1435,7 +2188,13 @@ class ParticipantsCompanion extends UpdateCompanion<Participant> {
     required String userId,
     required String chatId,
     this.role = const Value.absent(),
+    this.isMuted = const Value.absent(),
+    this.notificationsEnabled = const Value.absent(),
+    this.isDeleted = const Value.absent(),
     this.joinedAt = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        userId = Value(userId),
@@ -1445,7 +2204,13 @@ class ParticipantsCompanion extends UpdateCompanion<Participant> {
     Expression<String>? userId,
     Expression<String>? chatId,
     Expression<String>? role,
+    Expression<bool>? isMuted,
+    Expression<bool>? notificationsEnabled,
+    Expression<bool>? isDeleted,
     Expression<DateTime>? joinedAt,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1453,7 +2218,14 @@ class ParticipantsCompanion extends UpdateCompanion<Participant> {
       if (userId != null) 'user_id': userId,
       if (chatId != null) 'chat_id': chatId,
       if (role != null) 'role': role,
+      if (isMuted != null) 'is_muted': isMuted,
+      if (notificationsEnabled != null)
+        'notifications_enabled': notificationsEnabled,
+      if (isDeleted != null) 'is_deleted': isDeleted,
       if (joinedAt != null) 'joined_at': joinedAt,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1463,7 +2235,13 @@ class ParticipantsCompanion extends UpdateCompanion<Participant> {
     Value<String>? userId,
     Value<String>? chatId,
     Value<String>? role,
+    Value<bool>? isMuted,
+    Value<bool>? notificationsEnabled,
+    Value<bool>? isDeleted,
     Value<DateTime>? joinedAt,
+    Value<DateTime>? createdAt,
+    Value<DateTime?>? updatedAt,
+    Value<DateTime?>? deletedAt,
     Value<int>? rowid,
   }) {
     return ParticipantsCompanion(
@@ -1471,7 +2249,13 @@ class ParticipantsCompanion extends UpdateCompanion<Participant> {
       userId: userId ?? this.userId,
       chatId: chatId ?? this.chatId,
       role: role ?? this.role,
+      isMuted: isMuted ?? this.isMuted,
+      notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
+      isDeleted: isDeleted ?? this.isDeleted,
       joinedAt: joinedAt ?? this.joinedAt,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1491,8 +2275,26 @@ class ParticipantsCompanion extends UpdateCompanion<Participant> {
     if (role.present) {
       map['role'] = Variable<String>(role.value);
     }
+    if (isMuted.present) {
+      map['is_muted'] = Variable<bool>(isMuted.value);
+    }
+    if (notificationsEnabled.present) {
+      map['notifications_enabled'] = Variable<bool>(notificationsEnabled.value);
+    }
+    if (isDeleted.present) {
+      map['is_deleted'] = Variable<bool>(isDeleted.value);
+    }
     if (joinedAt.present) {
       map['joined_at'] = Variable<DateTime>(joinedAt.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -1507,7 +2309,13 @@ class ParticipantsCompanion extends UpdateCompanion<Participant> {
           ..write('userId: $userId, ')
           ..write('chatId: $chatId, ')
           ..write('role: $role, ')
+          ..write('isMuted: $isMuted, ')
+          ..write('notificationsEnabled: $notificationsEnabled, ')
+          ..write('isDeleted: $isDeleted, ')
           ..write('joinedAt: $joinedAt, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1731,6 +2539,662 @@ class SyncMetaCompanion extends UpdateCompanion<SyncMetaData> {
   }
 }
 
+class $UsersTable extends Users with TableInfo<$UsersTable, User> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $UsersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _surnameMeta = const VerificationMeta(
+    'surname',
+  );
+  @override
+  late final GeneratedColumn<String> surname = GeneratedColumn<String>(
+    'surname',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _tgnameMeta = const VerificationMeta('tgname');
+  @override
+  late final GeneratedColumn<String> tgname = GeneratedColumn<String>(
+    'tgname',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dateOfBirthMeta = const VerificationMeta(
+    'dateOfBirth',
+  );
+  @override
+  late final GeneratedColumn<DateTime> dateOfBirth = GeneratedColumn<DateTime>(
+    'date_of_birth',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _bioMeta = const VerificationMeta('bio');
+  @override
+  late final GeneratedColumn<String> bio = GeneratedColumn<String>(
+    'bio',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _avatarUrlMeta = const VerificationMeta(
+    'avatarUrl',
+  );
+  @override
+  late final GeneratedColumn<String> avatarUrl = GeneratedColumn<String>(
+    'avatar_url',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _isDeletedMeta = const VerificationMeta(
+    'isDeleted',
+  );
+  @override
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+    'is_deleted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_deleted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    clientDefault: () => DateTime.now(),
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    surname,
+    tgname,
+    dateOfBirth,
+    bio,
+    avatarUrl,
+    isDeleted,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'users';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<User> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('surname')) {
+      context.handle(
+        _surnameMeta,
+        surname.isAcceptableOrUnknown(data['surname']!, _surnameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_surnameMeta);
+    }
+    if (data.containsKey('tgname')) {
+      context.handle(
+        _tgnameMeta,
+        tgname.isAcceptableOrUnknown(data['tgname']!, _tgnameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_tgnameMeta);
+    }
+    if (data.containsKey('date_of_birth')) {
+      context.handle(
+        _dateOfBirthMeta,
+        dateOfBirth.isAcceptableOrUnknown(
+          data['date_of_birth']!,
+          _dateOfBirthMeta,
+        ),
+      );
+    }
+    if (data.containsKey('bio')) {
+      context.handle(
+        _bioMeta,
+        bio.isAcceptableOrUnknown(data['bio']!, _bioMeta),
+      );
+    }
+    if (data.containsKey('avatar_url')) {
+      context.handle(
+        _avatarUrlMeta,
+        avatarUrl.isAcceptableOrUnknown(data['avatar_url']!, _avatarUrlMeta),
+      );
+    }
+    if (data.containsKey('is_deleted')) {
+      context.handle(
+        _isDeletedMeta,
+        isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  User map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return User(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      surname: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}surname'],
+      )!,
+      tgname: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}tgname'],
+      )!,
+      dateOfBirth: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}date_of_birth'],
+      ),
+      bio: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}bio'],
+      ),
+      avatarUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}avatar_url'],
+      ),
+      isDeleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_deleted'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      ),
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
+    );
+  }
+
+  @override
+  $UsersTable createAlias(String alias) {
+    return $UsersTable(attachedDatabase, alias);
+  }
+}
+
+class User extends DataClass implements Insertable<User> {
+  final String id;
+  final String name;
+  final String surname;
+  final String tgname;
+  final DateTime? dateOfBirth;
+  final String? bio;
+  final String? avatarUrl;
+  final bool isDeleted;
+  final DateTime createdAt;
+  final DateTime? updatedAt;
+  final DateTime? deletedAt;
+  const User({
+    required this.id,
+    required this.name,
+    required this.surname,
+    required this.tgname,
+    this.dateOfBirth,
+    this.bio,
+    this.avatarUrl,
+    required this.isDeleted,
+    required this.createdAt,
+    this.updatedAt,
+    this.deletedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    map['surname'] = Variable<String>(surname);
+    map['tgname'] = Variable<String>(tgname);
+    if (!nullToAbsent || dateOfBirth != null) {
+      map['date_of_birth'] = Variable<DateTime>(dateOfBirth);
+    }
+    if (!nullToAbsent || bio != null) {
+      map['bio'] = Variable<String>(bio);
+    }
+    if (!nullToAbsent || avatarUrl != null) {
+      map['avatar_url'] = Variable<String>(avatarUrl);
+    }
+    map['is_deleted'] = Variable<bool>(isDeleted);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    return map;
+  }
+
+  UsersCompanion toCompanion(bool nullToAbsent) {
+    return UsersCompanion(
+      id: Value(id),
+      name: Value(name),
+      surname: Value(surname),
+      tgname: Value(tgname),
+      dateOfBirth: dateOfBirth == null && nullToAbsent
+          ? const Value.absent()
+          : Value(dateOfBirth),
+      bio: bio == null && nullToAbsent ? const Value.absent() : Value(bio),
+      avatarUrl: avatarUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(avatarUrl),
+      isDeleted: Value(isDeleted),
+      createdAt: Value(createdAt),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory User.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return User(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      surname: serializer.fromJson<String>(json['surname']),
+      tgname: serializer.fromJson<String>(json['tgname']),
+      dateOfBirth: serializer.fromJson<DateTime?>(json['dateOfBirth']),
+      bio: serializer.fromJson<String?>(json['bio']),
+      avatarUrl: serializer.fromJson<String?>(json['avatarUrl']),
+      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'surname': serializer.toJson<String>(surname),
+      'tgname': serializer.toJson<String>(tgname),
+      'dateOfBirth': serializer.toJson<DateTime?>(dateOfBirth),
+      'bio': serializer.toJson<String?>(bio),
+      'avatarUrl': serializer.toJson<String?>(avatarUrl),
+      'isDeleted': serializer.toJson<bool>(isDeleted),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  User copyWith({
+    String? id,
+    String? name,
+    String? surname,
+    String? tgname,
+    Value<DateTime?> dateOfBirth = const Value.absent(),
+    Value<String?> bio = const Value.absent(),
+    Value<String?> avatarUrl = const Value.absent(),
+    bool? isDeleted,
+    DateTime? createdAt,
+    Value<DateTime?> updatedAt = const Value.absent(),
+    Value<DateTime?> deletedAt = const Value.absent(),
+  }) => User(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    surname: surname ?? this.surname,
+    tgname: tgname ?? this.tgname,
+    dateOfBirth: dateOfBirth.present ? dateOfBirth.value : this.dateOfBirth,
+    bio: bio.present ? bio.value : this.bio,
+    avatarUrl: avatarUrl.present ? avatarUrl.value : this.avatarUrl,
+    isDeleted: isDeleted ?? this.isDeleted,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+  );
+  User copyWithCompanion(UsersCompanion data) {
+    return User(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      surname: data.surname.present ? data.surname.value : this.surname,
+      tgname: data.tgname.present ? data.tgname.value : this.tgname,
+      dateOfBirth: data.dateOfBirth.present
+          ? data.dateOfBirth.value
+          : this.dateOfBirth,
+      bio: data.bio.present ? data.bio.value : this.bio,
+      avatarUrl: data.avatarUrl.present ? data.avatarUrl.value : this.avatarUrl,
+      isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('User(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('surname: $surname, ')
+          ..write('tgname: $tgname, ')
+          ..write('dateOfBirth: $dateOfBirth, ')
+          ..write('bio: $bio, ')
+          ..write('avatarUrl: $avatarUrl, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    name,
+    surname,
+    tgname,
+    dateOfBirth,
+    bio,
+    avatarUrl,
+    isDeleted,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is User &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.surname == this.surname &&
+          other.tgname == this.tgname &&
+          other.dateOfBirth == this.dateOfBirth &&
+          other.bio == this.bio &&
+          other.avatarUrl == this.avatarUrl &&
+          other.isDeleted == this.isDeleted &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class UsersCompanion extends UpdateCompanion<User> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<String> surname;
+  final Value<String> tgname;
+  final Value<DateTime?> dateOfBirth;
+  final Value<String?> bio;
+  final Value<String?> avatarUrl;
+  final Value<bool> isDeleted;
+  final Value<DateTime> createdAt;
+  final Value<DateTime?> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<int> rowid;
+  const UsersCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.surname = const Value.absent(),
+    this.tgname = const Value.absent(),
+    this.dateOfBirth = const Value.absent(),
+    this.bio = const Value.absent(),
+    this.avatarUrl = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  UsersCompanion.insert({
+    required String id,
+    required String name,
+    required String surname,
+    required String tgname,
+    this.dateOfBirth = const Value.absent(),
+    this.bio = const Value.absent(),
+    this.avatarUrl = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       name = Value(name),
+       surname = Value(surname),
+       tgname = Value(tgname);
+  static Insertable<User> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<String>? surname,
+    Expression<String>? tgname,
+    Expression<DateTime>? dateOfBirth,
+    Expression<String>? bio,
+    Expression<String>? avatarUrl,
+    Expression<bool>? isDeleted,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (surname != null) 'surname': surname,
+      if (tgname != null) 'tgname': tgname,
+      if (dateOfBirth != null) 'date_of_birth': dateOfBirth,
+      if (bio != null) 'bio': bio,
+      if (avatarUrl != null) 'avatar_url': avatarUrl,
+      if (isDeleted != null) 'is_deleted': isDeleted,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  UsersCompanion copyWith({
+    Value<String>? id,
+    Value<String>? name,
+    Value<String>? surname,
+    Value<String>? tgname,
+    Value<DateTime?>? dateOfBirth,
+    Value<String?>? bio,
+    Value<String?>? avatarUrl,
+    Value<bool>? isDeleted,
+    Value<DateTime>? createdAt,
+    Value<DateTime?>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<int>? rowid,
+  }) {
+    return UsersCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      surname: surname ?? this.surname,
+      tgname: tgname ?? this.tgname,
+      dateOfBirth: dateOfBirth ?? this.dateOfBirth,
+      bio: bio ?? this.bio,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      isDeleted: isDeleted ?? this.isDeleted,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (surname.present) {
+      map['surname'] = Variable<String>(surname.value);
+    }
+    if (tgname.present) {
+      map['tgname'] = Variable<String>(tgname.value);
+    }
+    if (dateOfBirth.present) {
+      map['date_of_birth'] = Variable<DateTime>(dateOfBirth.value);
+    }
+    if (bio.present) {
+      map['bio'] = Variable<String>(bio.value);
+    }
+    if (avatarUrl.present) {
+      map['avatar_url'] = Variable<String>(avatarUrl.value);
+    }
+    if (isDeleted.present) {
+      map['is_deleted'] = Variable<bool>(isDeleted.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UsersCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('surname: $surname, ')
+          ..write('tgname: $tgname, ')
+          ..write('dateOfBirth: $dateOfBirth, ')
+          ..write('bio: $bio, ')
+          ..write('avatarUrl: $avatarUrl, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDb extends GeneratedDatabase {
   _$AppDb(QueryExecutor e) : super(e);
   $AppDbManager get managers => $AppDbManager(this);
@@ -1738,6 +3202,12 @@ abstract class _$AppDb extends GeneratedDatabase {
   late final $MessagesTable messages = $MessagesTable(this);
   late final $ParticipantsTable participants = $ParticipantsTable(this);
   late final $SyncMetaTable syncMeta = $SyncMetaTable(this);
+  late final $UsersTable users = $UsersTable(this);
+  late final ChatsDao chatsDao = ChatsDao(this as AppDb);
+  late final MessagesDao messagesDao = MessagesDao(this as AppDb);
+  late final ParticipantsDao participantsDao = ParticipantsDao(this as AppDb);
+  late final UsersDao usersDao = UsersDao(this as AppDb);
+  late final SyncMetaDao syncMetaDao = SyncMetaDao(this as AppDb);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1747,6 +3217,7 @@ abstract class _$AppDb extends GeneratedDatabase {
     messages,
     participants,
     syncMeta,
+    users,
   ];
 }
 
@@ -1756,10 +3227,15 @@ typedef $$ChatsTableCreateCompanionBuilder =
       required String name,
       Value<String?> description,
       required String type,
+      Value<String?> createdBy,
       Value<String?> avatarUrl,
+      required int maxMembers,
+      Value<DateTime?> lastActivityAt,
       Value<bool> isPrivate,
+      Value<bool> isDeleted,
       required DateTime createdAt,
-      required DateTime updatedAt,
+      Value<DateTime?> updatedAt,
+      Value<DateTime?> deletedAt,
       Value<int> rowid,
     });
 typedef $$ChatsTableUpdateCompanionBuilder =
@@ -1768,10 +3244,15 @@ typedef $$ChatsTableUpdateCompanionBuilder =
       Value<String> name,
       Value<String?> description,
       Value<String> type,
+      Value<String?> createdBy,
       Value<String?> avatarUrl,
+      Value<int> maxMembers,
+      Value<DateTime?> lastActivityAt,
       Value<bool> isPrivate,
+      Value<bool> isDeleted,
       Value<DateTime> createdAt,
-      Value<DateTime> updatedAt,
+      Value<DateTime?> updatedAt,
+      Value<DateTime?> deletedAt,
       Value<int> rowid,
     });
 
@@ -1845,13 +3326,33 @@ class $$ChatsTableFilterComposer extends Composer<_$AppDb, $ChatsTable> {
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get createdBy => $composableBuilder(
+    column: $table.createdBy,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get avatarUrl => $composableBuilder(
     column: $table.avatarUrl,
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<int> get maxMembers => $composableBuilder(
+    column: $table.maxMembers,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastActivityAt => $composableBuilder(
+    column: $table.lastActivityAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<bool> get isPrivate => $composableBuilder(
     column: $table.isPrivate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1862,6 +3363,11 @@ class $$ChatsTableFilterComposer extends Composer<_$AppDb, $ChatsTable> {
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1944,13 +3450,33 @@ class $$ChatsTableOrderingComposer extends Composer<_$AppDb, $ChatsTable> {
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get createdBy => $composableBuilder(
+    column: $table.createdBy,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get avatarUrl => $composableBuilder(
     column: $table.avatarUrl,
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get maxMembers => $composableBuilder(
+    column: $table.maxMembers,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastActivityAt => $composableBuilder(
+    column: $table.lastActivityAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get isPrivate => $composableBuilder(
     column: $table.isPrivate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -1961,6 +3487,11 @@ class $$ChatsTableOrderingComposer extends Composer<_$AppDb, $ChatsTable> {
 
   ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
     builder: (column) => ColumnOrderings(column),
   );
 }
@@ -1987,17 +3518,36 @@ class $$ChatsTableAnnotationComposer extends Composer<_$AppDb, $ChatsTable> {
   GeneratedColumn<String> get type =>
       $composableBuilder(column: $table.type, builder: (column) => column);
 
+  GeneratedColumn<String> get createdBy =>
+      $composableBuilder(column: $table.createdBy, builder: (column) => column);
+
   GeneratedColumn<String> get avatarUrl =>
       $composableBuilder(column: $table.avatarUrl, builder: (column) => column);
 
+  GeneratedColumn<int> get maxMembers => $composableBuilder(
+    column: $table.maxMembers,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get lastActivityAt => $composableBuilder(
+    column: $table.lastActivityAt,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<bool> get isPrivate =>
       $composableBuilder(column: $table.isPrivate, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDeleted =>
+      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
 
   Expression<T> messagesRefs<T extends Object>(
     Expression<T> Function($$MessagesTableAnnotationComposer a) f,
@@ -2082,20 +3632,30 @@ class $$ChatsTableTableManager
                 Value<String> name = const Value.absent(),
                 Value<String?> description = const Value.absent(),
                 Value<String> type = const Value.absent(),
+                Value<String?> createdBy = const Value.absent(),
                 Value<String?> avatarUrl = const Value.absent(),
+                Value<int> maxMembers = const Value.absent(),
+                Value<DateTime?> lastActivityAt = const Value.absent(),
                 Value<bool> isPrivate = const Value.absent(),
+                Value<bool> isDeleted = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ChatsCompanion(
                 id: id,
                 name: name,
                 description: description,
                 type: type,
+                createdBy: createdBy,
                 avatarUrl: avatarUrl,
+                maxMembers: maxMembers,
+                lastActivityAt: lastActivityAt,
                 isPrivate: isPrivate,
+                isDeleted: isDeleted,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                deletedAt: deletedAt,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -2104,20 +3664,30 @@ class $$ChatsTableTableManager
                 required String name,
                 Value<String?> description = const Value.absent(),
                 required String type,
+                Value<String?> createdBy = const Value.absent(),
                 Value<String?> avatarUrl = const Value.absent(),
+                required int maxMembers,
+                Value<DateTime?> lastActivityAt = const Value.absent(),
                 Value<bool> isPrivate = const Value.absent(),
+                Value<bool> isDeleted = const Value.absent(),
                 required DateTime createdAt,
-                required DateTime updatedAt,
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ChatsCompanion.insert(
                 id: id,
                 name: name,
                 description: description,
                 type: type,
+                createdBy: createdBy,
                 avatarUrl: avatarUrl,
+                maxMembers: maxMembers,
+                lastActivityAt: lastActivityAt,
                 isPrivate: isPrivate,
+                isDeleted: isDeleted,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                deletedAt: deletedAt,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -2204,12 +3774,17 @@ typedef $$MessagesTableCreateCompanionBuilder =
       required String userId,
       Value<String> content,
       Value<String> type,
-      Value<String?> replyToId,
+      Value<String?> clientId,
+      Value<String?> status,
       Value<String?> fileUrl,
       Value<String?> fileName,
       Value<int?> fileSize,
       Value<String?> mimeType,
+      Value<String?> replyToId,
+      Value<bool> isDeleted,
       Value<DateTime> createdAt,
+      Value<DateTime?> updatedAt,
+      Value<DateTime?> deletedAt,
       Value<int> rowid,
     });
 typedef $$MessagesTableUpdateCompanionBuilder =
@@ -2219,12 +3794,17 @@ typedef $$MessagesTableUpdateCompanionBuilder =
       Value<String> userId,
       Value<String> content,
       Value<String> type,
-      Value<String?> replyToId,
+      Value<String?> clientId,
+      Value<String?> status,
       Value<String?> fileUrl,
       Value<String?> fileName,
       Value<int?> fileSize,
       Value<String?> mimeType,
+      Value<String?> replyToId,
+      Value<bool> isDeleted,
       Value<DateTime> createdAt,
+      Value<DateTime?> updatedAt,
+      Value<DateTime?> deletedAt,
       Value<int> rowid,
     });
 
@@ -2279,8 +3859,13 @@ class $$MessagesTableFilterComposer extends Composer<_$AppDb, $MessagesTable> {
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get replyToId => $composableBuilder(
-    column: $table.replyToId,
+  ColumnFilters<String> get clientId => $composableBuilder(
+    column: $table.clientId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -2304,8 +3889,28 @@ class $$MessagesTableFilterComposer extends Composer<_$AppDb, $MessagesTable> {
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get replyToId => $composableBuilder(
+    column: $table.replyToId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -2362,8 +3967,13 @@ class $$MessagesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get replyToId => $composableBuilder(
-    column: $table.replyToId,
+  ColumnOrderings<String> get clientId => $composableBuilder(
+    column: $table.clientId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -2387,8 +3997,28 @@ class $$MessagesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get replyToId => $composableBuilder(
+    column: $table.replyToId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -2437,8 +4067,11 @@ class $$MessagesTableAnnotationComposer
   GeneratedColumn<String> get type =>
       $composableBuilder(column: $table.type, builder: (column) => column);
 
-  GeneratedColumn<String> get replyToId =>
-      $composableBuilder(column: $table.replyToId, builder: (column) => column);
+  GeneratedColumn<String> get clientId =>
+      $composableBuilder(column: $table.clientId, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
 
   GeneratedColumn<String> get fileUrl =>
       $composableBuilder(column: $table.fileUrl, builder: (column) => column);
@@ -2452,8 +4085,20 @@ class $$MessagesTableAnnotationComposer
   GeneratedColumn<String> get mimeType =>
       $composableBuilder(column: $table.mimeType, builder: (column) => column);
 
+  GeneratedColumn<String> get replyToId =>
+      $composableBuilder(column: $table.replyToId, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDeleted =>
+      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
+
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
 
   $$ChatsTableAnnotationComposer get chatId {
     final $$ChatsTableAnnotationComposer composer = $composerBuilder(
@@ -2512,12 +4157,17 @@ class $$MessagesTableTableManager
                 Value<String> userId = const Value.absent(),
                 Value<String> content = const Value.absent(),
                 Value<String> type = const Value.absent(),
-                Value<String?> replyToId = const Value.absent(),
+                Value<String?> clientId = const Value.absent(),
+                Value<String?> status = const Value.absent(),
                 Value<String?> fileUrl = const Value.absent(),
                 Value<String?> fileName = const Value.absent(),
                 Value<int?> fileSize = const Value.absent(),
                 Value<String?> mimeType = const Value.absent(),
+                Value<String?> replyToId = const Value.absent(),
+                Value<bool> isDeleted = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => MessagesCompanion(
                 id: id,
@@ -2525,12 +4175,17 @@ class $$MessagesTableTableManager
                 userId: userId,
                 content: content,
                 type: type,
-                replyToId: replyToId,
+                clientId: clientId,
+                status: status,
                 fileUrl: fileUrl,
                 fileName: fileName,
                 fileSize: fileSize,
                 mimeType: mimeType,
+                replyToId: replyToId,
+                isDeleted: isDeleted,
                 createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -2540,12 +4195,17 @@ class $$MessagesTableTableManager
                 required String userId,
                 Value<String> content = const Value.absent(),
                 Value<String> type = const Value.absent(),
-                Value<String?> replyToId = const Value.absent(),
+                Value<String?> clientId = const Value.absent(),
+                Value<String?> status = const Value.absent(),
                 Value<String?> fileUrl = const Value.absent(),
                 Value<String?> fileName = const Value.absent(),
                 Value<int?> fileSize = const Value.absent(),
                 Value<String?> mimeType = const Value.absent(),
+                Value<String?> replyToId = const Value.absent(),
+                Value<bool> isDeleted = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => MessagesCompanion.insert(
                 id: id,
@@ -2553,12 +4213,17 @@ class $$MessagesTableTableManager
                 userId: userId,
                 content: content,
                 type: type,
-                replyToId: replyToId,
+                clientId: clientId,
+                status: status,
                 fileUrl: fileUrl,
                 fileName: fileName,
                 fileSize: fileSize,
                 mimeType: mimeType,
+                replyToId: replyToId,
+                isDeleted: isDeleted,
                 createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -2634,7 +4299,13 @@ typedef $$ParticipantsTableCreateCompanionBuilder =
       required String userId,
       required String chatId,
       Value<String> role,
+      Value<bool> isMuted,
+      Value<bool> notificationsEnabled,
+      Value<bool> isDeleted,
       Value<DateTime> joinedAt,
+      Value<DateTime> createdAt,
+      Value<DateTime?> updatedAt,
+      Value<DateTime?> deletedAt,
       Value<int> rowid,
     });
 typedef $$ParticipantsTableUpdateCompanionBuilder =
@@ -2643,7 +4314,13 @@ typedef $$ParticipantsTableUpdateCompanionBuilder =
       Value<String> userId,
       Value<String> chatId,
       Value<String> role,
+      Value<bool> isMuted,
+      Value<bool> notificationsEnabled,
+      Value<bool> isDeleted,
       Value<DateTime> joinedAt,
+      Value<DateTime> createdAt,
+      Value<DateTime?> updatedAt,
+      Value<DateTime?> deletedAt,
       Value<int> rowid,
     });
 
@@ -2694,8 +4371,38 @@ class $$ParticipantsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<bool> get isMuted => $composableBuilder(
+    column: $table.isMuted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get notificationsEnabled => $composableBuilder(
+    column: $table.notificationsEnabled,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<DateTime> get joinedAt => $composableBuilder(
     column: $table.joinedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -2747,8 +4454,38 @@ class $$ParticipantsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get isMuted => $composableBuilder(
+    column: $table.isMuted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get notificationsEnabled => $composableBuilder(
+    column: $table.notificationsEnabled,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get joinedAt => $composableBuilder(
     column: $table.joinedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -2794,8 +4531,28 @@ class $$ParticipantsTableAnnotationComposer
   GeneratedColumn<String> get role =>
       $composableBuilder(column: $table.role, builder: (column) => column);
 
+  GeneratedColumn<bool> get isMuted =>
+      $composableBuilder(column: $table.isMuted, builder: (column) => column);
+
+  GeneratedColumn<bool> get notificationsEnabled => $composableBuilder(
+    column: $table.notificationsEnabled,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isDeleted =>
+      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
+
   GeneratedColumn<DateTime> get joinedAt =>
       $composableBuilder(column: $table.joinedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
 
   $$ChatsTableAnnotationComposer get chatId {
     final $$ChatsTableAnnotationComposer composer = $composerBuilder(
@@ -2853,14 +4610,26 @@ class $$ParticipantsTableTableManager
                 Value<String> userId = const Value.absent(),
                 Value<String> chatId = const Value.absent(),
                 Value<String> role = const Value.absent(),
+                Value<bool> isMuted = const Value.absent(),
+                Value<bool> notificationsEnabled = const Value.absent(),
+                Value<bool> isDeleted = const Value.absent(),
                 Value<DateTime> joinedAt = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ParticipantsCompanion(
                 id: id,
                 userId: userId,
                 chatId: chatId,
                 role: role,
+                isMuted: isMuted,
+                notificationsEnabled: notificationsEnabled,
+                isDeleted: isDeleted,
                 joinedAt: joinedAt,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -2869,14 +4638,26 @@ class $$ParticipantsTableTableManager
                 required String userId,
                 required String chatId,
                 Value<String> role = const Value.absent(),
+                Value<bool> isMuted = const Value.absent(),
+                Value<bool> notificationsEnabled = const Value.absent(),
+                Value<bool> isDeleted = const Value.absent(),
                 Value<DateTime> joinedAt = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ParticipantsCompanion.insert(
                 id: id,
                 userId: userId,
                 chatId: chatId,
                 role: role,
+                isMuted: isMuted,
+                notificationsEnabled: notificationsEnabled,
+                isDeleted: isDeleted,
                 joinedAt: joinedAt,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -3078,6 +4859,313 @@ typedef $$SyncMetaTableProcessedTableManager =
       SyncMetaData,
       PrefetchHooks Function()
     >;
+typedef $$UsersTableCreateCompanionBuilder =
+    UsersCompanion Function({
+      required String id,
+      required String name,
+      required String surname,
+      required String tgname,
+      Value<DateTime?> dateOfBirth,
+      Value<String?> bio,
+      Value<String?> avatarUrl,
+      Value<bool> isDeleted,
+      Value<DateTime> createdAt,
+      Value<DateTime?> updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<int> rowid,
+    });
+typedef $$UsersTableUpdateCompanionBuilder =
+    UsersCompanion Function({
+      Value<String> id,
+      Value<String> name,
+      Value<String> surname,
+      Value<String> tgname,
+      Value<DateTime?> dateOfBirth,
+      Value<String?> bio,
+      Value<String?> avatarUrl,
+      Value<bool> isDeleted,
+      Value<DateTime> createdAt,
+      Value<DateTime?> updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<int> rowid,
+    });
+
+class $$UsersTableFilterComposer extends Composer<_$AppDb, $UsersTable> {
+  $$UsersTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get surname => $composableBuilder(
+    column: $table.surname,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get tgname => $composableBuilder(
+    column: $table.tgname,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get dateOfBirth => $composableBuilder(
+    column: $table.dateOfBirth,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get bio => $composableBuilder(
+    column: $table.bio,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get avatarUrl => $composableBuilder(
+    column: $table.avatarUrl,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$UsersTableOrderingComposer extends Composer<_$AppDb, $UsersTable> {
+  $$UsersTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get surname => $composableBuilder(
+    column: $table.surname,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get tgname => $composableBuilder(
+    column: $table.tgname,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get dateOfBirth => $composableBuilder(
+    column: $table.dateOfBirth,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get bio => $composableBuilder(
+    column: $table.bio,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get avatarUrl => $composableBuilder(
+    column: $table.avatarUrl,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$UsersTableAnnotationComposer extends Composer<_$AppDb, $UsersTable> {
+  $$UsersTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get surname =>
+      $composableBuilder(column: $table.surname, builder: (column) => column);
+
+  GeneratedColumn<String> get tgname =>
+      $composableBuilder(column: $table.tgname, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get dateOfBirth => $composableBuilder(
+    column: $table.dateOfBirth,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get bio =>
+      $composableBuilder(column: $table.bio, builder: (column) => column);
+
+  GeneratedColumn<String> get avatarUrl =>
+      $composableBuilder(column: $table.avatarUrl, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDeleted =>
+      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+}
+
+class $$UsersTableTableManager
+    extends
+        RootTableManager<
+          _$AppDb,
+          $UsersTable,
+          User,
+          $$UsersTableFilterComposer,
+          $$UsersTableOrderingComposer,
+          $$UsersTableAnnotationComposer,
+          $$UsersTableCreateCompanionBuilder,
+          $$UsersTableUpdateCompanionBuilder,
+          (User, BaseReferences<_$AppDb, $UsersTable, User>),
+          User,
+          PrefetchHooks Function()
+        > {
+  $$UsersTableTableManager(_$AppDb db, $UsersTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$UsersTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$UsersTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$UsersTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String> surname = const Value.absent(),
+                Value<String> tgname = const Value.absent(),
+                Value<DateTime?> dateOfBirth = const Value.absent(),
+                Value<String?> bio = const Value.absent(),
+                Value<String?> avatarUrl = const Value.absent(),
+                Value<bool> isDeleted = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => UsersCompanion(
+                id: id,
+                name: name,
+                surname: surname,
+                tgname: tgname,
+                dateOfBirth: dateOfBirth,
+                bio: bio,
+                avatarUrl: avatarUrl,
+                isDeleted: isDeleted,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String name,
+                required String surname,
+                required String tgname,
+                Value<DateTime?> dateOfBirth = const Value.absent(),
+                Value<String?> bio = const Value.absent(),
+                Value<String?> avatarUrl = const Value.absent(),
+                Value<bool> isDeleted = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => UsersCompanion.insert(
+                id: id,
+                name: name,
+                surname: surname,
+                tgname: tgname,
+                dateOfBirth: dateOfBirth,
+                bio: bio,
+                avatarUrl: avatarUrl,
+                isDeleted: isDeleted,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$UsersTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDb,
+      $UsersTable,
+      User,
+      $$UsersTableFilterComposer,
+      $$UsersTableOrderingComposer,
+      $$UsersTableAnnotationComposer,
+      $$UsersTableCreateCompanionBuilder,
+      $$UsersTableUpdateCompanionBuilder,
+      (User, BaseReferences<_$AppDb, $UsersTable, User>),
+      User,
+      PrefetchHooks Function()
+    >;
 
 class $AppDbManager {
   final _$AppDb _db;
@@ -3090,4 +5178,6 @@ class $AppDbManager {
       $$ParticipantsTableTableManager(_db, _db.participants);
   $$SyncMetaTableTableManager get syncMeta =>
       $$SyncMetaTableTableManager(_db, _db.syncMeta);
+  $$UsersTableTableManager get users =>
+      $$UsersTableTableManager(_db, _db.users);
 }

@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tik_talk/presintation/theme/theme_assets.dart';
 
-class AppBarChat extends StatefulWidget implements PreferredSizeWidget {
-  const AppBarChat({super.key});
+class AppBarProfile extends StatefulWidget implements PreferredSizeWidget {
+  const AppBarProfile({super.key});
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
   @override
-  State<AppBarChat> createState() => _AppBarChatState();
+  State<AppBarProfile> createState() => _AppBarProfileState();
 }
 
-class _AppBarChatState extends State<AppBarChat> {
+class _AppBarProfileState extends State<AppBarProfile> {
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +35,7 @@ class _AppBarChatState extends State<AppBarChat> {
             onPressed: () => Scaffold.of(context).openDrawer(), //TODO:
           ),
         ),
-        title: Text('Chat App Bar'),
+        title: Text('Profile'),
         // backgroundColor: Colors.transparent,
         // title: !_isSearching
         //     ? const Text(
@@ -61,7 +61,7 @@ class _AppBarChatState extends State<AppBarChat> {
         //     },
         //   ),
         // ],
-      ),
+      )
     );
   }
 }

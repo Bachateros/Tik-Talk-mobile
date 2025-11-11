@@ -23,7 +23,6 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    final chatId =context.read<ChatBloc>().state.chatId;
     return SafeArea(
       child: Column(
         children: [
