@@ -47,7 +47,11 @@ class _CustomAppBarState extends State<CustomAppBar> {
   void _updateSearchItems() {
     final homeState = context.read<HomeBloc>().state;
     final users = homeState.users.whereType<UserEntity>().toList();
-    final chats = homeState.homeModel.chats;
+    final List<ChatEntitie?>chats = [];
+    final listLastMes= homeState.listLastMesseges;
+    for(final chat in listLastMes){
+      chats.add(chat?.chat);
+    }
 
     _searchItems = [];
 
@@ -73,9 +77,12 @@ class _CustomAppBarState extends State<CustomAppBar> {
       // Если имя чата пустое, генерируем его
       if (displayName.isEmpty) {
         switch (chat.typeChat) {
-          case ChatType.direct:
-            displayName = _getDirectChatName(chat, homeState);
-            break;
+          case ChatType.direct:displayName= (){
+            final contactId = listLastMes.firstWhere((ch)=> ch?.chat.idChat == chat.idChat )?.contactId;
+            if(contactId == null){return 'dir';}
+            final user = users.firstWhere((u) => (u.userId == contactId));
+            return '${user.surname} ${user.name}';
+          }();
           case ChatType.group:
             displayName = 'Групповой чат';
             break;
@@ -118,37 +125,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
     }
   }
 
-  String _getDirectChatName(ChatEntitie chat, HomeState homeState) {
-    final otherUser = _getOtherUserInChat(chat, homeState);
-    return '${otherUser.name} ${otherUser.surname}'.trim();
-  }
 
-  UserEntity _getOtherUserInChat(ChatEntitie chat, HomeState homeState) {
-    final otherParticipant = homeState.listContacts
-        .whereType<ParticipantEntitie>()
-        .where((p) => p.chatId == chat.idChat)
-        .firstWhere(
-          (p) => p.userId != homeState.userId,
-          // orElse: () => ParticipantEntitie(
-          //   idPartic: '',
-          //   userId: 'unknown',
-          //   chatId: chat.idChat,
-          //   role: 'member',
-          //   joinedAt: DateTime.now(),
-          // ),
-        );
-
-    return homeState.users
-        .whereType<UserEntity>()
-        .firstWhere(
-          (user) => user.userId == otherParticipant.userId,
-          orElse: () => UserEntity(
-            userId: 'unknown',
-            name: 'Неизвестный',
-            surname: 'пользователь',
-          ),
-        );
-  }
 
   void _handleSelection(SearchItem item, BuildContext context) {
     switch (item.type) {

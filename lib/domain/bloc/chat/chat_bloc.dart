@@ -13,8 +13,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<LoadChatEvent>(_onLoadChat);
     on<LoadMessagesEvent>(_onLoadMessages);
     on<SendMessageEvent>(_onSendMessage);
-    on<CreateChatEvent>(_onCreateChat);
-    on<CreateDirectEvent>(_onCreateDirect);
     on<DeleteChatEvent>(_onDeleteChat);
     on<LeaveFromChat>(_onLeaveChat);
     on<UpdateMessegeEvent>(_onUpdateMessage);
@@ -36,7 +34,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         chatId: event.chatId,
         chatModel: chat,
         listParticipant: participants.whereType<ParticipantEntitie>().toList(),
-        listMesseges: messages?.whereType<MessageEntitie>().toList() ?? [],
+        listMesseges: messages.whereType<MessageEntitie>().toList(),
       ));
     } catch (e) {
       emit(state.copyWith(
@@ -53,7 +51,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       final messages = await repository.getMessage(state.chatId!);
       emit(state.copyWith(
         status: ChatStatus.update,
-        listMesseges: messages?.whereType<MessageEntitie>().toList() ?? [],
+        listMesseges: messages.whereType<MessageEntitie>().toList(),
       ));
     } catch (e) {
       emit(state.copyWith(
@@ -76,23 +74,45 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     }
   }
 
-  // Создание нового чата
-  Future<void> _onCreateChat(
-      CreateChatEvent event, Emitter<ChatState> emit) async {
-    emit(state.copyWith(status: ChatStatus.unknown));
-    try {
-      final newChat = await repository.createChat(event.chat,event.participantList);
-      emit(state.copyWith(
-        status: ChatStatus.update,
-        chatModel: newChat,
-        chatId: newChat.idChat,
-      ));
-    } catch (e) {
-      emit(state.copyWith(
-          status: ChatStatus.failure,
-          errorMessage: 'Ошибка при создании чата: $e'));
-    }
-  }
+  // on<CreateChatEvent>(_onCreateChat);
+  // on<CreateDirectEvent>(_onCreateDirect);
+
+  // // Создание нового чата
+  // Future<void> _onCreateChat(
+  //     CreateChatEvent event, Emitter<ChatState> emit) async {
+  //   emit(state.copyWith(status: ChatStatus.unknown));
+  //   try {
+  //     final newChat = await repository.createChat(event.chat,event.participantList);
+  //     emit(state.copyWith(
+  //       status: ChatStatus.update,
+  //       chatModel: newChat,
+  //       chatId: newChat.idChat,
+  //     ));
+  //   } catch (e) {
+  //     emit(state.copyWith(
+  //         status: ChatStatus.failure,
+  //         errorMessage: 'Ошибка при создании чата: $e'));
+  //   }
+  // }
+
+  // // Создание личного (direct) чата
+  // Future<void> _onCreateDirect(
+  //     CreateDirectEvent event, Emitter<ChatState> emit) async {
+  //   emit(state.copyWith(status: ChatStatus.unknown));
+  //   try {
+  //     final directChat = await repository.createChat(event.chat,state.listParticipant);
+  //     emit(state.copyWith(
+  //       status: ChatStatus.update,
+  //       chatModel: directChat,
+  //       chatId: directChat.idChat,
+  //     ));
+  //   } catch (e) {
+  //     emit(state.copyWith(
+  //         status: ChatStatus.failure,
+  //         errorMessage: 'Ошибка при создании личного чата: $e'));
+  //   }
+  // }
+
 
   // Обновление данных чата (например, при изменении имени или аватара)
   Future<void> _onUpdateChat(UpdateEvent event, Emitter<ChatState> emit) async {
@@ -138,23 +158,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     }
   }
 
-  // Создание личного (direct) чата
-  Future<void> _onCreateDirect(
-      CreateDirectEvent event, Emitter<ChatState> emit) async {
-    emit(state.copyWith(status: ChatStatus.unknown));
-    try {
-      final directChat = await repository.createChat(event.chat,state.listParticipant);
-      emit(state.copyWith(
-        status: ChatStatus.update,
-        chatModel: directChat,
-        chatId: directChat.idChat,
-      ));
-    } catch (e) {
-      emit(state.copyWith(
-          status: ChatStatus.failure,
-          errorMessage: 'Ошибка при создании личного чата: $e'));
-    }
-  }
+
 
   // Изменение или удаление сообщения
   Future<void> _onUpdateMessage(

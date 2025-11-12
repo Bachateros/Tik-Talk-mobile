@@ -1,6 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tik_talk/data/DTO/user_DTO.dart';
+import 'package:tik_talk/data/datasources/db/app_db.dart';
 import 'package:tik_talk/data/repositories/sync_repository_IMPL.dart';
+import 'package:tik_talk/data/websocket/websocket.dart';
 import 'package:tik_talk/domain/entities/user_entitie.dart';
 import 'package:tik_talk/domain/repositories/auth_repository.dart';
 import 'package:tik_talk/domain/repositories/sync_repository.dart';
@@ -27,9 +29,29 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<void> _onAppStarted(AppStarted event, Emitter<AuthState> emit) async {
     try {
       // final user = await repository.logout();
+      await repository.refreshToken();
       final id = await repository.hasValidTokens();
       if (id!=null) {
-        await repository.refreshToken();
+        try{
+          // Инициализация базы под конкретного пользователя
+          await DIContainer().initDbForUser(userId: id);
+          // await DIContainer().clearDbTables();
+          // await DIContainer().deleteUserDb(userId);
+          // await DIContainer().initDbForUser(userId: userId);
+          // Получаем актуальные зависимости
+          final db = DIContainer().container.get<AppDb>();
+          final syncRepo = DIContainer().container.get<SyncRepository>();
+          // await syncRepo.printAllTables();
+          await syncRepo.syncAll();
+          // await syncRepo.printAllTables();
+
+          //Инициализация WebSocket
+          await DIContainer().initSocket(appDB: db);
+          final ws = DIContainer().container.get<WebSocketService>();
+          await ws.connect();
+        }catch(e){
+          throw ('Bad BD init and ws connect try destroy');
+        }
         emit(state.copyWith(status: AuthStatus.autheficated));
       } else {
         emit(state.copyWith(status: AuthStatus.unautheficated));
@@ -103,10 +125,27 @@ Future<void> _onVerify(VerifyEvent event, Emitter<AuthState> emit) async {
   try {
     final user = await repository.verify(userId, event.code);
     if (user.accessToken!=null && user.refreshToken!=null){
-      emit(state.copyWith(
-            status: AuthStatus.autheficated,
-            errorMessage: null,
-      ),);
+       try{
+        // Инициализация базы под конкретного пользователя
+        await DIContainer().initDbForUser(userId: userId);
+        // await DIContainer().clearDbTables();
+        // await DIContainer().deleteUserDb(userId);
+        // await DIContainer().initDbForUser(userId: userId);
+        // Получаем актуальные зависимости
+        final db = DIContainer().container.get<AppDb>();
+        final syncRepo = DIContainer().container.get<SyncRepository>();
+        // await syncRepo.printAllTables();
+        await syncRepo.syncAll();
+        // await syncRepo.printAllTables();
+
+        //Инициализация WebSocket
+        await DIContainer().initSocket(appDB: db);
+        final ws = DIContainer().container.get<WebSocketService>();
+        await ws.connect();
+      }catch(e){
+        throw ('Bad BD init and ws connect try destroy');
+      }
+      emit(state.copyWith(status: AuthStatus.autheficated,errorMessage: null,));
     }
   } catch (e) {
     print('Ошибка верификации: $e');

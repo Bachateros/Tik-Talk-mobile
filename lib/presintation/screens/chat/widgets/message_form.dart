@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tik_talk/domain/bloc/auth/auth_bloc.dart';
 import 'package:tik_talk/domain/bloc/chat/chat_bloc.dart';
+import 'package:tik_talk/domain/bloc/home/home_bloc.dart';
 import 'package:tik_talk/domain/entities/message_entitie.dart';
 
 class MessageForm extends StatefulWidget {
-  final String chatId;
-  const MessageForm({super.key, required this.chatId});
+  const MessageForm({super.key});
 
   @override
   State<MessageForm> createState() => _MessageFormState();
@@ -38,7 +36,7 @@ class _MessageFormState extends State<MessageForm> {
 
   void _sendMessage() {
     final chat = context.read<ChatBloc>().state.chatModel;
-    final id = context.read<AuthBloc>().state.userModel.userId;
+    final id = context.read<HomeBloc>().state.user!.userId;
     final text = _controller.text.trim();
     final date = DateTime.now();
     if (text.isEmpty) return;

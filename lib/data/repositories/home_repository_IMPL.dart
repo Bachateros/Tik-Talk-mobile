@@ -1,59 +1,161 @@
-import 'package:tik_talk/data/datasources/remote/chats_service_remote_source.dart';
-import 'package:tik_talk/data/datasources/remote/message_service_remote_source.dart';
-import 'package:tik_talk/data/datasources/remote/participiant_service_remote_source.dart';
-import 'package:tik_talk/data/datasources/remote/user_service_remote_source.dart';
 import 'package:tik_talk/data/DTO/chat_DTO.dart';
+import 'package:tik_talk/data/datasources/local/chats_dao.dart';
+import 'package:tik_talk/data/datasources/local/messages_dao.dart';
+import 'package:tik_talk/data/datasources/local/participants_dao.dart';
+import 'package:tik_talk/data/datasources/local/users_dao.dart';
 import 'package:tik_talk/data/DTO/messege_DTO.dart';
-import 'package:tik_talk/data/DTO/participant_DTO.dart';
 import 'package:tik_talk/data/DTO/user_DTO.dart';
-import 'package:tik_talk/domain/entities/chat_entitie.dart';
-import 'package:tik_talk/domain/entities/home_entitie.dart';
+import 'package:tik_talk/data/mapers/chat_mapper.dart';
+import 'package:tik_talk/data/mapers/message_mapper.dart';
+import 'package:tik_talk/data/mapers/participant_mapper.dart';
+import 'package:tik_talk/data/mapers/user_mapper.dart';
+import 'package:tik_talk/domain/entities/last_message_chat_entitie.dart';
 import 'package:tik_talk/domain/entities/message_entitie.dart';
-import 'package:tik_talk/domain/entities/participant_entitie.dart';
 import 'package:tik_talk/domain/entities/user_entitie.dart';
 import 'package:tik_talk/domain/repositories/home_repository.dart';
 
 
 class HomeRepositoryImpl extends HomeRepository {
-  final ChatsServiceRemoteSource chatService;
-  final UserServiceRemoteSource userService;
-  final ParticipiantServiceRemoteSource participantService;
-  final MessageServiceRemoteSource messageService;
+  final ChatsDao chatsDao;
+  final MessagesDao messagesDao;
+  final ParticipantsDao participantsDao;
+  final UsersDao usersDao;
 
-  
+  final ChatMapper chatMapper = ChatMapper();
+  final MessageMapper messageMapper = MessageMapper();
+  final ParticipantMapper participantMapper = ParticipantMapper();
+  final UserMapper userMapper = UserMapper();
 
   HomeRepositoryImpl({
-    required this.chatService,
-    required this.userService,
-    required this.participantService,
-    required this.messageService,
+    required this.chatsDao,
+    required this.messagesDao,
+    required this.participantsDao,
+    required this.usersDao,
   });
-  
+
   @override
-  Future<List<ChatEntitie?>> getChats() {
-    // TODO: implement getChats
-    throw UnimplementedError();
-  }
-  
-  @override
-  Future<List<ChatWithLastMessageEntitie?>> getLastMessages(List<ChatEntitie?> chats) {
-    // TODO: implement getLastMessages
-    throw UnimplementedError();
-  }
-  
-  @override
-  Future<List<ParticipantEntitie?>> getParticipant(List<ChatEntitie?> chats) {
-    // TODO: implement getParticipant
-    throw UnimplementedError();
-  }
-  
-  @override
-  Future<List<UserEntity?>> getUsers() {
-    // TODO: implement getUsers
-    throw UnimplementedError();
+  Future<List<UserEntity>> getAllUsers() async {
+    final userDtos = await usersDao.getAllUsers();
+    return userDtos
+        .map((u) => userMapper.toEntity(
+              UserDTO(
+                id: u.id,
+                name: u.name,
+                surname: u.surname,
+                tgname: u.tgname,
+                bio: u.bio,
+                avatarUrl: u.avatarUrl,
+                isDeleted: u.isDeleted,
+                createdAt: u.createdAt,
+                updatedAt: u.updatedAt,
+                deletedAt: u.deletedAt,
+              ),
+            ))
+        .toList();
   }
 
+
+  @override
+  Future<List<ChatWithLastMessageEntitie?>> getLastMessages(String userId) async {
+    final List<ChatWithLastMessageEntitie?> result = [];
+    final chats = await chatsDao.getAllChats();
+    for (final chat in chats) {
+
+      final msgDto = await messagesDao.getLastMessage(chat.id);
+      MessageEntitie? lastMsgEntity;
+      if (msgDto != null) {
+        lastMsgEntity = messageMapper.toEntity(
+          MessageDTO(
+            id: msgDto.id,
+            chatId: msgDto.chatId,
+            userId: msgDto.userId,
+            content: msgDto.content,
+            type: msgDto.type,
+            createdAt: msgDto.createdAt,
+            updatedAt: msgDto.updatedAt,
+            deletedAt: msgDto.deletedAt,
+            clientId: msgDto.clientId,
+            isDeleted: msgDto.isDeleted,
+          ),
+        );
+      }
+      final dto = ChatDTO(
+        id: chat.id,
+        name: chat.name,
+        description: chat.description,
+        type: chat.type,
+        createdBy: chat.createdBy,
+        avatarUrl: chat.avatarUrl,
+        maxMembers: chat.maxMembers,
+        lastActivityAt: chat.lastActivityAt,
+        isPrivate: chat.isPrivate,
+        isDeleted: chat.isDeleted,
+        createdAt: chat.createdAt,
+        updatedAt: chat.updatedAt,
+        deletedAt: chat.deletedAt,
+      );
+      if (dto.type == 'direct'){
+        final contactId = await participantsDao.getDirectContact(dto.id,userId);
+        result.add(ChatWithLastMessageEntitie(chat: chatMapper.toEntity(dto), lastMessage: lastMsgEntity, contactId: contactId));
+      } else {
+        result.add(ChatWithLastMessageEntitie(chat: chatMapper.toEntity(dto), lastMessage: lastMsgEntity));
+      }
+    }
+
+    return result;
+  }
+
+  @override
+  Future<List<UserEntity?>> getContacts(String myUserId) async {
+    // Находим всех участников, у которых есть общие чаты с текущим пользователем
+    final allParticipants = await participantsDao.getDistinctUserIds();
+
+    final Set<String> contactIds = {};
+    for (final id in allParticipants) {
+      if (id != myUserId) contactIds.add(id);
+    }
+
+    final users = await usersDao.getUsersByIds(contactIds.toList());
+    return users
+        .map((u) => userMapper.toEntity(
+              UserDTO(
+                id: u.id,
+                name: u.name,
+                surname: u.surname,
+                tgname: u.tgname,
+                bio: u.bio,
+                avatarUrl: u.avatarUrl,
+                isDeleted: u.isDeleted,
+                createdAt: u.createdAt,
+                updatedAt: u.updatedAt,
+                deletedAt: u.deletedAt,
+              ),
+            ))
+        .toList();
+  }
+
+  @override
+  Future<UserEntity> getMy(String userId) async {
+    final userDto = await usersDao.getUserById(userId);
+    if (userDto == null) throw Exception("User not found");
+
+    final dto = UserDTO(
+      id: userDto.id,
+      name: userDto.name,
+      surname: userDto.surname,
+      tgname: userDto.tgname,
+      bio: userDto.bio,
+      avatarUrl: userDto.avatarUrl,
+      isDeleted: userDto.isDeleted,
+      createdAt: userDto.createdAt,
+      updatedAt: userDto.updatedAt,
+      deletedAt: userDto.deletedAt,
+    );
+
+    return userMapper.toEntity(dto);
+  }
 }
+
 
 // final List<ChatEntitie?> _chats = [];
 // final List<MessageEntitie?> _messages = [];

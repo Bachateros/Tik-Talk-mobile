@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:tik_talk/domain/bloc/auth/auth_bloc.dart';
+import 'package:tik_talk/domain/bloc/home/home_bloc.dart';
 import 'package:tik_talk/presintation/theme/theme_assets.dart';
 import 'package:tik_talk/presintation/theme/theme_colors.dart';
 import 'package:tik_talk/presintation/widgets/contacts_list_view.dart';
@@ -64,7 +65,7 @@ class ListViewSideMenu extends StatelessWidget {
             ListTile(            
               title: Row(spacing: 10 ,children: [Icon(Icons.home, size: 25), Text('Моя Страница', style: TextStyle(color: Colors.white),)]),
               onTap: () {
-                context.push('/home/profile/me');
+                context.push('/home/profile/');
               },
             ),
             ListTile(
@@ -91,7 +92,7 @@ class UserCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Достаём пользователя из AuthBloc
-    final me = context.read<AuthBloc>().state.userModel;
+    final me = context.read<HomeBloc>().state.user;
     return  Container(
               color: Colors.grey.shade900,
               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
@@ -102,7 +103,7 @@ class UserCard extends StatelessWidget {
                     radius: 20,
                     backgroundColor: Colors.blueGrey,
                     backgroundImage: NetworkImage(
-                      me.avatarUrl == null || me.avatarUrl == '' ?   me.avatarUrl! : ThemeAssets.noAvatar(context),
+                      me!.avatarUrl != '' ?   me.avatarUrl! : ThemeAssets.noAvatar(context),
                     ),
                   ),
                   onPressed: () => context.push('/home/profile'),
@@ -110,7 +111,7 @@ class UserCard extends StatelessWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      me.tgUsername!,
+                      me.tgUsername,
                       style: const TextStyle(color: AppColors.primary, fontSize: 16, fontWeight: FontWeight.bold),
                       overflow: TextOverflow.ellipsis,
                     ),

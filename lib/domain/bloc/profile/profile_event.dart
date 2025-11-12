@@ -2,21 +2,29 @@ part of 'profile_bloc.dart';
 
 abstract class ProfileEvent {}
 
-class LoadCurrentUserProfile extends ProfileEvent {}
-
-class LoadUserProfile extends ProfileEvent {
-  final String userId;
-  LoadUserProfile(this.userId);
+class LoadMyUserProfileEvent extends ProfileEvent {
+  String userId;
+  LoadMyUserProfileEvent({required this.userId});
 }
 
-class UpdateUserProfile extends ProfileEvent {
+class LoadProfileEvent extends ProfileEvent {
+  final String idUser;
+  LoadProfileEvent({required this.idUser});
+}
+
+class SwitchSettingProfileEvent{
+  final ProfileStatus status;
+  SwitchSettingProfileEvent({required this.status});
+}
+
+class UpdateUserProfileEvent extends ProfileEvent {
   final String name;
   final String surname;
   final String? avatarUrl;
   final String? aboutMe;
   final DateTime? birthdayDate;
 
-  UpdateUserProfile({
+  UpdateUserProfileEvent({
     required this.name,
     required this.surname,
     this.avatarUrl,
@@ -25,9 +33,5 @@ class UpdateUserProfile extends ProfileEvent {
   });
 }
 
-class LoadUserContacts extends ProfileEvent {}
 
-class UpdateAvatarEvent extends ProfileEvent {
-  final String avatarUrl;
-  UpdateAvatarEvent(this.avatarUrl);
-}
+

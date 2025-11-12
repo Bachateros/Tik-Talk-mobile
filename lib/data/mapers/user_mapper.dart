@@ -1,5 +1,3 @@
-// lib/data/mappers/user_mapper.dart
-import 'package:drift/drift.dart';
 import 'package:tik_talk/domain/entities/user_entitie.dart';
 import '../datasources/db/app_db.dart';
 import 'package:tik_talk/data/DTO/user_DTO.dart';
@@ -14,7 +12,7 @@ import 'base_mapper.dart';
 // "date_of_birth"
 
 class UserMapper
-    implements BaseMapper<Map<String, dynamic>, UserDTO, UserEntity> {
+    implements BaseMapper<Map<String, dynamic>, UserDTO, UserEntity, User> {
   @override
   UserDTO fromResponse(Map<String, dynamic> json) => UserDTO(
     id: json['user_id']?.toString() ?? '',
@@ -69,4 +67,21 @@ class UserMapper
     deletedAt: null,
     updatedAt: null ,
       );
+      
+  @override
+  UserDTO toDTO(User user) {
+    return UserDTO(
+      id: user.id, 
+      name: user.name, 
+      surname: user.surname, 
+      tgname:user. tgname,
+      dateOfBirth:user.dateOfBirth,
+      bio:user.bio,
+      avatarUrl:user.avatarUrl,
+      isDeleted:user.isDeleted, 
+      createdAt: user.createdAt, 
+      deletedAt: user.deletedAt, 
+      updatedAt: user.updatedAt,
+    );
+  }
 }

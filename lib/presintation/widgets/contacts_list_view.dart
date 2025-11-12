@@ -17,16 +17,16 @@ class _ContactsListViewState extends State<ContactsListView> {
  @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      context.read<HomeBloc>().add(UpdateEvent());
-    });
+    // Future.microtask(() {
+    //   context.read<HomeBloc>().add(UpdateEvent());
+    // });
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<HomeBloc, HomeState>(
       builder: (context, state) {
-        final contacts = state.contacts;
+        final contacts = state.listContacts;
 
         if (state.status == HomeStatus.loading) {
           return const Center(child: CircularProgressIndicator());

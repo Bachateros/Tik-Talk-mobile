@@ -26,6 +26,8 @@ class UsersDao extends DatabaseAccessor<AppDb> with _$UsersDaoMixin {
       ),
     );
   }
+  
+  Future<List<User>> getAllUsers() => select(users).get();
 
   // Добавить пользователей (список)
   Future<void> insertUsers(List<UsersCompanion> entries) async {
@@ -52,6 +54,12 @@ class UsersDao extends DatabaseAccessor<AppDb> with _$UsersDaoMixin {
   Future<int> updateAvatar(String id, String avatarUrl) async {
     return (update(users)..where((u) => u.id.equals(id)))
         .write(UsersCompanion(avatarUrl: Value(avatarUrl), updatedAt: Value(DateTime.now())));
+  }
+
+    // Обновить avatarUrl
+  Future<int> updateDateOfBirth(String id, DateTime dateOfBirth) async {
+    return (update(users)..where((u) => u.id.equals(id)))
+        .write(UsersCompanion(dateOfBirth: Value(dateOfBirth), updatedAt: Value(DateTime.now())));
   }
 
   // Обновить дату пользователя (updatedAt)

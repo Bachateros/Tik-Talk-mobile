@@ -24,7 +24,7 @@ class BackgroundPicture extends StatelessWidget {
             children: [
               Positioned.fill(
                 child: SingleChildScrollView(
-                  padding: EdgeInsets.fromLTRB(24, topPadding, 24, 24),
+                  padding: EdgeInsets.fromLTRB(16, topPadding, 16, 16),
                   child: child,
                 ),
               ),

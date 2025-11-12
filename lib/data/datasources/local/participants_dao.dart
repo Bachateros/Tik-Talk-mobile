@@ -25,6 +25,34 @@ class ParticipantsDao extends DatabaseAccessor<AppDb> with _$ParticipantsDaoMixi
     );
   }
 
+  //Вернуть список данных участника личных сообщений
+  Future<String?> getDirectContact(String chatId, String currentUserId) async {
+    final participantsList = await (select(participants)
+          ..where((p) => p.chatId.equals(chatId))
+          ..where((p) => p.userId.isNotValue(currentUserId)))
+        .get();
+
+    if (participantsList.isNotEmpty) {
+      return participantsList.first.userId;
+    }
+
+    return null; // если вдруг нет второго участника
+  }
+
+
+  // Вернуть список chatId, где участвует данный пользователь
+  Future<List<String>> getChatIdsByUser(String userId) async {
+    final q = select(participants)..where((p) => p.userId.equals(userId));
+    final rows = await q.get();
+    return rows.map((r) => r.chatId).toList();
+  }
+
+  // Вернуть всех участников для набора чатов
+  Future<List<Participant>> getParticipantsByChatIds(List<String> chatIds) async {
+    return (select(participants)..where((p) => p.chatId.isIn(chatIds))).get();
+  }
+
+
   // Добавить участников
   Future<void> insertParticipants(List<ParticipantsCompanion> entries) async {
     await batch((b) => b.insertAllOnConflictUpdate(participants, entries));
@@ -47,15 +75,18 @@ class ParticipantsDao extends DatabaseAccessor<AppDb> with _$ParticipantsDaoMixi
     return (update(participants)..where((p) => p.id.equals(id))).write(
       ParticipantsCompanion(
         role: role != null ? Value(role) : const Value.absent(),
-        joinedAt: Value(DateTime.now()), // можно хранить updatedAt, если добавишь
+        joinedAt: Value(DateTime.now()), 
       ),
     );
   }
 
-  // Пометить участника как удалённого (например статус "removed")
+  // Пометить участника как удалённого
   Future<int> markParticipantRemoved(String id) async {
     return (update(participants)..where((p) => p.id.equals(id))).write(
-      ParticipantsCompanion(role: Value('removed')),
+      ParticipantsCompanion(
+        isDeleted: Value(true),
+        deletedAt: Value(DateTime.now())
+        ),
     );
   }
 }

@@ -3,7 +3,6 @@ import 'package:tik_talk/domain/entities/message_entitie.dart';
 import 'package:tik_talk/domain/entities/participant_entitie.dart';
 
 abstract class ChatRepository {
-  Future<ChatEntitie> createChat(ChatEntitie chat, List<ParticipantEntitie?> participantsList);
 
   Future<ChatEntitie> getChat(String chatId);
   Future<List<ParticipantEntitie?>> getChatParticipants(String chatId);

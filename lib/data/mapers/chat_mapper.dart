@@ -3,7 +3,7 @@ import 'package:tik_talk/domain/entities/chat_entitie.dart';
 import '../datasources/db/app_db.dart';
 import 'base_mapper.dart';
 
-class ChatMapper implements BaseMapper<Map<String, dynamic>, ChatDTO, ChatEntitie> {
+class ChatMapper implements BaseMapper<Map<String, dynamic>, ChatDTO, ChatEntitie , Chat> {
   @override
   ChatDTO fromResponse(Map<String, dynamic> json) {
     DateTime safeParse(String? value) {
@@ -42,7 +42,7 @@ class ChatMapper implements BaseMapper<Map<String, dynamic>, ChatDTO, ChatEntiti
           ? safeParse(json['lastActivityAt'])
           : null, 
       isDeleted: json['DeleteAt'] == null ? false :true, 
-      deletedAt: safeParse(json['DeletedAt']),
+      deletedAt: DateTime.tryParse(json['DeleteAt'].toString()) ,
     );}
 
   @override
@@ -86,6 +86,26 @@ class ChatMapper implements BaseMapper<Map<String, dynamic>, ChatDTO, ChatEntiti
     updatedAt: e.updatedAt,
     deletedAt: null,
       );
+      
+  @override
+  ChatDTO toDTO(Chat chat) {
+    return ChatDTO(
+        id: chat.id,
+        name: chat.name,
+        description: chat.description,
+        type: chat.type,
+        createdBy: chat.createdBy,
+        avatarUrl: chat.avatarUrl,
+        maxMembers: chat.maxMembers,
+        lastActivityAt: chat.lastActivityAt,
+        isPrivate: chat.isPrivate,
+        isDeleted: chat.isDeleted,
+        createdAt: chat.createdAt,
+        updatedAt: chat.updatedAt,
+        deletedAt: chat.deletedAt,
+      );
+    
+  }
 }
 
 extension ChatTypeExtension on ChatType {

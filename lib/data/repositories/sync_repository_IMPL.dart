@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:tik_talk/data/datasources/db/app_db.dart';
 import 'package:tik_talk/data/datasources/remote/sync_service_remote_data_service.dart';
 import 'package:tik_talk/domain/repositories/sync_repository.dart';
@@ -13,9 +12,8 @@ class SyncRepositoryIMPL extends SyncRepository{
   });
   
   Future<void> syncAll() async {
-    final  lastSync = await db.syncMetaDao.getLastInsertedRow();
-    final lastDate = DateTime.tryParse(lastSync.toString());
-    final since =  lastDate == null ? 0 : lastDate.millisecondsSinceEpoch ~/ 1000; // секунды
+    final  lastSync = await db.syncMetaDao.getSyncTime('SyncAll');
+    final since =  lastSync == null ? 0 : lastSync.millisecondsSinceEpoch ~/ 1000; // секунды
     // final now = DateTime.now();
 
     // 🔹 1. Загружаем с сервера
@@ -88,14 +86,11 @@ class SyncRepositoryIMPL extends SyncRepository{
       print(p);
     }
 
-    // если у тебя есть таблица users:
-    // if (db.allTables.any((t) => t.tableName == 'users')) {
     final users = await db.select(db.users).get();
     print('--- USERS (${users.length}) ---');
     for (final u in users) {
       print(u);
     }
-    // }
 
     final meta = await db.select(db.syncMeta).get();
     print('--- SYNC_META (${meta.length}) ---');

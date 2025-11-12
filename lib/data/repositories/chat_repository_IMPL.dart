@@ -1,75 +1,106 @@
+import 'package:tik_talk/data/datasources/local/chats_dao.dart';
+import 'package:tik_talk/data/datasources/local/messages_dao.dart';
+import 'package:tik_talk/data/datasources/local/participants_dao.dart';
 import 'package:tik_talk/data/datasources/remote/chats_service_remote_source.dart';
 import 'package:tik_talk/data/datasources/remote/message_service_remote_source.dart';
 import 'package:tik_talk/data/datasources/remote/participiant_service_remote_source.dart';
-import 'package:tik_talk/data/DTO/chat_DTO.dart';
-import 'package:tik_talk/data/DTO/messege_DTO.dart';
-import 'package:tik_talk/data/DTO/participant_DTO.dart';
+import 'package:tik_talk/data/mapers/chat_mapper.dart';
+import 'package:tik_talk/data/mapers/message_mapper.dart';
+import 'package:tik_talk/data/mapers/participant_mapper.dart';
 import 'package:tik_talk/domain/entities/chat_entitie.dart';
 import 'package:tik_talk/domain/entities/message_entitie.dart';
 import 'package:tik_talk/domain/entities/participant_entitie.dart';
 import 'package:tik_talk/domain/repositories/chat_repository.dart';
 
 class ChatRepositoryImpl extends ChatRepository{
+  final ChatsDao chatsDao;
+  final MessagesDao messagesDao;
+  final ParticipantsDao participantsDao;
+
   final ChatsServiceRemoteSource chatsService;
   final MessageServiceRemoteSource messageService;
   final ParticipiantServiceRemoteSource participantService;
 
   ChatRepositoryImpl({
+    required this.chatsDao,
+    required this.messagesDao,
+    required this.participantsDao,
     required this.chatsService,
     required this.messageService,
     required this.participantService,
   });
-  
+
+  /// Получить информацию о чате
   @override
-  Future<ChatEntitie> createChat(ChatEntitie chat, List<ParticipantEntitie?> participantsList) {
-    // TODO: implement createChat
-    throw UnimplementedError();
-  }
-  
-  @override
-  Future<void> deleteChat(String chatId) {
-    // TODO: implement deleteChat
-    throw UnimplementedError();
-  }
-  
-  @override
-  Future<ChatEntitie> getChat(String chatId) {
-    // TODO: implement getChat
-    throw UnimplementedError();
-  }
-  
-  @override
-  Future<List<ParticipantEntitie?>> getChatParticipants(String chatId) {
-    // TODO: implement getChatParticipants
-    throw UnimplementedError();
-  }
-  
-  @override
-  Future<List<MessageEntitie?>> getMessage(String chatId) {
-    // TODO: implement getMessage
-    throw UnimplementedError();
-  }
-  
-  @override
-  Future<void> leaveChat(String chatId) {
-    // TODO: implement leaveChat
-    throw UnimplementedError();
-  }
-  
-  @override
-  Future<void> sendMessage(MessageEntitie message) {
-    // TODO: implement sendMessage
-    throw UnimplementedError();
-  }
-  
-  @override
-  Future<ChatEntitie> updateChat(ChatEntitie chat) {
-    // TODO: implement updateChat
-    throw UnimplementedError();
+  Future<ChatEntitie> getChat(String chatId) async {
+    final chat = await (chatsDao.select(chatsDao.chats)
+          ..where((tbl) => tbl.id.equals(chatId)))
+        .getSingle();
+
+    // Преобразуем Chat -> ChatDTO -> Entity
+    final chatDTO = ChatMapper().toDTO(chat);
+    final entity = ChatMapper().toEntity(chatDTO);
+    return entity;
   }
 
+  /// Получить всех участников чата
+  @override
+  Future<List<ParticipantEntitie?>> getChatParticipants(String chatId) async {
+    final parts = await participantsDao.getParticipantsByChat(chatId);
+    return parts
+        .map((e) => ParticipantMapper().toEntity(ParticipantMapper().toDTO(e)))
+        .toList();
+  }
 
-  
+  /// Получить все сообщения чата
+  @override
+  Future<List<MessageEntitie?>> getMessage(String chatId) async {
+    final msgs = await messagesDao.getMessagesByChat(chatId);
+    return msgs
+        .map((e) => MessageMapper().toEntity(MessageMapper().toDTO(e)))
+        .toList();
+  }
+
+  /// Пометить чат удалённым
+  @override
+  Future<void> deleteChat(String chatId) async {
+    // final resp = chatsService.deleteChat(chatId);
+    // if (resp==)
+    // await chatsDao.markChatDeleted(chatId);
+  }
+
+  /// Выйти из чата (локально можно просто удалить участника)
+  @override
+  Future<void> leaveChat(String chatId) async {
+    // TODO: обновить в DAO, что пользователь покинул чат
+    // await participantsDao.markParticipantRemoved(currentUserId);
+  }
+
+  /// Отправить сообщение (локально)
+  @override
+  Future<void> sendMessage(MessageEntitie message) async {
+    // final dto = MessageMapper().fromEntity(message);
+    // final resp = await messageService.sendMessage(dto);
+    // if(resp ==){
+    //   final model = MessagesCompanion.insert(
+    //     id: dto.id,
+    //     chatId: dto.chatId,
+    //     userId: dto.userId,
+    //     content: Value(dto.content),
+    //     createdAt: Value(dto.createdAt),
+    //   );
+    //   await messagesDao.insertMessage(model);
+    // }
+  }
+
+  /// Обновить чат (локально)
+  @override
+  Future<ChatEntitie> updateChat(ChatEntitie chat) async {
+    // TODO: Реализовать обновление чата в DAO
+    // await chatsDao.updateChat(chat.id, name: chat.name);
+    return chat;
+  }
+
 }
 
   // @override

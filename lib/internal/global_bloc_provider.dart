@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tik_talk/data/api_remote/ApiClient.dart';
 import 'package:tik_talk/data/datasources/local/auth_local_data_source.dart';
+import 'package:tik_talk/data/datasources/local/chats_dao.dart';
+import 'package:tik_talk/data/datasources/local/messages_dao.dart';
+import 'package:tik_talk/data/datasources/local/participants_dao.dart';
+import 'package:tik_talk/data/datasources/local/users_dao.dart';
 import 'package:tik_talk/data/datasources/remote/auth_service_remote_data_source.dart';
 import 'package:tik_talk/data/datasources/remote/chats_service_remote_source.dart';
 import 'package:tik_talk/data/datasources/remote/message_service_remote_source.dart';
@@ -34,10 +38,10 @@ class GlobalBlocProvider extends StatelessWidget {
       BlocProvider<HomeBloc>(
         create: (ctx) => HomeBloc(
           repository: HomeRepositoryImpl(
-            chatService: DIContainer().container.get<ChatsServiceRemoteSource>(), 
-            userService: DIContainer().container.get<UserServiceRemoteSource>(), 
-            participantService: DIContainer().container.get<ParticipiantServiceRemoteSource>(), 
-            messageService: DIContainer().container.get<MessageServiceRemoteSource>()
+            chatsDao: DIContainer().container.get<ChatsDao>(),
+            messagesDao: DIContainer().container.get<MessagesDao>(),
+            participantsDao: DIContainer().container.get<ParticipantsDao>(),
+            usersDao:DIContainer().container.get<UsersDao>(),
             ), 
           authBloc: ctx.read<AuthBloc>()),          
       ), 

@@ -23,13 +23,19 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
+    
+    return BlocBuilder<ChatBloc,ChatState>(
+      buildWhen:(previous, current) => current.chatId != null && previous.status != current.status ,
+      builder: (context, state) => SafeArea(
       child: Column(
         children: [
-          ListMesseges(),
-          // MessageForm(chatId: chatId!,),
+          Expanded(
+            child: ListMesseges(),
+          ),
+          MessageForm(),
         ]
       ),
-    );
+    ),
+    ); 
   }
 }

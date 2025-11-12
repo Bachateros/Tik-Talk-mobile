@@ -1,11 +1,19 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:tik_talk/data/datasources/local/auth_local_data_source.dart';
+import 'package:tik_talk/data/datasources/local/chats_dao.dart';
+import 'package:tik_talk/data/datasources/local/messages_dao.dart';
+import 'package:tik_talk/data/datasources/local/participants_dao.dart';
 import 'package:tik_talk/data/datasources/remote/chats_service_remote_source.dart';
 import 'package:tik_talk/data/datasources/remote/message_service_remote_source.dart';
 import 'package:tik_talk/data/datasources/remote/participiant_service_remote_source.dart';
 import 'package:tik_talk/data/repositories/chat_repository_IMPL.dart';
+import 'package:tik_talk/data/repositories/profile_repository_IMPL.dart';
 import 'package:tik_talk/domain/bloc/auth/auth_bloc.dart';
 import 'package:tik_talk/domain/bloc/chat/chat_bloc.dart';
+import 'package:tik_talk/domain/bloc/home/home_bloc.dart';
+import 'package:tik_talk/domain/bloc/profile/profile_bloc.dart';
+import 'package:tik_talk/domain/repositories/profile_repository.dart';
 import 'package:tik_talk/internal/di.dart';
 import 'package:tik_talk/presintation/screens/chat/view/chat_page.dart';
 import 'package:tik_talk/presintation/screens/chat/view/chat_settings_page.dart';
@@ -97,6 +105,9 @@ final GoRouter _router = GoRouter(
             return BlocProvider(
               create:(context) => ChatBloc(
                 ChatRepositoryImpl(
+                  chatsDao: DIContainer().container.get<ChatsDao>(),
+                  messagesDao: DIContainer().container.get<MessagesDao>(),
+                  participantsDao: DIContainer().container.get<ParticipantsDao>(),
                   chatsService: DIContainer().container.get<ChatsServiceRemoteSource>(),
                   messageService: DIContainer().container.get<MessageServiceRemoteSource>(),
                   participantService: DIContainer().container.get<ParticipiantServiceRemoteSource>()
@@ -115,7 +126,14 @@ final GoRouter _router = GoRouter(
         GoRoute(
           path: '/home/profile',
           builder: (context, state) {
-            return  ProfileView(isCurrentUser: true, userId:  context.read<AuthBloc>().state.user.userId);
+            final userId= context.read<HomeBloc>().state.user!.userId;
+            return  BlocProvider(
+              create:(context) => ProfileBloc(
+                repository: DIContainer().container.get<ProfileRepository>(),
+                )..add(LoadMyUserProfileEvent(userId: userId,)),
+                child: ProfileView(),
+            );
+            
           }
         ),
         GoRoute(
@@ -128,7 +146,13 @@ final GoRouter _router = GoRouter(
           // );
           builder: (context, state) {
             final userId = state.pathParameters['userId']!;
-            return ProfileView(isCurrentUser: false, userId: userId);
+            final id = userId.startsWith(':') ? userId.substring(1) : userId;
+            return  BlocProvider(
+              create:(context) => ProfileBloc(
+                repository: DIContainer().container.get<ProfileRepository>(),
+                )..add(LoadProfileEvent(idUser: id,)),
+                child: ProfileView(),
+                );
           },
         ),
         GoRoute(

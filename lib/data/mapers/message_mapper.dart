@@ -1,9 +1,10 @@
+import 'package:tik_talk/data/datasources/db/app_db.dart';
 import 'package:tik_talk/domain/entities/message_entitie.dart';
 import 'package:tik_talk/data/DTO/messege_DTO.dart';
 import 'base_mapper.dart';
 
 class MessageMapper
-    implements BaseMapper<Map<String, dynamic>, MessageDTO, MessageEntitie> {
+    implements BaseMapper<Map<String, dynamic>, MessageDTO, MessageEntitie, Message> {
   @override
   MessageDTO fromResponse(Map<String, dynamic> json) => MessageDTO(
 //     "CreatedAt" 
@@ -84,6 +85,22 @@ class MessageMapper
         createdAt: e.createdAt, 
         isDeleted: e.isDeleted,
       );
+      
+  @override
+  MessageDTO toDTO(Message message) {
+    return MessageDTO(
+      id: message.id,
+      chatId: message.chatId,
+      userId: message.userId,
+      content: message.content,
+      type: message.type,
+      createdAt: message.createdAt,
+      updatedAt: message.updatedAt,
+      deletedAt: message.deletedAt,
+      clientId: message.clientId,
+      isDeleted: message.isDeleted,
+    );
+  }
 
 }
 

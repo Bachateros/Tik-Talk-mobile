@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:tik_talk/domain/bloc/auth/auth_bloc.dart';
 import 'package:tik_talk/domain/bloc/chat/chat_bloc.dart';
+import 'package:tik_talk/domain/bloc/home/home_bloc.dart';
 import 'package:tik_talk/presintation/theme/theme_colors.dart';
 
 class ListMesseges extends StatelessWidget {
@@ -34,17 +34,18 @@ class ListMesseges extends StatelessWidget {
           itemCount: messages.length,
           itemBuilder: (context,index){
             final msg = messages[index];
-            final isMine = msg!.idUser == context.read<AuthBloc>().state.userModel.userId;
+            final isMine = msg!.idUser == context.read<HomeBloc>().state.user!.userId;
             return Align(
               alignment: isMine ? Alignment.centerRight: Alignment.centerLeft,
               child: Container(
-                margin: const EdgeInsets.symmetric(vertical: 4),
+                margin: const EdgeInsets.symmetric(
+                  vertical: 4,),
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: isMine
                         ? AppColors.primary
                         : AppColors.chatConteiner,
-                    borderRadius: BorderRadius.only(topLeft: Radius.circular(10),),
+                    borderRadius: isMine ? BorderRadius.only(topRight: Radius.circular(10),) : BorderRadius.only(topLeft: Radius.circular(10),),
                   ),
                   child: Text(
                     msg.content,

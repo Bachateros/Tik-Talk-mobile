@@ -1,9 +1,10 @@
 import 'package:tik_talk/data/DTO/participant_DTO.dart';
+import 'package:tik_talk/data/datasources/db/app_db.dart';
 import 'package:tik_talk/domain/entities/participant_entitie.dart';
 import 'base_mapper.dart';
 
 class ParticipantMapper
-    implements BaseMapper<Map<String, dynamic>, ParticipantDto, ParticipantEntitie> {
+    implements BaseMapper<Map<String, dynamic>, ParticipantDto, ParticipantEntitie, Participant> {
   @override
   ParticipantDto fromResponse(Map<String, dynamic> json) => ParticipantDto(
 //     "ID"
@@ -74,6 +75,23 @@ class ParticipantMapper
         updatedAt: e.updatedAt,
         deletedAt: e.deletedAt,
       );
+      
+  @override
+  ParticipantDto toDTO(Participant part) {
+    return ParticipantDto(
+      id: part.id, 
+      userId: part.userId, 
+      chatId: part.chatId, 
+      role: part.role,
+      isMuted:part.isMuted,
+      notificationsEnabled:part.notificationsEnabled,
+      isDeleted:part.isDeleted, 
+      joinedAt: part.joinedAt, 
+      createdAt: part.createdAt,
+      updatedAt:part.updatedAt,
+      deletedAt:part.deletedAt,
+      );
+  }
 }
 
 extension ParticipantRoleExtension on RoleParticipant {

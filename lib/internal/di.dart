@@ -3,9 +3,14 @@ import 'dart:io';
 import 'package:get_it/get_it.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tik_talk/data/DTO/messege_DTO.dart';
 import 'package:tik_talk/data/api_remote/ApiClient.dart';
 import 'package:tik_talk/data/datasources/db/app_db.dart';
 import 'package:tik_talk/data/datasources/local/auth_local_data_source.dart';
+import 'package:tik_talk/data/datasources/local/chats_dao.dart';
+import 'package:tik_talk/data/datasources/local/messages_dao.dart';
+import 'package:tik_talk/data/datasources/local/participants_dao.dart';
+import 'package:tik_talk/data/datasources/local/users_dao.dart';
 import 'package:tik_talk/data/datasources/remote/auth_service_remote_data_source.dart';
 import 'package:tik_talk/data/datasources/remote/chats_service_remote_source.dart';
 import 'package:tik_talk/data/datasources/remote/message_service_remote_source.dart';
@@ -13,14 +18,20 @@ import 'package:tik_talk/data/datasources/remote/participiant_service_remote_sou
 import 'package:tik_talk/data/datasources/remote/search_service_remote_source.dart';
 import 'package:tik_talk/data/datasources/remote/sync_service_remote_data_service.dart';
 import 'package:tik_talk/data/datasources/remote/user_service_remote_source.dart';
+import 'package:tik_talk/data/mapers/chat_mapper.dart';
+import 'package:tik_talk/data/mapers/message_mapper.dart';
+import 'package:tik_talk/data/mapers/participant_mapper.dart';
+import 'package:tik_talk/data/mapers/user_mapper.dart';
 import 'package:tik_talk/data/repositories/auth_repository_IMPL.dart';
 import 'package:tik_talk/data/repositories/chat_repository_IMPL.dart';
 import 'package:tik_talk/data/repositories/home_repository_IMPL.dart';
+import 'package:tik_talk/data/repositories/profile_repository_IMPL.dart';
 import 'package:tik_talk/data/repositories/sync_repository_IMPL.dart';
 import 'package:tik_talk/data/websocket/websocket.dart';
 import 'package:tik_talk/domain/repositories/auth_repository.dart';
 import 'package:tik_talk/domain/repositories/chat_repository.dart';
 import 'package:tik_talk/domain/repositories/home_repository.dart';
+import 'package:tik_talk/domain/repositories/profile_repository.dart';
 import 'package:tik_talk/domain/repositories/sync_repository.dart';
 import 'package:path/path.dart' as p;
 
@@ -87,7 +98,23 @@ class DIContainer {
 
     container.registerLazySingleton<SyncRepository>(
       () => SyncRepositoryIMPL (db: newDb,syncService: container.get<SyncServiceRemoteDataService>())
-      );
+      );  
+
+    container.registerLazySingleton(
+      () => ChatsDao(container.get<AppDb>()),
+    );
+    
+    container.registerLazySingleton(
+      () => MessagesDao(container.get<AppDb>()),
+    );
+
+    container.registerLazySingleton(
+      () => UsersDao(container.get<AppDb>()),
+    );
+
+    container.registerLazySingleton(
+      () => ParticipantsDao(container.get<AppDb>()),
+    );
   }
 
 
@@ -130,6 +157,22 @@ class DIContainer {
     final prefs = await SharedPreferences.getInstance();
     container.registerLazySingleton(
       () => AuthLocalDataSource(prefs)
+    );
+
+    container.registerLazySingleton(
+      ()=> ChatMapper(),
+    );
+
+    container.registerLazySingleton(
+      ()=> MessageMapper(),
+    );
+    
+    container.registerLazySingleton(
+      ()=> UserMapper(),
+    );
+
+    container.registerLazySingleton(
+      ()=> ParticipantMapper(),
     );
   }
 
@@ -189,18 +232,27 @@ class DIContainer {
 
     container.registerLazySingleton<HomeRepository>(
       () => HomeRepositoryImpl(
-        chatService: container.get<ChatsServiceRemoteSource>(),
-        messageService: container.get<MessageServiceRemoteSource>(),
-        participantService: container.get<ParticipiantServiceRemoteSource>(),
-        userService: container.get<UserServiceRemoteSource>(),
+        chatsDao: container.get<ChatsDao>(),
+        messagesDao: container.get<MessagesDao>(),
+        participantsDao: container.get<ParticipantsDao>(),
+        usersDao: container.get<UsersDao>(),
       ),
     );
 
     container.registerLazySingleton<ChatRepository>(
       () => ChatRepositoryImpl(
+        chatsDao: container.get<ChatsDao>(),
+        messagesDao: container.get<MessagesDao>(),
+        participantsDao: container.get<ParticipantsDao>(),
         chatsService: container.get<ChatsServiceRemoteSource>(),
         messageService: container.get<MessageServiceRemoteSource>(),
         participantService: container.get<ParticipiantServiceRemoteSource>()),
+    );
+
+    container.registerLazySingleton<ProfileRepository>(
+      ()=> ProfileRepositoryImpl(
+        usersDao: container.get<UsersDao>(),
+        )
     );
   }
 
