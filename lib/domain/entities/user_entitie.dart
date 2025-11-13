@@ -1,8 +1,4 @@
 import 'package:tik_talk/domain/entities/settings_entitie.dart';
-
-import 'package:tik_talk/domain/entities/settings_entitie.dart';
-
-
 class UserEntity {
   final String userId;
   final String name;

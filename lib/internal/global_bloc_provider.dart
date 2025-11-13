@@ -1,16 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tik_talk/data/api_remote/ApiClient.dart';
 import 'package:tik_talk/data/datasources/local/auth_local_data_source.dart';
 import 'package:tik_talk/data/datasources/local/chats_dao.dart';
 import 'package:tik_talk/data/datasources/local/messages_dao.dart';
 import 'package:tik_talk/data/datasources/local/participants_dao.dart';
 import 'package:tik_talk/data/datasources/local/users_dao.dart';
 import 'package:tik_talk/data/datasources/remote/auth_service_remote_data_source.dart';
-import 'package:tik_talk/data/datasources/remote/chats_service_remote_source.dart';
-import 'package:tik_talk/data/datasources/remote/message_service_remote_source.dart';
-import 'package:tik_talk/data/datasources/remote/participiant_service_remote_source.dart';
-import 'package:tik_talk/data/datasources/remote/user_service_remote_source.dart';
 import 'package:tik_talk/data/repositories/auth_repository_IMPL.dart';
 import 'package:tik_talk/data/repositories/home_repository_IMPL.dart';
 import 'package:tik_talk/domain/bloc/auth/auth_bloc.dart';

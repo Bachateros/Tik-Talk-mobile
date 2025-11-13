@@ -11,7 +11,7 @@ class ProfileState {
     this.errorMessage,
   });
 
-  factory ProfileState.initial() => ProfileState(status: ProfileStatus.initial);
+  factory ProfileState.initial() => ProfileState(status: ProfileStatus.unknown);
 
   ProfileState copyWith({
     ProfileStatus? status,
@@ -29,8 +29,9 @@ class ProfileState {
 
 enum ProfileStatus { 
   unknown,
-      initial, 
-      succes, 
+      loading, 
+      succes,
+      updated, 
         me, 
         edit,
   failure,

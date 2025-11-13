@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:tik_talk/domain/bloc/auth/auth_bloc.dart';
 import 'package:tik_talk/presintation/theme/theme_text.dart';
 
@@ -31,67 +30,69 @@ class _LoginFormState extends State<LoginForm> {
     return Form(
       key: _formKey,
       child: Column(
-          children: [
-            const Text(
-              'Вход' , 
-              style: AppTextStyles.authHeading48,
-              textAlign: TextAlign.left,
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Text(
+            'Вход' , 
+            style: AppTextStyles.authHeading48,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 20),
+          TextFormField(
+            controller: _loginController,
+            style: TextStyle(color: Colors.white), 
+            autovalidateMode: AutovalidateMode.onUserInteraction, // Автовалидация
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return "Это поле должно быть заполнено";
+                }
+                return null;
+              },
+            decoration: const InputDecoration(
+              labelText: 'Telegram Username',
             ),
-            const SizedBox(height: 20),
-            TextFormField(
-              controller: _loginController,
-              style: TextStyle(color: Colors.white), 
-              autovalidateMode: AutovalidateMode.onUserInteraction, // Автовалидация
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Это поле должно быть заполнено";
-                  }
-                  return null;
-                },
-              decoration: const InputDecoration(
-                labelText: 'Telegram Username',
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextFormField(
-              controller: _passwordController,
-              style: TextStyle(color: Colors.white), 
-              autovalidateMode: AutovalidateMode.onUserInteraction, // Автовалидация
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Это поле должно быть заполнено";
-                  }
-                  return null;
-                },
-              obscureText: _hidePassword,
-              decoration: InputDecoration(
-                labelText: 'Пароль',
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _hidePassword ? Icons.visibility : Icons.visibility_off,
-                  ),
-                  onPressed:
-                      () => setState(() => _hidePassword = !_hidePassword),
+          ),
+          const SizedBox(height: 10),
+          TextFormField(
+            controller: _passwordController,
+            style: TextStyle(color: Colors.white), 
+            autovalidateMode: AutovalidateMode.onUserInteraction, // Автовалидация
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return "Это поле должно быть заполнено";
+                }
+                return null;
+              },
+            obscureText: _hidePassword,
+            decoration: InputDecoration(
+              labelText: 'Пароль',
+              suffixIcon: IconButton(
+                icon: Icon(
+                  _hidePassword ? Icons.visibility : Icons.visibility_off,
                 ),
+                onPressed:
+                    () => setState(() => _hidePassword = !_hidePassword),
               ),
             ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              style:ButtonStyle(),
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  context.read<AuthBloc>().add(LoginEvent(_loginController.text, _passwordController.text));                 }
-              },
-              child: const Text('Войти',),
-            ),
-            const SizedBox(height: 10),
-            TextButton(
-              onPressed: () {
-                context.read<AuthBloc>().add(RegisterPressedEvent());
-              },
-              child: const Text('Регистрация'),
-            ),
-          ],
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            style:ButtonStyle(),
+            onPressed: () {
+              if (_formKey.currentState!.validate()) {
+                context.read<AuthBloc>().add(LoginEvent(_loginController.text, _passwordController.text));                 }
+            },
+            child: const Text('Войти',),
+          ),
+          const SizedBox(height: 10),
+          TextButton(
+            onPressed: () {
+              context.read<AuthBloc>().add(RegisterPressedEvent());
+            },
+            child: const Text('Регистрация'),
+          ),
+        ],
       ),
     );
   }

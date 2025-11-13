@@ -1,4 +1,7 @@
 import 'dart:convert';
+import 'package:tik_talk/data/datasources/remote/sync_service_remote_data_service.dart';
+import 'package:tik_talk/data/repositories/sync_repository_IMPL.dart';
+import 'package:tik_talk/internal/di.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:tik_talk/data/datasources/db/app_db.dart';
@@ -9,26 +12,46 @@ class WebSocketService {
   final AppDb db;
 
   WebSocketChannel? _channel;
+  bool _isConnecting = false;
 
   WebSocketService({required this.baseUrl, required this.token, required this.db});
 
   Future<void> connect() async {
-    _channel = IOWebSocketChannel.connect(
-      Uri.parse(baseUrl),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Connection': 'Upgrade',
-        'Upgrade': 'websocket',
-      },
-    );
+     if (_isConnecting || _channel != null) return;
+    _isConnecting = true;
+
+    try {
+      _channel = IOWebSocketChannel.connect(
+        Uri.parse(baseUrl),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Connection': 'Upgrade',
+          'Upgrade': 'websocket',
+        },
+      );
+      print('[WS] Connected to $baseUrl');
 
     _channel!.stream.listen((event) async {
       final data = jsonDecode(event);
       await _handleEvent(data);
-    }, onDone: _onClose, onError: _onError);
+    }, onDone: () {
+          print('[WS] Connection closed');
+          _reconnect();
+        },
+      );
+    } catch (e) {
+      print('[WS] Connection error: $e');
+      _reconnect();
+    } finally {
+      _isConnecting = false;
+    }
   }
 
  Future<void> _handleEvent(Map<String, dynamic> data) async {
+  // ленивое обновление тупо синхронизация после каждого нового сообщения по веб сокету Сделал для тестов но в целом и такой вариант пойдет
+  final syncRepo = SyncRepositoryIMPL(db: db, syncService: DIContainer().container.get<SyncServiceRemoteDataService>());
+  await syncRepo.syncAll();
+  //TODO: удалить после нормальной настройки
   final type = data['type']?.toString();
   if (type == null) return;
 
@@ -92,14 +115,20 @@ class WebSocketService {
   }
 }
 
+  void _reconnect() async {
+    if (_isConnecting) return;
+    _isConnecting = true;
 
-  void _onClose() {
+    await Future.delayed(const Duration(seconds: 5));
+    print('[WS] Reconnecting...');
+    _isConnecting = false;
+    connect();
+  }
+
+  void Close() {
     print('WebSocket closed');
   }
 
-  void _onError(err) {
-    print('WebSocket error: $err');
-  }
 
   void dispose() {
     _channel?.sink.close();

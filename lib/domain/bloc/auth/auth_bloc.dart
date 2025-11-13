@@ -1,7 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tik_talk/data/DTO/user_DTO.dart';
 import 'package:tik_talk/data/datasources/db/app_db.dart';
-import 'package:tik_talk/data/repositories/sync_repository_IMPL.dart';
 import 'package:tik_talk/data/websocket/websocket.dart';
 import 'package:tik_talk/domain/entities/user_entitie.dart';
 import 'package:tik_talk/domain/repositories/auth_repository.dart';
@@ -47,8 +45,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
           //Инициализация WebSocket
           await DIContainer().initSocket(appDB: db);
-          final ws = DIContainer().container.get<WebSocketService>();
-          await ws.connect();
+          // final ws = DIContainer().container.get<WebSocketService>();
+          // await ws.connect();
         }catch(e){
           throw ('Bad BD init and ws connect try destroy');
         }

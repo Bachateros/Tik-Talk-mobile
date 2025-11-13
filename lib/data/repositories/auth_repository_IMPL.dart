@@ -1,6 +1,3 @@
-import 'dart:convert';
-
-import 'package:tik_talk/data/datasources/db/app_db.dart';
 import 'package:tik_talk/domain/repositories/auth_repository.dart';
 import 'package:tik_talk/domain/entities/user_entitie.dart';
 import 'package:tik_talk/data/datasources/local/auth_local_data_source.dart';

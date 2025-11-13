@@ -103,7 +103,7 @@ class UserCard extends StatelessWidget {
                     radius: 20,
                     backgroundColor: Colors.blueGrey,
                     backgroundImage: NetworkImage(
-                      me!.avatarUrl != '' ?   me.avatarUrl! : ThemeAssets.noAvatar(context),
+                      me!.avatarUrl != '' ?   me.avatarUrl! : ThemeAssets.noAvatarUser(context),
                     ),
                   ),
                   onPressed: () => context.push('/home/profile'),

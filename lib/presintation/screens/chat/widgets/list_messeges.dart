@@ -38,14 +38,29 @@ class ListMesseges extends StatelessWidget {
             return Align(
               alignment: isMine ? Alignment.centerRight: Alignment.centerLeft,
               child: Container(
-                margin: const EdgeInsets.symmetric(
-                  vertical: 4,),
+                margin: EdgeInsets.only(
+                  top: 4,
+                  bottom: 4,
+                  left: isMine ? 60 : 8,   // отступ от противоположной стороны
+                  right: isMine ? 8 : 60,  // и наоборот
+                ),
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: isMine
                         ? AppColors.primary
                         : AppColors.chatConteiner,
-                    borderRadius: isMine ? BorderRadius.only(topRight: Radius.circular(10),) : BorderRadius.only(topLeft: Radius.circular(10),),
+                    borderRadius: isMine ? 
+                    BorderRadius.only(
+                      topRight: Radius.circular(0),
+                      topLeft: Radius.circular(16),
+                      bottomLeft: Radius.circular(16) ,
+                      bottomRight: Radius.circular(16) ,
+                      ) : 
+                    BorderRadius.only(
+                      topLeft: Radius.circular(0),
+                      topRight: Radius.circular(16),
+                      bottomLeft: Radius.circular(16),
+                      bottomRight: Radius.circular(16),),
                   ),
                   child: Text(
                     msg.content,

@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:get_it/get_it.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tik_talk/data/DTO/messege_DTO.dart';
 import 'package:tik_talk/data/api_remote/ApiClient.dart';
 import 'package:tik_talk/data/datasources/db/app_db.dart';
 import 'package:tik_talk/data/datasources/local/auth_local_data_source.dart';
@@ -251,6 +250,8 @@ class DIContainer {
 
     container.registerLazySingleton<ProfileRepository>(
       ()=> ProfileRepositoryImpl(
+        userMapper: container.get<UserMapper>(),
+        userRepo: container.get<UserServiceRemoteSource>(),
         usersDao: container.get<UsersDao>(),
         )
     );

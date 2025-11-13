@@ -12,21 +12,17 @@ class LoadProfileEvent extends ProfileEvent {
   LoadProfileEvent({required this.idUser});
 }
 
-class SwitchSettingProfileEvent{
+class SwitchSettingProfileEvent extends ProfileEvent{
   final ProfileStatus status;
   SwitchSettingProfileEvent({required this.status});
 }
 
 class UpdateUserProfileEvent extends ProfileEvent {
-  final String name;
-  final String surname;
   final String? avatarUrl;
   final String? aboutMe;
   final DateTime? birthdayDate;
 
   UpdateUserProfileEvent({
-    required this.name,
-    required this.surname,
     this.avatarUrl,
     this.aboutMe,
     this.birthdayDate,

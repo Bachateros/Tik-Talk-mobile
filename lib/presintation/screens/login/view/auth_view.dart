@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:tik_talk/domain/bloc/auth/auth_bloc.dart';
 import 'package:tik_talk/presintation/screens/login/widgets/login_form.dart';
 import 'package:tik_talk/presintation/screens/login/widgets/register_complete_url_aligin.dart';
 import 'package:tik_talk/presintation/screens/login/widgets/register_form.dart';
 import 'package:tik_talk/presintation/screens/login/widgets/verify_form.dart';
 import 'package:tik_talk/presintation/screens/splash/splash_screen.dart';
-import 'package:tik_talk/presintation/widgets/background_picture_auth.dart';
-import 'package:tik_talk/presintation/widgets/failed_load_view.dart';
 
 class AuthView extends StatelessWidget {
   const AuthView({super.key});

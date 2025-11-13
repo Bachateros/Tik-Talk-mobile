@@ -42,6 +42,9 @@ class ChatState {
 
 enum ChatStatus{
   unknown,
+  loading,
+  initial,
+  setting,
   update,
   failure
 }

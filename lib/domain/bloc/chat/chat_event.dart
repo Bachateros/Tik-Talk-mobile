@@ -28,8 +28,10 @@ class CreateDirectEvent extends ChatEvent{ //создание личного ч�
   final ChatEntitie chat;
   CreateDirectEvent({required this.chat});
 }
-
-
+class StatusChangeEvent extends ChatEvent{
+  final ChatStatus status;
+  StatusChangeEvent({required this.status});
+}
 //ChatPage/Settings
 class DeleteChatEvent extends ChatEvent{} //удалить чат из памяти автоматический Leave из него (подходит для direct)
 

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:tik_talk/presintation/theme/theme_assets.dart';
-
 class BackgroundPicture extends StatelessWidget {
   final Widget child;
   final bool showLogo;

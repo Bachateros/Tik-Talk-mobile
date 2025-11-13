@@ -1,27 +1,27 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:tik_talk/data/datasources/local/auth_local_data_source.dart';
 import 'package:tik_talk/data/datasources/local/chats_dao.dart';
 import 'package:tik_talk/data/datasources/local/messages_dao.dart';
 import 'package:tik_talk/data/datasources/local/participants_dao.dart';
+import 'package:tik_talk/data/datasources/local/users_dao.dart';
 import 'package:tik_talk/data/datasources/remote/chats_service_remote_source.dart';
 import 'package:tik_talk/data/datasources/remote/message_service_remote_source.dart';
 import 'package:tik_talk/data/datasources/remote/participiant_service_remote_source.dart';
+import 'package:tik_talk/data/datasources/remote/user_service_remote_source.dart';
+import 'package:tik_talk/data/mapers/user_mapper.dart';
 import 'package:tik_talk/data/repositories/chat_repository_IMPL.dart';
 import 'package:tik_talk/data/repositories/profile_repository_IMPL.dart';
-import 'package:tik_talk/domain/bloc/auth/auth_bloc.dart';
 import 'package:tik_talk/domain/bloc/chat/chat_bloc.dart';
 import 'package:tik_talk/domain/bloc/home/home_bloc.dart';
 import 'package:tik_talk/domain/bloc/profile/profile_bloc.dart';
 import 'package:tik_talk/domain/repositories/profile_repository.dart';
 import 'package:tik_talk/internal/di.dart';
 import 'package:tik_talk/presintation/screens/chat/view/chat_page.dart';
-import 'package:tik_talk/presintation/screens/chat/view/chat_settings_page.dart';
 import 'package:tik_talk/presintation/screens/home/view/chat_list_view.dart';
 import 'package:tik_talk/presintation/screens/home/view/home_page.dart';
 import 'package:tik_talk/presintation/screens/login/view/auth_page.dart';
 import 'package:tik_talk/presintation/screens/login/widgets/login_form.dart';
-import 'package:tik_talk/presintation/screens/profile/view/profile_view.dart';
+import 'package:tik_talk/presintation/screens/profile/view/profile_page.dart';
 import 'package:tik_talk/presintation/screens/setting/view/setting_page.dart';
 import 'package:tik_talk/presintation/screens/splash/splash_screen.dart';
 
@@ -116,13 +116,13 @@ final GoRouter _router = GoRouter(
             );
           },
         ),
-        GoRoute(
-          path: '/home/chat/:chatId/setting_chat',
-          builder: (context, state) {
-            final chatId = state.pathParameters['chatId']!;
-            return ChatSettingsPage(chatId: chatId);
-          },
-        ),
+        // GoRoute(
+        //   path: '/home/chat/:chatId/setting_chat',
+        //   builder: (context, state) {
+        //     final chatId = state.pathParameters['chatId']!;
+        //     return ChatSettingsPage(chatId: chatId);
+        //   },
+        // ),
         GoRoute(
           path: '/home/profile',
           builder: (context, state) {
@@ -131,28 +131,27 @@ final GoRouter _router = GoRouter(
               create:(context) => ProfileBloc(
                 repository: DIContainer().container.get<ProfileRepository>(),
                 )..add(LoadMyUserProfileEvent(userId: userId,)),
-                child: ProfileView(),
+                child: ProfilePage(),
             );
             
           }
         ),
         GoRoute(
           path: '/home/profile/:userId',
-          // builder: (context, state) {
-          // final userId = state.pathParameters['userId']!;
-          // return BlocProvider(
-          //   create: (_) => ProfileBloc()..add(LoadProfile(userId)),
-          //   child: ProfilePage(userId: userId, isCurrentUser: false),
-          // );
           builder: (context, state) {
             final userId = state.pathParameters['userId']!;
             final id = userId.startsWith(':') ? userId.substring(1) : userId;
             return  BlocProvider(
               create:(context) => ProfileBloc(
-                repository: DIContainer().container.get<ProfileRepository>(),
-                )..add(LoadProfileEvent(idUser: id,)),
-                child: ProfileView(),
-                );
+                repository: ProfileRepositoryImpl(
+                  usersDao: DIContainer().container.get<UsersDao>(), 
+                  userRepo: DIContainer().container.get<UserServiceRemoteSource>(), 
+                  userMapper: DIContainer().container.get<UserMapper>(),
+                  ),
+                )..add(LoadProfileEvent(idUser: id,),
+              ),
+              child: ProfilePage(),
+              );
           },
         ),
         GoRoute(

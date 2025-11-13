@@ -14,17 +14,6 @@ class ChatMapper implements BaseMapper<Map<String, dynamic>, ChatDTO, ChatEntiti
         return DateTime.now();
       }
     }
-//     "ID"
-// "CreatedAt"
-// "UpdatedAt"
-// "DeletedAt"
-// "name"
-// "description"
-// "type"
-// "createdBy"
-// "isPrivate"
-// "maxMembers"
-// "lastActivityAt"
     return ChatDTO(
       id: json['ID']?.toString() ?? '',
       name: json['name']?.toString() ?? '',
@@ -44,7 +33,17 @@ class ChatMapper implements BaseMapper<Map<String, dynamic>, ChatDTO, ChatEntiti
       isDeleted: json['DeleteAt'] == null ? false :true, 
       deletedAt: DateTime.tryParse(json['DeleteAt'].toString()) ,
     );}
-
+//     "ID"
+// "CreatedAt"
+// "UpdatedAt"
+// "DeletedAt"
+// "name"
+// "description"
+// "type"
+// "createdBy"
+// "isPrivate"
+// "maxMembers"
+// "lastActivityAt"
   @override
   Map<String, dynamic> toResponse(ChatDTO dto) => {
         // 'id': dto.id,
@@ -130,8 +129,6 @@ extension ChatTypeExtension on ChatType {
         return 'group';
       case ChatType.channel:
         return 'channel';
-      default:
-        throw ArgumentError('Invalide type chat $type');
-    }
+      }
   }
 }

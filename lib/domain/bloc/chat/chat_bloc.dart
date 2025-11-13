@@ -17,12 +17,13 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<LeaveFromChat>(_onLeaveChat);
     on<UpdateMessegeEvent>(_onUpdateMessage);
     on<UpdateEvent>(_onUpdateChat);
+    on<StatusChangeEvent>(_onStatusChangeEvent);
   }
 
   // Загрузка чата и его участников + сообщений
   Future<void> _onLoadChat(
       LoadChatEvent event, Emitter<ChatState> emit) async {
-    emit(state.copyWith(status: ChatStatus.unknown));
+    emit(state.copyWith(status: ChatStatus.loading));
     try {
       final chat = await repository.getChat(event.chatId);
       final participants =
@@ -74,48 +75,13 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     }
   }
 
-  // on<CreateChatEvent>(_onCreateChat);
-  // on<CreateDirectEvent>(_onCreateDirect);
-
-  // // Создание нового чата
-  // Future<void> _onCreateChat(
-  //     CreateChatEvent event, Emitter<ChatState> emit) async {
-  //   emit(state.copyWith(status: ChatStatus.unknown));
-  //   try {
-  //     final newChat = await repository.createChat(event.chat,event.participantList);
-  //     emit(state.copyWith(
-  //       status: ChatStatus.update,
-  //       chatModel: newChat,
-  //       chatId: newChat.idChat,
-  //     ));
-  //   } catch (e) {
-  //     emit(state.copyWith(
-  //         status: ChatStatus.failure,
-  //         errorMessage: 'Ошибка при создании чата: $e'));
-  //   }
-  // }
-
-  // // Создание личного (direct) чата
-  // Future<void> _onCreateDirect(
-  //     CreateDirectEvent event, Emitter<ChatState> emit) async {
-  //   emit(state.copyWith(status: ChatStatus.unknown));
-  //   try {
-  //     final directChat = await repository.createChat(event.chat,state.listParticipant);
-  //     emit(state.copyWith(
-  //       status: ChatStatus.update,
-  //       chatModel: directChat,
-  //       chatId: directChat.idChat,
-  //     ));
-  //   } catch (e) {
-  //     emit(state.copyWith(
-  //         status: ChatStatus.failure,
-  //         errorMessage: 'Ошибка при создании личного чата: $e'));
-  //   }
-  // }
-
+  Future<void> _onStatusChangeEvent(StatusChangeEvent event, Emitter emit)async{
+    emit(state.copyWith(status: event.status));
+  }
 
   // Обновление данных чата (например, при изменении имени или аватара)
   Future<void> _onUpdateChat(UpdateEvent event, Emitter<ChatState> emit) async {
+    emit(state.copyWith(status: ChatStatus.loading));
     if (state.chatModel == null) return;
     try {
       final updatedChat = await repository.updateChat(state.chatModel!);

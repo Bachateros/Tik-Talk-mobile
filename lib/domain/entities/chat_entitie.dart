@@ -1,5 +1,3 @@
-import 'package:tik_talk/domain/entities/message_entitie.dart';
-
 class ChatEntitie {
   final String idChat;
   final String nameChat;

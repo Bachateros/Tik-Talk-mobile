@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tik_talk/domain/bloc/home/home_bloc.dart';
-import 'package:tik_talk/presintation/widgets/app_bar_chat.dart';
-import 'package:tik_talk/presintation/widgets/app_bar_profile.dart';
 import 'package:tik_talk/presintation/widgets/failed_load_view.dart';
 import 'package:tik_talk/presintation/screens/splash/splash_screen.dart';
 import 'package:tik_talk/presintation/theme/theme_assets.dart';
@@ -37,16 +35,22 @@ class HomePage extends StatelessWidget {
           case HomeStatus.loading:
             return const SplashScreen();
 
-          case HomeStatus.success:
+          case HomeStatus.success:{
+            if (location.startsWith('/home/chat')) {
+              return child;
+            }
+            if (location.startsWith('/home/profile')) {
+              return child;
+            }
             return Scaffold(
               drawer: const SideMenu(),
               appBar: location == '/home' ? const CustomAppBar() 
-                    : location.startsWith('/home/profile') ? AppBarProfile()  
-                    : location.startsWith('/home/chat') ? AppBarChat()
+                    // : location.startsWith('/home/profile') ? AppBarProfile()  
+                    // : location.startsWith('/home/chat') ? AppBarChat()
                     : null,
               body: child, 
             );
-
+          }
           case HomeStatus.failure:
             return FailedLoadView(errorMessage: state.errorMessage,);
         }

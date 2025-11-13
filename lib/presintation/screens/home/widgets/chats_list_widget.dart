@@ -3,13 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tik_talk/domain/bloc/home/home_bloc.dart';
 import 'package:tik_talk/domain/entities/last_message_chat_entitie.dart';
+import 'package:tik_talk/presintation/theme/theme_assets.dart';
 import 'package:tik_talk/presintation/theme/theme_colors.dart';
 import 'package:tik_talk/domain/entities/chat_entitie.dart';
 
 class ChatList extends StatelessWidget {
   const ChatList({super.key});
 
-  final withoutURI = 'https://wp.logos-download.com/wp-content/uploads/2022/01/ChatCoin_Logo-2048x2048.png';
+
 
   @override
   Widget build(BuildContext context) {
@@ -40,8 +41,21 @@ class ChatList extends StatelessWidget {
               child: ListTile(
                 leading: CircleAvatar(
                   backgroundColor: Colors.blueGrey.shade300,
-                  child: Image.network(chat?.avatarUrl ?? withoutURI)
+                  radius: 18,
+                  child: Image.network(chat?.typeChat == ChatType.direct ? (){
+                      final user = users.firstWhere((u)=> (u!.userId == lastMessages[index]?.contactId));
+                      if (user?.avatarUrl == '' || user?.avatarUrl ==null )
+                      {
+                        return ThemeAssets.noAvatarChat(context);
+                      } else {
+                        return user!.avatarUrl!;
+                      }
+                  }(): chat?.avatarUrl == null || chat?.avatarUrl== '' 
+                                ? ThemeAssets.noAvatarChat(context)
+                                : chat!.avatarUrl!,
+                  ),
                 ),
+                
                 title: Text(
                      chat?.typeChat == ChatType.direct ? (){
                       final user = users.firstWhere((u)=> (u!.userId == lastMessages[index]?.contactId));

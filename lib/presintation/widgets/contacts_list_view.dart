@@ -17,9 +17,6 @@ class _ContactsListViewState extends State<ContactsListView> {
  @override
   void initState() {
     super.initState();
-    // Future.microtask(() {
-    //   context.read<HomeBloc>().add(UpdateEvent());
-    // });
   }
 
   @override
@@ -57,7 +54,7 @@ class _ContactsListViewState extends State<ContactsListView> {
                 leading: CircleAvatar(
                   backgroundColor: Colors.blueGrey.shade300,
                   backgroundImage: NetworkImage(
-                    contact.avatarUrl != '' ? contact.avatarUrl! : ThemeAssets.noAvatar(context),
+                    contact.avatarUrl != '' ? contact.avatarUrl! : ThemeAssets.noAvatarUser(context),
                   ),
                 ),
                 title: Text(

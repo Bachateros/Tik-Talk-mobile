@@ -12,6 +12,7 @@ class ProfileBloc extends Bloc<ProfileEvent,ProfileState>{
     on<LoadProfileEvent>(_onLoadProfile);
     on<LoadMyUserProfileEvent>(_onLoadMyUserProfile);
     on<UpdateUserProfileEvent>(_onUpdateUserProfile);
+    on<SwitchSettingProfileEvent>(_onSwitchSettingProfile);
   }
 
   Future<void>_onLoadMyUserProfile(LoadMyUserProfileEvent event,Emitter emit)async{
@@ -44,10 +45,20 @@ class ProfileBloc extends Bloc<ProfileEvent,ProfileState>{
 
   Future<void>_onUpdateUserProfile(UpdateUserProfileEvent event,Emitter emit) async {
     try {
-      
+      if (await repository.updateUser(bio: event.aboutMe,birthOfDay:event.birthdayDate,avatar: event.avatarUrl, userId: state.profile!.userId)){
+        emit(state.copyWith(status: ProfileStatus.updated));
+        emit(state.copyWith(status: ProfileStatus.me));
+      }else {
+        emit(state.copyWith(status: ProfileStatus.me, errorMessage: 'Update faild'));
+      }
+
     } catch (e) {
       emit(state.copyWith(status: ProfileStatus.failure));
     }
+  }
+
+  Future<void>_onSwitchSettingProfile(SwitchSettingProfileEvent event, Emitter emit)async{
+    emit(state.copyWith(status: event.status));
   }
 
 
