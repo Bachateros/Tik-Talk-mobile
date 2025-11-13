@@ -7,8 +7,6 @@ class ChatsServiceRemoteSource {
 
   ChatsServiceRemoteSource({required this.apiClient});
 
-
-
   Future<String> createChat({
     required String name,
     required String? description,
@@ -142,7 +140,6 @@ class ChatsServiceRemoteSource {
   Future<Map<String, dynamic>> getChatDetails(String chatId) async {
     try{
       final response = await apiClient.getJson('/chat/$chatId');
-
       if (response.containsKey('chat')) {
         return response['chat'] as Map<String, dynamic>;
       } else {

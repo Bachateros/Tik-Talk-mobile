@@ -18,28 +18,48 @@ class SyncServiceRemoteDataService {
   SyncServiceRemoteDataService({required this.apiClient});
 
   Future<List<ChatDTO>> fetchChats() async {
-    final response = await apiClient.getJson('/chats');
+    try{
+      final response = await apiClient.getJson('/chats');
 
-    if (response.containsKey('chats')) {
-      final list = response['chats'] as List<dynamic>;
-      return list
-          .map((json) => _chatMapper.fromResponse(json as Map<String, dynamic>))
-          .toList();
-    } else {
-      throw Exception(response['error'] ?? 'Ошибка получения чатов');
+      if (response.containsKey('chats')) {
+        final list = response['chats'] as List<dynamic>;
+        return list
+            .map((json) => _chatMapper.fromResponse(json as Map<String, dynamic>))
+            .toList();
+      } else {
+        throw Exception(response['error'] ?? 'Ошибка получения чатов');
+      }
+    } on ApiException catch (e) {
+      if (e.statusCode == 401) {
+        throw Exception('Сессия истекла. Авторизуйтесь заново.');
+      } else {
+        throw Exception('Ошибка API [${e.statusCode}]: ${e.body}');
+      }
+    } catch (e) {
+      throw Exception('Сетевая ошибка: $e');
     }
   }
 
   Future<List<UserDTO>> fetchUsers() async {
-    final response = await apiClient.getJson('/users/full?limit=100&offset=0');
+    try{
+      final response = await apiClient.getJson('/users/full?limit=100&offset=0');
 
-    if (response.containsKey('users')) {
-      final list = response['users'] as List<dynamic>;
-      return list
-          .map((json) => _userMapper.fromResponse(json as Map<String, dynamic>))
-          .toList();
-    } else {
-      throw Exception(response['error'] ?? 'Ошибка получения пользователей');
+      if (response.containsKey('users')) {
+        final list = response['users'] as List<dynamic>;
+        return list
+            .map((json) => _userMapper.fromResponse(json as Map<String, dynamic>))
+            .toList();
+      } else {
+        throw Exception(response['error'] ?? 'Ошибка получения пользователей');
+      }
+    } on ApiException catch (e) {
+      if (e.statusCode == 401) {
+        throw Exception('Сессия истекла. Авторизуйтесь заново.');
+      } else {
+        throw Exception('Ошибка API [${e.statusCode}]: ${e.body}');
+      }
+    } catch (e) {
+      throw Exception('Сетевая ошибка: $e');
     }
   }
 
@@ -47,17 +67,27 @@ class SyncServiceRemoteDataService {
     required String chatId,
     required String since,
   }) async {
-    final response = await apiClient
-        .getJson('/chat/participants/?id=$chatId&since=$since');
+    try{
+      final response = await apiClient
+          .getJson('/chat/participants/?id=$chatId&since=$since');
 
-    if (response.containsKey('participants')) {
-      final list = response['participants'] as List<dynamic>;
-      return list
-          .map((json) =>
-              _participantMapper.fromResponse(json as Map<String, dynamic>))
-          .toList();
-    } else {
-      throw Exception(response['error'] ?? 'Ошибка получения участников чата');
+      if (response.containsKey('participants')) {
+        final list = response['participants'] as List<dynamic>;
+        return list
+            .map((json) =>
+                _participantMapper.fromResponse(json as Map<String, dynamic>))
+            .toList();
+      } else {
+        throw Exception(response['error'] ?? 'Ошибка получения участников чата');
+      }
+    } on ApiException catch (e) {
+      if (e.statusCode == 401) {
+        throw Exception('Сессия истекла. Авторизуйтесь заново.');
+      } else {
+        throw Exception('Ошибка API [${e.statusCode}]: ${e.body}');
+      }
+    } catch (e) {
+      throw Exception('Сетевая ошибка: $e');
     }
   }
 
@@ -65,17 +95,27 @@ class SyncServiceRemoteDataService {
     required String chatId,
     required String since,
   }) async {
-    final response =
-        await apiClient.getJson('/chat/messages?id=$chatId&since=$since');
+    try{
+      final response =
+          await apiClient.getJson('/chat/messages?id=$chatId&since=$since');
 
-    if (response.containsKey('messages')) {
-      final list = response['messages'] as List<dynamic>;
-      return list
-          .map((json) =>
-              _messageMapper.fromResponse(json as Map<String, dynamic>))
-          .toList();
-    } else {
-      throw Exception(response['error'] ?? 'Ошибка получения сообщений');
+      if (response.containsKey('messages')) {
+        final list = response['messages'] as List<dynamic>;
+        return list
+            .map((json) =>
+                _messageMapper.fromResponse(json as Map<String, dynamic>))
+            .toList();
+      } else {
+        throw Exception(response['error'] ?? 'Ошибка получения сообщений');
+      }
+    } on ApiException catch (e) {
+      if (e.statusCode == 401) {
+        throw Exception('Сессия истекла. Авторизуйтесь заново.');
+      } else {
+        throw Exception('Ошибка API [${e.statusCode}]: ${e.body}');
+      }
+    } catch (e) {
+      throw Exception('Сетевая ошибка: $e');
     }
   }
 }

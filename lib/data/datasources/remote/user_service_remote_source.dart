@@ -6,9 +6,15 @@ class UserServiceRemoteSource {
 
   UserServiceRemoteSource({required this.apiClient});
 
-  Future<T> safeApiCall<T>(Future<T> Function() call) async {
-    try {
-      return await call();
+  Future<dynamic> getAllUsers() async {
+    try{
+      final response = await apiClient.getJson('/users?limit=100&offset=0');
+
+      if (response.isEmpty ) {
+        throw Exception(response['error'] ?? 'Ошибка получения профиля пользователя');
+      } else {
+        return response['users'];
+      }
     } on ApiException catch (e) {
       if (e.statusCode == 401) {
         throw Exception('Сессия истекла. Авторизуйтесь заново.');
@@ -20,43 +26,43 @@ class UserServiceRemoteSource {
     }
   }
 
-  Future<dynamic> getAllUsers() async {
+  Future<dynamic> getUserProfile(String? userId) async {
     try{
-      final response = await apiClient.getJson('/users?limit=100&offset=0');
+      final response = await apiClient.getJson('/profile?user_id=$userId');
 
-      if (response.isEmpty ) {
+      if (response.isEmpty) {
         throw Exception(response['error'] ?? 'Ошибка получения профиля пользователя');
       } else {
-        return response['users'];
+        return response['profile'];
       }
     } on ApiException catch (e) {
-        if (e.statusCode == 401) {
-          throw Exception('Сессия истекла. Авторизуйтесь заново.');
-        } else {
-          throw Exception('Ошибка API [${e.statusCode}]: ${e.body}');
-        }
-      } catch (e) {
-        throw Exception('Сетевая ошибка: $e');
+      if (e.statusCode == 401) {
+        throw Exception('Сессия истекла. Авторизуйтесь заново.');
+      } else {
+        throw Exception('Ошибка API [${e.statusCode}]: ${e.body}');
       }
-  }
-
-  Future<dynamic> getUserProfile(String? userId) async {
-    final response = await apiClient.getJson('/profile?user_id=$userId');
-
-    if (response.isEmpty) {
-      throw Exception(response['error'] ?? 'Ошибка получения профиля пользователя');
-    } else {
-      return response['profile'];
+    } catch (e) {
+      throw Exception('Сетевая ошибка: $e');
     }
   }
 
   Future<dynamic> getCurrentUserProfile() async {
-    final response = await apiClient.getJson('/users/me');
+    try {
+      final response = await apiClient.getJson('/users/me');
 
-    if (response['success'] == true) {
-      return response['user'];
-    } else {
-      throw Exception(response['error'] ?? 'Ошибка получения текущего профиля');
+      if (response['success'] == true) {
+        return response['user'];
+      } else {
+        throw Exception(response['error'] ?? 'Ошибка получения текущего профиля');
+      }
+    } on ApiException catch (e) {
+      if (e.statusCode == 401) {
+        throw Exception('Сессия истекла. Авторизуйтесь заново.');
+      } else {
+        throw Exception('Ошибка API [${e.statusCode}]: ${e.body}');
+      }
+    } catch (e) {
+      throw Exception('Сетевая ошибка: $e');
     }
   }
 
@@ -91,12 +97,22 @@ class UserServiceRemoteSource {
   }
 
   Future<List<dynamic>> getUserContacts() async {
-    final response = await apiClient.getJson('/users/contacts');
+    try{
+      final response = await apiClient.getJson('/users/contacts');
 
-    if (response['success'] == true) {
-      return response['contacts'] as List<dynamic>;
-    } else {
-      throw Exception(response['error'] ?? 'Ошибка получения контактов');
+      if (response['success'] == true) {
+        return response['contacts'] as List<dynamic>;
+      } else {
+        throw Exception(response['error'] ?? 'Ошибка получения контактов');
+      }
+    } on ApiException catch (e) {
+      if (e.statusCode == 401) {
+        throw Exception('Сессия истекла. Авторизуйтесь заново.');
+      } else {
+        throw Exception('Ошибка API [${e.statusCode}]: ${e.body}');
+      }
+    } catch (e) {
+      throw Exception('Сетевая ошибка: $e');
     }
   }
 }
