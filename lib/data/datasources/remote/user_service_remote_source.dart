@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:tik_talk/data/api_remote/ApiClient.dart';
 
 class UserServiceRemoteSource {
@@ -5,14 +6,38 @@ class UserServiceRemoteSource {
 
   UserServiceRemoteSource({required this.apiClient});
 
-  Future<dynamic> getAllUsers() async {
-    final response = await apiClient.getJson('/users?limit=100&offset=0');
-
-    if (response.isEmpty ) {
-      throw Exception(response['error'] ?? 'Ошибка получения профиля пользователя');
-    } else {
-      return response['users'];
+  Future<T> safeApiCall<T>(Future<T> Function() call) async {
+    try {
+      return await call();
+    } on ApiException catch (e) {
+      if (e.statusCode == 401) {
+        throw Exception('Сессия истекла. Авторизуйтесь заново.');
+      } else {
+        throw Exception('Ошибка API [${e.statusCode}]: ${e.body}');
+      }
+    } catch (e) {
+      throw Exception('Сетевая ошибка: $e');
     }
+  }
+
+  Future<dynamic> getAllUsers() async {
+    try{
+      final response = await apiClient.getJson('/users?limit=100&offset=0');
+
+      if (response.isEmpty ) {
+        throw Exception(response['error'] ?? 'Ошибка получения профиля пользователя');
+      } else {
+        return response['users'];
+      }
+    } on ApiException catch (e) {
+        if (e.statusCode == 401) {
+          throw Exception('Сессия истекла. Авторизуйтесь заново.');
+        } else {
+          throw Exception('Ошибка API [${e.statusCode}]: ${e.body}');
+        }
+      } catch (e) {
+        throw Exception('Сетевая ошибка: $e');
+      }
   }
 
   Future<dynamic> getUserProfile(String? userId) async {
@@ -40,16 +65,28 @@ class UserServiceRemoteSource {
     String? aboutMe,
     DateTime? birthdayDate,
   }) async {
-    final response = await apiClient.putJson('/profile', {
-      if (avatarUrl != null) 'avatar': avatarUrl,
-      if (aboutMe != null) 'bio': aboutMe,
-      if (birthdayDate != null) 'date_of_birth': birthdayDate.toIso8601String(),
-    });
-
-    if (response['success'] == true) {
-      return true;
-    } else {
-      throw Exception(response['error'] ?? 'Ошибка обновления профиля');
+    try{
+      final response = await apiClient.putJson('/profile', {
+        if (avatarUrl != null) 'avatar': avatarUrl,
+        if (aboutMe != null && aboutMe != '') 'bio': aboutMe,
+        if (birthdayDate != null) 'date_of_birth':  DateFormat('yyyy-MM-dd').format(birthdayDate),
+      });
+      // '${birthdayDate.year}-${birthdayDate.month}-${birthdayDate.day}'
+      final resultValue = response['result'] ?? response['success'] ?? response['ok'];
+      if (resultValue == 'ok' || resultValue == true) {
+        return true;
+      } 
+      else {
+        return false;
+      }
+    } on ApiException catch (e) {
+      if (e.statusCode == 401) {
+        throw Exception('Сессия истекла. Авторизуйтесь заново.');
+      } else {
+        throw Exception('Ошибка API [${e.statusCode}]: ${e.body}');
+      }
+    } catch (e) {
+      throw Exception('Сетевая ошибка: $e');
     }
   }
 
