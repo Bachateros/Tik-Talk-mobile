@@ -19,12 +19,6 @@ class SideMenu extends StatelessWidget{
           child: Column(
             children: [
               Expanded(child: ListViewSideMenu(),),
-              Container(
-                margin: EdgeInsets.only(bottom: 110),
-                child: SizedBox(
-                height: 270,
-                child: ContactsListView(),
-              ),),
               
               UserCard(),
             ]
@@ -80,6 +74,12 @@ class ListViewSideMenu extends StatelessWidget {
                 context.push('/home/settings');
               },
             ),
+            Container(
+                margin: EdgeInsets.only(bottom: 110),
+                child: SizedBox(
+                height: 270,
+                child: ContactsListView(),
+              ),),
           ]
     );
   }

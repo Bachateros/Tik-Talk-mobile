@@ -13,17 +13,18 @@ class MessagesDao extends DatabaseAccessor<AppDb> with _$MessagesDaoMixin {
     final now = DateTime.now();
     await into(messages).insertOnConflictUpdate(
       MessagesCompanion(
-        id: Value(messageDTO.id),
+        id: Value(messageDTO.id!),
         chatId: Value(messageDTO.chatId),
         userId: Value(messageDTO.userId),
         content: Value(messageDTO.content),
         type: Value(messageDTO.type ?? 'text'),
-        clientId: Value(messageDTO.clientId),
+        clientId: Value(null),
         status: Value(messageDTO.status),
         fileUrl: Value(messageDTO.fileUrl),
         fileName: Value(messageDTO.fileName),
         fileSize: Value(messageDTO.fileSize),
         mimeType: Value(messageDTO.mimeType),
+        createdAt: Value(messageDTO.createdAt),
         replyToId: Value(messageDTO.replyToId),
         isDeleted: Value(messageDTO.isDeleted),
         updatedAt: Value(messageDTO.updatedAt ?? now),
@@ -32,18 +33,6 @@ class MessagesDao extends DatabaseAccessor<AppDb> with _$MessagesDaoMixin {
     );
   }
 
-  //проверка на наличие сообщения: если да обновить, если нет добавить
-//   Future<void> upsertMessage(Message message) async {
-//   final existing = await (select(messages)
-//         ..where((tbl) => tbl.id.equals(message.id)))
-//       .getSingleOrNull();
-
-//   if (existing != null) {
-//     await update(messages).replace(message);
-//   } else {
-//     await into(messages).insert(message);
-//   }
-// }
   // Добавить сообщение
   Future<void> insertMessage(MessagesCompanion entry) async {
     await into(messages).insertOnConflictUpdate(entry);
@@ -53,7 +42,7 @@ class MessagesDao extends DatabaseAccessor<AppDb> with _$MessagesDaoMixin {
   Future<List<Message>> getMessagesByChat(String chatId) async {
     return (select(messages)
           ..where((m) => m.chatId.equals(chatId))
-          ..orderBy([(m) => OrderingTerm(expression: m.createdAt, mode: OrderingMode.asc)]))
+          ..orderBy([(m) => OrderingTerm(expression: m.createdAt, mode: OrderingMode.desc)]))
         .get();
   }
 

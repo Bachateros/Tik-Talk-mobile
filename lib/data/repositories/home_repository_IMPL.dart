@@ -95,7 +95,7 @@ class HomeRepositoryImpl extends HomeRepository {
         deletedAt: chat.deletedAt,
       );
       if (dto.type == 'direct'){
-        final contactId = await participantsDao.getDirectContact(dto.id,userId);
+        final contactId = await participantsDao.getDirectContact(dto.id!,userId);
         result.add(ChatWithLastMessageEntitie(chat: chatMapper.toEntity(dto), lastMessage: lastMsgEntity, contactId: contactId));
       } else {
         result.add(ChatWithLastMessageEntitie(chat: chatMapper.toEntity(dto), lastMessage: lastMsgEntity));
@@ -139,18 +139,7 @@ class HomeRepositoryImpl extends HomeRepository {
     final userDto = await usersDao.getUserById(userId);
     if (userDto == null) throw Exception("User not found");
 
-    final dto = UserDTO(
-      id: userDto.id,
-      name: userDto.name,
-      surname: userDto.surname,
-      tgname: userDto.tgname,
-      bio: userDto.bio,
-      avatarUrl: userDto.avatarUrl,
-      isDeleted: userDto.isDeleted,
-      createdAt: userDto.createdAt,
-      updatedAt: userDto.updatedAt,
-      deletedAt: userDto.deletedAt,
-    );
+    final dto = userMapper.toDTO(userDto);
 
     return userMapper.toEntity(dto);
   }

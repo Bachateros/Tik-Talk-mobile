@@ -1,42 +1,23 @@
+import 'dart:async';
+
 import 'package:tik_talk/data/DTO/messege_DTO.dart';
 import 'package:tik_talk/data/api_remote/ApiClient.dart';
+import 'package:tik_talk/data/mapers/message_mapper.dart';
 
 class MessageServiceRemoteSource {
   final ApiClient apiClient;
+  final MessageMapper messageMapper;
 
-  MessageServiceRemoteSource({required this.apiClient});
+  MessageServiceRemoteSource({required this.apiClient, required this.messageMapper});
 
-  Future<String> sendMessage({MessageDTO? message
-  }) async {
-    try{
-      final response = await apiClient.postJson('/message/send', {
-        "chatId": message!.chatId,
-        "clientId": message.userId,
-        'content': message.content,
-        'type': message.type.toString(),
-        if (message.replyToId != null) 'reply_to_id': message.replyToId,
-        if (message.fileUrl != null) 'file_url': message.fileUrl,
-        if (message.fileName != null) 'file_name': message.fileName,
-        if (message.fileSize != null) 'file_size': message.fileSize,
-        if (message.mimeType != null) 'mime_type': message.mimeType,
-        if (message.status != null ) 'status' : message.status,
-      });
+  void sendMessage(MessageDTO message) {
+    // отправляем, но намеренно не ждём результат
+    unawaited(_sendMessageInternal(message));
+  }
 
-      if (response.containsKey('message_id')) {
-        return response['message_id'] as String;
-      } else {
-        throw Exception(response['error'] ?? 'Ошибка отправки сообщения');
-      }
-    } on ApiException catch (e) {
-      if (e.statusCode == 401) {
-        throw Exception('Сессия истекла. Авторизуйтесь заново.');
-      } else {
-        throw Exception('Ошибка API [${e.statusCode}]: ${e.body}');
-      }
-    } catch (e) {
-      throw Exception('Сетевая ошибка: $e');
-    }
-
+  Future<void> _sendMessageInternal(MessageDTO message) async {
+      await apiClient.postJson('/message/send', messageMapper.toResponse(message));
+    
   }
 
   Future<List<dynamic>> getChatMessages({

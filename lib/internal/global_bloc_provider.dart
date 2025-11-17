@@ -8,8 +8,10 @@ import 'package:tik_talk/data/datasources/local/users_dao.dart';
 import 'package:tik_talk/data/datasources/remote/auth_service_remote_data_source.dart';
 import 'package:tik_talk/data/repositories/auth_repository_IMPL.dart';
 import 'package:tik_talk/data/repositories/home_repository_IMPL.dart';
+import 'package:tik_talk/data/websocket/websocket.dart';
 import 'package:tik_talk/domain/bloc/auth/auth_bloc.dart';
 import 'package:tik_talk/domain/bloc/home/home_bloc.dart';
+import 'package:tik_talk/domain/repositories/sync_repository.dart';
 import 'package:tik_talk/internal/app_router.dart';
 import 'package:tik_talk/internal/application.dart';
 import 'package:tik_talk/internal/di.dart';
@@ -37,7 +39,9 @@ class GlobalBlocProvider extends StatelessWidget {
             messagesDao: DIContainer().container.get<MessagesDao>(),
             participantsDao: DIContainer().container.get<ParticipantsDao>(),
             usersDao:DIContainer().container.get<UsersDao>(),
-            ), 
+            ),
+          syncRepo: DIContainer().container.get<SyncRepository>(),
+          ws: DIContainer().container.get<WebSocketService>(), 
           authBloc: ctx.read<AuthBloc>()),          
       ), 
       ],

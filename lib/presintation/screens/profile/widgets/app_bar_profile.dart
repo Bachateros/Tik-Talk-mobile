@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:tik_talk/domain/bloc/chat/chat_bloc.dart';
 import 'package:tik_talk/domain/bloc/profile/profile_bloc.dart';
 import 'package:tik_talk/presintation/theme/theme_assets.dart';
 
@@ -30,16 +29,25 @@ class _AppBarProfileState extends State<AppBarProfile> {
       ),
       child: AppBar(
         leading: Builder(
-          builder: (context) => IconButton(
-            icon: IconButton(
+          builder: (context) {
+            if (context.read<ProfileBloc>().state.status == ProfileStatus.edit){
+              return IconButton(
               icon: Icon(Icons.arrow_back_ios),
-              onPressed: () => context.pop(),
-            ),
-            onPressed: () => Scaffold.of(context).openDrawer(), //TODO:
-          ),
-        ),
-        title: Text('Profile'),
+              onPressed: () => context.read<ProfileBloc>().add(SwitchSettingProfileEvent(status: ProfileStatus.me))
+              );
+            } else {
+              return IconButton(
+                icon: Icon(Icons.arrow_back_ios),
+                onPressed: () => context.pop(), 
+              );
+            }
+          },
+              //       
+          //  
 
+        ),
+        centerTitle: true,
+        title: Text('Profile'),
         actions: [
           BlocBuilder<ProfileBloc,ProfileState>(
             buildWhen: (previous, current) => previous.status != current.status,
@@ -51,31 +59,7 @@ class _AppBarProfileState extends State<AppBarProfile> {
               ): const SizedBox.shrink(),
             ),
         ],
-        // backgroundColor: Colors.transparent,
-        // title: !_isSearching
-        //     ? const Text(
-        //         'Tik-Talk',
-        //         style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        //       )
-        //     : _buildSearchField(context),
-        // actions: [
-        //   IconButton(
-        //     icon: Icon(
-        //       _isSearching ? Icons.close : Icons.search,
-        //       color: Colors.white,
-        //     ),
-        //     onPressed: () {
-        //       setState(() {
-        //         _isSearching = !_isSearching;
-        //         if (!_isSearching) {
-        //           _controller.clear();
-        //         } else {
-        //           _updateSearchItems();
-        //         }
-        //       });
-        //     },
-        //   ),
-        // ],
+        backgroundColor: Colors.transparent,
       )
     );
   }

@@ -38,20 +38,20 @@ class MessageMapper
 
   @override
   Map<String, dynamic> toResponse(MessageDTO dto) => {
-        'id': dto.id,
-        'chat_id': dto.chatId,
-        'user_id': dto.userId,
+        if (dto.id != null) 'chat_id': dto.id, 
+        'chatId': dto.chatId,
         'content': dto.content,
         'type': dto.type,
-        'file_url': dto.fileUrl,
-        'file_name': dto.fileName,
-        'file_size': dto.fileSize,
-        'mime_type': dto.mimeType,
+        'clientId': dto.clientId,
+        // 'file_url': dto.fileUrl,
+        // 'file_name': dto.fileName,
+        // 'file_size': dto.fileSize,
+        // 'mime_type': dto.mimeType,
         'reply_to_id': dto.replyToId,
         'is_deleted': dto.isDeleted,
-        'created_at': dto.createdAt.toIso8601String(),
-        'updated_at': dto.updatedAt?.toIso8601String(),
-        'deleted_at': dto.deletedAt?.toIso8601String(),
+        'created_at': dto.createdAt.toString(),
+        'updated_at': dto.updatedAt?.toString(),
+        'deleted_at': dto.deletedAt?.toString(),
       };
 
   @override
@@ -60,6 +60,7 @@ class MessageMapper
         idChat: dto.chatId,
         idUser: dto.userId,
         content: dto.content,
+        clientId: dto.clientId ?? null,
         typeMessage: MessageTypeExtension.fromString(dto.type),
         fileUrl: dto.fileUrl,
         fileName: dto.fileName,

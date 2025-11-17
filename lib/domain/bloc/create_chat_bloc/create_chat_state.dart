@@ -1,50 +1,60 @@
 part of 'create_chat_bloc.dart';
 
-class ChatState {
-  // final ChatStatus status;
-  // final List<ParticipantEntitie?> listParticipant;
-  // final List<MessageEntitie?> listMesseges;
-  // final String? chatId;
-  // final ChatEntitie? chatModel;//selected chat in HomeState
-  // final String? errorMessage;
+class CreateChatState {
+  final CreateChatStatus status;
+  final String? errorMessage;
+  final List<UserEntity?>  listUsers;
+  final List<ParticipantEntitie?>  listParticipants;
+  final List<UserEntity?>  listContactDirect;
+  final List<ChatEntitie?> listChats;
+  final String? userId;
+
+  const CreateChatState({
+    required this.status,
+    required this.errorMessage,
+    this.userId,
+    this.listContactDirect = const [],
+    this.listParticipants = const[],
+    this.listUsers = const [],
+    this.listChats = const[],
+  });
+
+  factory CreateChatState.initial(
+    List<UserEntity?>  listUsers, 
+    List<UserEntity?>  listContactDirect ,
+    List<ChatEntitie?> listChats, 
+    String userId) =>
+  CreateChatState(status: CreateChatStatus.createDirect, errorMessage: null,
+  listUsers:listUsers, 
+  listContactDirect: listContactDirect, 
+  listChats: listChats, 
+  userId: userId);
   
-  // const ChatState({
-  //   required this.status,
-  //   this.listParticipant = const[],
-  //   this.listMesseges = const[],
-  //   this.chatModel,
-  //   this.chatId,
-  //   this.errorMessage,
-  // });
-
-  // factory ChatState.initial() =>
-  //   ChatState(status: ChatStatus.unknown);
-
-  // ChatState copyWith({
-  //   ChatStatus? status,
-  //   List<ParticipantEntitie>? listParticipant,
-  //   List<MessageEntitie?>? listMesseges,
-  //   String? chatId,
-  //   ChatEntitie? chatModel,
-  //   String? errorMessage,
-  //   }
-  // ){
-  //   return ChatState(
-  //     status: status ?? this.status,
-  //     listParticipant: listParticipant ?? this.listParticipant,
-  //     chatId: chatId ?? this.chatId,
-  //     listMesseges: listMesseges ?? this.listMesseges,
-  //     chatModel: chatModel ?? this.chatModel,
-  //     errorMessage: errorMessage ?? this.errorMessage,
-  //     );
-  // }
+  CreateChatState copyWith({
+    CreateChatStatus? status,
+    String? errorMessage,
+    List<ParticipantEntitie?>? listParticipants,
+    List<UserEntity?>? listContactDirect,
+    List<UserEntity?>? listUsers,
+    }
+  ){
+    return CreateChatState(
+      errorMessage: errorMessage ?? this.errorMessage,
+      status: status ?? this.status,
+      listParticipants: listParticipants ?? this.listParticipants,
+      listContactDirect: listContactDirect ?? this.listContactDirect,
+      listUsers: listUsers ?? this.listUsers,
+    );
+  }
 }
 
-enum ChatStatus{
-  unknown,
+
+enum CreateChatStatus{
   loading,
-  initial,
-  setting,
-  update,
-  failure
+    updated,
+      createDirect,
+      createChanel,
+      createGroup,
+    succes,
+  failure,
 }

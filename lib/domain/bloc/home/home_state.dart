@@ -21,14 +21,7 @@ class HomeState {
       HomeState(status: HomeStatus.unknown, user: UserEntity());
 
 
-  List<UserEntity?> get contacts {
-  return users.where((user) {
-    if (user == null) return false;
-    
-    return listContacts.any((participant) => 
-        participant?.userId == user.userId.toString() && participant?.userId != user.userId);
-    }).toList();
-  }
+  List<UserEntity?> get contacts =>listContacts;
 
   HomeState copyWith({
     HomeStatus? status,

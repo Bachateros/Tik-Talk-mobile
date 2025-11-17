@@ -10,7 +10,7 @@ abstract class ChatRepository {
   Future<void> leaveChat(String chatId);
 
   Future<List<MessageEntitie?>> getMessage(String chatId); 
-
+  Future<bool>removeFromChat(String chatId, String userId);
   
 
   Future<ChatEntitie> updateChat(ChatEntitie chat);

@@ -7,22 +7,29 @@ import 'package:tik_talk/data/datasources/local/users_dao.dart';
 import 'package:tik_talk/data/datasources/remote/chats_service_remote_source.dart';
 import 'package:tik_talk/data/datasources/remote/message_service_remote_source.dart';
 import 'package:tik_talk/data/datasources/remote/participiant_service_remote_source.dart';
+import 'package:tik_talk/data/datasources/remote/sync_service_remote_data_service.dart';
 import 'package:tik_talk/data/datasources/remote/user_service_remote_source.dart';
+import 'package:tik_talk/data/mapers/chat_mapper.dart';
+import 'package:tik_talk/data/mapers/message_mapper.dart';
+import 'package:tik_talk/data/mapers/participant_mapper.dart';
 import 'package:tik_talk/data/mapers/user_mapper.dart';
 import 'package:tik_talk/data/repositories/chat_repository_IMPL.dart';
 import 'package:tik_talk/data/repositories/profile_repository_IMPL.dart';
 import 'package:tik_talk/domain/bloc/chat/chat_bloc.dart';
+import 'package:tik_talk/domain/bloc/create_chat_bloc/create_chat_bloc.dart';
 import 'package:tik_talk/domain/bloc/home/home_bloc.dart';
 import 'package:tik_talk/domain/bloc/profile/profile_bloc.dart';
+import 'package:tik_talk/domain/repositories/create_chat_repository.dart';
 import 'package:tik_talk/domain/repositories/profile_repository.dart';
+import 'package:tik_talk/domain/repositories/sync_repository.dart';
 import 'package:tik_talk/internal/di.dart';
 import 'package:tik_talk/presintation/screens/chat/view/chat_page.dart';
+import 'package:tik_talk/presintation/screens/chat_create/view/create_chat_page.dart';
 import 'package:tik_talk/presintation/screens/home/view/chat_list_view.dart';
 import 'package:tik_talk/presintation/screens/home/view/home_page.dart';
 import 'package:tik_talk/presintation/screens/login/view/auth_page.dart';
 import 'package:tik_talk/presintation/screens/login/widgets/login_form.dart';
 import 'package:tik_talk/presintation/screens/profile/view/profile_page.dart';
-import 'package:tik_talk/presintation/screens/setting/view/setting_page.dart';
 import 'package:tik_talk/presintation/screens/splash/splash_screen.dart';
 
 class AppRouter {
@@ -105,13 +112,20 @@ final GoRouter _router = GoRouter(
             return BlocProvider(
               create:(context) => ChatBloc(
                 ChatRepositoryImpl(
+                  chatMapper: DIContainer().container.get<ChatMapper>(),
+                  participantMapper: DIContainer().container.get<ParticipantMapper>(),
+                  messageMapper: DIContainer().container.get<MessageMapper>(),
                   chatsDao: DIContainer().container.get<ChatsDao>(),
                   messagesDao: DIContainer().container.get<MessagesDao>(),
                   participantsDao: DIContainer().container.get<ParticipantsDao>(),
                   chatsService: DIContainer().container.get<ChatsServiceRemoteSource>(),
                   messageService: DIContainer().container.get<MessageServiceRemoteSource>(),
-                  participantService: DIContainer().container.get<ParticipiantServiceRemoteSource>()
-                ))..add(LoadChatEvent(chatId: chatId)),
+                  participantService: DIContainer().container.get<ParticipiantServiceRemoteSource>(),
+                  syncService: DIContainer().container.get<SyncServiceRemoteDataService>(),
+                ),
+                DIContainer().container.get<SyncRepository>(),
+                )..add(LoadChatEvent(chatId: chatId)),
+                
               child: ChatPage(), 
             );
           },
@@ -155,8 +169,19 @@ final GoRouter _router = GoRouter(
           },
         ),
         GoRoute(
-          path: '/home/settings',
-          builder: (context, state) => const SettingPage(),
+          path: '/home/create_chat',
+          builder: (context, state) {
+
+            return BlocProvider(
+              create: (context) => CreateChatBloc(
+                syncRepo: DIContainer().container.get<SyncRepository>(),
+                repository: DIContainer().container.get<CreateChatRepository>(), 
+                homeBloc: context.read<HomeBloc>(),
+                ),
+              child: const CreateChatPage(),
+              );
+            
+          }
         ),
       ],
     ),

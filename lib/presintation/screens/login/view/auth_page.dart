@@ -27,10 +27,7 @@ class AuthPage extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Center(
-            child:/* SingleChildScrollView(
-              physics: const NeverScrollableScrollPhysics(),
-              child:  */AuthView(),
-            // ),
+            child: AuthView(),
           ),
         ),
       ),

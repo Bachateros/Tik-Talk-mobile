@@ -34,17 +34,23 @@ class ApiClient {
         'Authorization': 'Bearer $accessToken',
       ...?headers,
     };
-
+//TODO: DELETE DEBUG PRINT after cheack services
     late http.Response response;
     switch (method.toUpperCase()) {
       case 'POST':
+        print('POST body:$body');//
         response = await httpClient.post(uri, headers: fullHeaders, body: body);
+        print('POST response:${response.body} \n Status:${response.statusCode}');//
         break;
       case 'PUT':
+        print('PUT body:$body');//
         response = await httpClient.put(uri, headers: fullHeaders, body: body);
+        print('PUT response:${response.body} \n Status:${response.statusCode}');
         break;
       case 'DELETE':
+        print('DELETE body:$body');//
         response = await httpClient.delete(uri, headers: fullHeaders, body: body);
+        print('DELETE response:${response.body} \n Status:${response.statusCode}');//
         break;
       default:
         response = await httpClient.get(uri, headers: fullHeaders);
@@ -53,8 +59,9 @@ class ApiClient {
     // ⚙️ Попытка обновления токена при 401
     if (response.statusCode == 401 && !retrying) {
       final refreshToken = await localDataSource.getRefreshToken();
+      final accesToken = await localDataSource.getAccessToken();
       if (refreshToken != null) {
-        final newTokens = await _refreshWithHttp(refreshToken);
+        final newTokens = await _refreshWithHttp(refreshToken,accesToken!);
         if (newTokens != null && newTokens['accessToken'] != null) {
           await localDataSource.saveTokens(
             newTokens['accessToken']!,
@@ -68,9 +75,14 @@ class ApiClient {
             body: body,
             retrying: true,
           );
+        } else {
+          throw ApiException(401, 'Не удалось обновить токен (refresh недействителен)');
         }
+      } else {
+        throw ApiException(401, 'Пользователь не авторизован');
       }
     }
+
 
     return response;
   }
@@ -84,6 +96,15 @@ class ApiClient {
     );
     return _decodeOrThrow(response);
   }
+
+  //  Future<Map<String, dynamic>> postJsonWithoutEnocde(String endpoint, Map<String, dynamic> body) async {
+  //   final response = await _sendRaw(
+  //     endpoint,
+  //     method: 'POST',
+  //     body: body,
+  //   );
+  //   return _decodeOrThrow(response);
+  // }
 
   Future<Map<String, dynamic>> deleteJson(String endpoint, Map<String, dynamic> body) async {
     final response = await _sendRaw(
@@ -125,15 +146,23 @@ class ApiClient {
   }
 
   // 🔹 Прямой refresh-запрос без middleware
-  Future<Map<String, String?>?> _refreshWithHttp(String refreshToken) async {
+  Future<Map<String, String?>?> _refreshWithHttp(String refreshToken, String accessToken) async {
     try {
       final uri = Uri.parse('$baseUrl/refresh');
       final resp = await httpClient.post(
         uri,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'refresh_token': refreshToken}),
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+          'Content-Type': 'application/json',
+          'Accept': '*/*',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'Connection': 'keep-alive',
+          'User-Agent': 'TikTalk/1.0 (Flutter)'
+          },
+        body: jsonEncode({
+          'refresh_token': refreshToken
+          }),
       );
-
       if (resp.statusCode >= 200 && resp.statusCode < 300) {
         final body = jsonDecode(resp.body) as Map<String, dynamic>;
         return {
@@ -143,8 +172,8 @@ class ApiClient {
       } else {
         return null;
       }
-    } catch (_) {
-      return null;
+    } catch (e) {
+      throw ('Bad refresh $e}');
     }
   }
 }

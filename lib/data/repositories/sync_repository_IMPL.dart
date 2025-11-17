@@ -2,7 +2,7 @@ import 'package:tik_talk/data/datasources/db/app_db.dart';
 import 'package:tik_talk/data/datasources/remote/sync_service_remote_data_service.dart';
 import 'package:tik_talk/domain/repositories/sync_repository.dart';
 
-class SyncRepositoryIMPL extends SyncRepository{
+class SyncRepositoryIMPL extends SyncRepository {
   final AppDb db;
   final SyncServiceRemoteDataService syncService;
 
@@ -10,111 +10,135 @@ class SyncRepositoryIMPL extends SyncRepository{
     required this.db,
     required this.syncService,
   });
-  
+
+  // =============================
+  // FULL SYNC (HOME STARTUP)
+  // =============================
+  @override
   Future<void> syncAll() async {
-    final  lastSync = await db.syncMetaDao.getSyncTime('SyncAll');
-    final since =  lastSync == null ? 0 : lastSync.millisecondsSinceEpoch ~/ 1000; // секунды
-    // final now = DateTime.now();
+    print('[SYNC] Starting full sync...');
 
-    // 🔹 1. Загружаем с сервера
-    final chats = await syncService.fetchChats();
-    final users = await syncService.fetchUsers();
+    final serverChats = await syncService.fetchChats();
+    final serverUsers  = await syncService.fetchUsers();
 
-    // 🔹 2. Сохраняем чаты и пользователей
-    try {
-      await db.transaction(() async {
-        for (final chat in chats) {
-          await db.chatsDao.insertOrUpdate(chat);
-        }
-        for (final user in users) {
-          await db.usersDao.insertOrUpdate(user);
-        }
-      });
-    } catch (e){
-      throw Exception('Error insert Chats and Users');
-    }
+    // final localChats = await db.chatsDao.getAllChatIds();
 
-    // 🔹 3. Берём ID всех чатов
-    final chatIds = await db.chatsDao.getAllChatIds();
-    // 🔹 4. Для каждого чата тянем сообщения и участников
     await db.transaction(() async {
-      for (final chatId in chatIds) {
-        if (chatId !=null ){
-          final messages =
-            await syncService.fetchMessages(chatId: chatId, since: since.toString());
-          for (final message in messages) {
-            try{
-              await db.messagesDao.insertOrUpdate(message);
-            } catch (e){
-                throw Exception('Error insert Message ');
-              }
-          }
-        
-          final participants = await syncService.fetchParticipants(
-            chatId: chatId,
-            since: since.toString(),
-          );
-          for (final part in participants) {
-            try{
-              await db.participantsDao.insertOrUpdate(part);
-            } catch (e){
-              throw Exception('Error insert Participants');
-            }
-          }
-        }
+      // INSERT / UPDATE CHATS
+      for (final chat in serverChats) {
+        await db.chatsDao.insertOrUpdate(chat);
       }
 
-      await db.syncMetaDao.updateSyncTime('SyncAll');
+      // INSERT / UPDATE USERS
+      for (final user in serverUsers) {
+        await db.usersDao.insertOrUpdate(user);
+      }
+    });
+
+    // === SYNC MESSAGES + PARTICIPANTS FOR EACH CHAT ===
+    for (final chat in serverChats) {
+      await syncChat(chat.id!);
+      await syncMessages(chat.id!);
+    }
+
+    print('[SYNC] Full sync complete');
+    await printAllTables();
+  }
+
+  // =============================
+  // SYNC SPECIFIC CHAT
+  // =============================
+  @override
+  Future<void> syncChat(String chatId) async {
+    print('[SYNC] syncChat($chatId)');
+
+    // Сервер не имеет "fetchChat(chatId)" → грузим всё и берём 1 чат
+    final allChats = await syncService.fetchChats();
+    final chat = allChats.firstWhere(
+      (c) => c.id.toString() == chatId.toString(),
+      orElse: () => throw Exception('Chat $chatId not found on server'),
+    );
+
+    await db.chatsDao.insertOrUpdate(chat);
+
+    final participants = await syncService.fetchParticipants(
+      chatId: chatId,
+      since: '0',
+    );
+
+    await db.transaction(() async {
+      for (final p in participants) {
+        await db.participantsDao.insertOrUpdate(p);
+      }
     });
   }
+
+  // =============================
+  // SYNC ONLY MESSAGES OF CHAT
+  // =============================
+  @override
+  Future<void> syncMessages(String chatId) async {
+    print('[SYNC] syncMessages($chatId)');
+
+    final key = 'SyncMessages_$chatId';
+
+
+    final messages = await syncService.fetchMessages(
+      chatId: chatId,
+      since: '0',
+    );
+
+    await db.transaction(() async {
+      for (final msg in messages) {
+        await db.messagesDao.insertOrUpdate(msg);
+      }
+      await db.syncMetaDao.updateSyncTime(key);
+    });
+  }
+
+  // =============================
+  // MARK CHAT/PARTICIPANT DELETED
+  // =============================
+  @override
+  Future<void> markChatDeleted(String chatId) async {
+    await db.chatsDao.markChatDeleted(chatId);
+  }
+
+  @override
+  Future<void> markParticipantDeleted(String chatId, String userId) async {
+    await db.participantsDao.deleteByChatAndUser(userId, chatId);
+  }
+
+  // =============================
+  // DEBUG OUTPUT
+  // =============================
+  @override
   Future<void> printAllTables() async {
-    final chats = await db.select(db.chats).get();
-    print('--- CHATS (${chats.length}) ---');
-    for (final c in chats) {
+    print('======== CHATS ========');
+    for (final c in await db.select(db.chats).get()) {
       print(c);
     }
 
-    final messages = await db.select(db.messages).get();
-    print('--- MESSAGES (${messages.length}) ---');
-    for (final m in messages) {
-      print(m);
-    }
-
-    final participants = await db.select(db.participants).get();
-    print('--- PARTICIPANTS (${participants.length}) ---');
-    for (final p in participants) {
+    print('======== PARTICIPANTS ========');
+    for (final p in await db.select(db.participants).get()) {
       print(p);
     }
 
-    final users = await db.select(db.users).get();
-    print('--- USERS (${users.length}) ---');
-    for (final u in users) {
+    print('======== MESSAGES ========');
+    for (final m in await db.select(db.messages).get()) {
+      print(m);
+    }
+
+    print('======== USERS ========');
+    for (final u in await db.select(db.users).get()) {
       print(u);
     }
 
-    final meta = await db.select(db.syncMeta).get();
-    print('--- SYNC_META (${meta.length}) ---');
-    for (final s in meta) {
-      print('${s.key} = ${s.value}');
+    print('======== META ========');
+    for (final s in await db.select(db.syncMeta).get()) {
+      print('${s.key} : ${s.value}');
     }
   }
+  
 
-
-  // // Получаем дату последней синхронизации
-  // Future<DateTime?> _getLastSyncDate() async {
-  //   final meta = await (db.select(db.syncMeta)
-  //         ..where((tbl) => tbl.key.equals('last_sync')))
-  //       .getSingleOrNull();
-  //   return meta?.value;
-  // }
-
-  // // Обновляем дату последней синхронизации
-  // Future<void> _updateLastSyncDate(DateTime date) async {
-  //   await db.into(db.syncMeta).insertOnConflictUpdate(
-  //     SyncMetaCompanion.insert(
-  //       key: 'last_sync',
-  //       value: Value(date),
-  //     ),
-  //   );
-  // }
 }

@@ -8,10 +8,10 @@ class ProfileState {
   const ProfileState({
     required this.status,
     this.profile,
-    this.errorMessage,
+    required this.errorMessage,
   });
 
-  factory ProfileState.initial() => ProfileState(status: ProfileStatus.unknown);
+  factory ProfileState.initial() => ProfileState(status: ProfileStatus.unknown, errorMessage: null);
 
   ProfileState copyWith({
     ProfileStatus? status,

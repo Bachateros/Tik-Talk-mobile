@@ -19,7 +19,7 @@ class ParticipantMapper
 // "notificationsEnabled" 
 
         id: json['ID']?.toString() ?? '',
-        chatId: json['chatId']?.toString() ?? '',
+        chatId: (json['chatId'].toString()) ,
         userId: json['userId']?.toString() ?? '',
         role: json["role"].toString(),
         joinedAt: DateTime.tryParse(json['joinedAt'] ?? '') ?? DateTime.now(),
@@ -36,16 +36,15 @@ class ParticipantMapper
 
   @override
   Map<String, dynamic> toResponse(ParticipantDto dto) => {
-        // 'id': dto.id,
-        // 'chat_id': dto.chatId,
-        // 'user_id': dto.userId,
-        // 'role': dto.role,
-        // 'joined_at': dto.joinedAt.toIso8601String(),
-        // 'is_muted': dto.isMuted,
-        // 'notifications_enabled': dto.notificationsEnabled,
-        // 'created_at': dto.createdAt.toIso8601String(),
-        // 'updated_at': dto.updatedAt?.toIso8601String(),
-        // 'deleted_at': dto.deletedAt?.toIso8601String(),
+        'chat_id': dto.chatId,
+        'user_id': dto.userId,
+        'role': dto.role,
+        'joined_at': dto.joinedAt.toString(),
+        'is_muted': dto.isMuted,
+        'notifications_enabled': dto.notificationsEnabled,
+        'created_at': dto.createdAt.toString(),
+        'updated_at': dto.updatedAt?.toString(),
+        'deleted_at': dto.deletedAt?.toString(),
       };
 
   @override

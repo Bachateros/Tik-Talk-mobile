@@ -1,5 +1,3 @@
-import 'package:http/http.dart';
-import 'package:tik_talk/data/DTO/user_DTO.dart';
 import 'package:tik_talk/data/datasources/local/users_dao.dart';
 import 'package:tik_talk/data/datasources/remote/user_service_remote_source.dart';
 import 'package:tik_talk/data/mapers/user_mapper.dart';
@@ -22,25 +20,16 @@ class ProfileRepositoryImpl extends ProfileRepository {
     final user = await usersDao.getUserById(userId);
     if (user == null) throw Exception('User not found');
 
-    final dto = UserDTO(
-      id: user.id,
-      name: user.name,
-      surname: user.surname,
-      tgname: user.tgname,
-      bio: user.bio,
-      avatarUrl: user.avatarUrl,
-      isDeleted: user.isDeleted,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-      deletedAt: user.deletedAt,
-    );
-
-    return userMapper.toEntity(dto);
+    final dto = userMapper.toDTO(user);
+    final user1 = userMapper.toEntity(dto);
+    return user1;
   }
   
   @override
   Future<bool> updateUser({String? avatar, String? bio, DateTime? birthOfDay, String? userId}) async {
-    try{if (await userRepo.updateUserProfile(aboutMe: bio ,avatarUrl: avatar,birthdayDate: birthOfDay)){
+    try{
+      final resp = await userRepo.updateUserProfile(aboutMe: bio ,avatarUrl: avatar,birthdayDate: birthOfDay);
+      if (resp){
       if (avatar != null){
         await usersDao.updateAvatar(userId!, avatar);
       }
@@ -54,10 +43,8 @@ class ProfileRepositoryImpl extends ProfileRepository {
     } else{
       return false;
     }} catch (e){
-      throw ('Bad try user update $e');
+      throw ('Bad try user update');
     }
-
-
   }
 
 

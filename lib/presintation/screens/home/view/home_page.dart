@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tik_talk/domain/bloc/home/home_bloc.dart';
+import 'package:tik_talk/presintation/screens/splash/splash_home_screan.dart';
 import 'package:tik_talk/presintation/widgets/failed_load_view.dart';
-import 'package:tik_talk/presintation/screens/splash/splash_screen.dart';
 import 'package:tik_talk/presintation/theme/theme_assets.dart';
 import 'package:tik_talk/presintation/widgets/custom_app_bar.dart';
 import 'package:tik_talk/presintation/widgets/side_menu.dart';
@@ -33,13 +33,16 @@ class HomePage extends StatelessWidget {
             );
 
           case HomeStatus.loading:
-            return const SplashScreen();
+            return const SplashHomeScreen();
 
           case HomeStatus.success:{
             if (location.startsWith('/home/chat')) {
               return child;
             }
             if (location.startsWith('/home/profile')) {
+              return child;
+            }
+            if (location.startsWith('/home/create_chat')) {
               return child;
             }
             return Scaffold(

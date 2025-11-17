@@ -1,4 +1,5 @@
 import 'package:tik_talk/domain/entities/settings_entitie.dart';
+
 class UserEntity {
   final String userId;
   final String name;
@@ -11,6 +12,7 @@ class UserEntity {
   final String? aboutMe;
   final DateTime? birthdayDate;
   final SettingsEntitie? settings;
+  final String? clientId;
 
   const UserEntity({
     this.userId = '',
@@ -24,6 +26,7 @@ class UserEntity {
     this.aboutMe = '',
     this.birthdayDate,
     this.settings,
+    this.clientId,
   });
 
   UserEntity copyWith({
@@ -38,6 +41,7 @@ class UserEntity {
     String? aboutMe,
     DateTime? birthdayDate,
     SettingsEntitie? settings,
+    String? clientId,
   }) {
     return UserEntity(
       userId: userId ?? this.userId,
@@ -51,6 +55,7 @@ class UserEntity {
       aboutMe: aboutMe ?? this.aboutMe ,
       birthdayDate: birthdayDate ?? this.birthdayDate,
       settings: settings ?? this.settings,
+      clientId: clientId ?? this.clientId,
     );
   }
 }

@@ -31,22 +31,32 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final id = await repository.hasValidTokens();
       if (id!=null) {
         try{
+          
           // Инициализация базы под конкретного пользователя
           await DIContainer().initDbForUser(userId: id);
-          // await DIContainer().clearDbTables();
+          await DIContainer().clearDbTables();
           // await DIContainer().deleteUserDb(userId);
           // await DIContainer().initDbForUser(userId: userId);
+          
           // Получаем актуальные зависимости
           final db = DIContainer().container.get<AppDb>();
           final syncRepo = DIContainer().container.get<SyncRepository>();
-          // await syncRepo.printAllTables();
-          await syncRepo.syncAll();
-          // await syncRepo.printAllTables();
-
+          
+          try{
+            // await syncRepo.printAllTables();
+            await syncRepo.syncAll();
+            // await syncRepo.printAllTables();
+        
+          }catch (e){
+            throw('Ошибка в синхринизации $e');
+          }
+          
           //Инициализация WebSocket
           await DIContainer().initSocket(appDB: db);
-          // final ws = DIContainer().container.get<WebSocketService>();
-          // await ws.connect();
+          final ws = DIContainer().container.get<WebSocketService>();
+          await ws.connect();
+
+
         }catch(e){
           throw ('Bad BD init and ws connect try destroy');
         }
@@ -126,23 +136,33 @@ Future<void> _onVerify(VerifyEvent event, Emitter<AuthState> emit) async {
        try{
         // Инициализация базы под конкретного пользователя
         await DIContainer().initDbForUser(userId: userId);
-        // await DIContainer().clearDbTables();
-        // await DIContainer().deleteUserDb(userId);
-        // await DIContainer().initDbForUser(userId: userId);
+        await DIContainer().clearDbTables();
+        
         // Получаем актуальные зависимости
         final db = DIContainer().container.get<AppDb>();
         final syncRepo = DIContainer().container.get<SyncRepository>();
-        // await syncRepo.printAllTables();
-        await syncRepo.syncAll();
-        // await syncRepo.printAllTables();
+        
+        try{
+          await syncRepo.syncAll();
+        }catch (e){
+          throw('Ошибка в синхринизации $e');
+        }
 
-        //Инициализация WebSocket
-        await DIContainer().initSocket(appDB: db);
-        final ws = DIContainer().container.get<WebSocketService>();
-        await ws.connect();
+
+        try {
+          //Инициализация WebSocket
+          await DIContainer().initSocket(appDB: db);
+          final ws = DIContainer().container.get<WebSocketService>();
+          await ws.connect();
+        } catch (e) {
+          throw('ошибка инициализации WebSocket');
+        }
+
       }catch(e){
-        throw ('Bad BD init and ws connect try destroy');
+        throw ('Bad BD init and ws connect try destroy: $e');
       }
+
+
       emit(state.copyWith(status: AuthStatus.autheficated,errorMessage: null,));
     }
   } catch (e) {

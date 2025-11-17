@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tik_talk/domain/bloc/home/home_bloc.dart';
 import 'package:tik_talk/domain/entities/last_message_chat_entitie.dart';
+import 'package:tik_talk/presintation/screens/splash/splash_home_screan.dart';
 import 'package:tik_talk/presintation/theme/theme_assets.dart';
 import 'package:tik_talk/presintation/theme/theme_colors.dart';
 import 'package:tik_talk/domain/entities/chat_entitie.dart';
@@ -10,19 +11,18 @@ import 'package:tik_talk/domain/entities/chat_entitie.dart';
 class ChatList extends StatelessWidget {
   const ChatList({super.key});
 
-
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<HomeBloc, HomeState>(
+      buildWhen: (previous, current) => previous.status != current.status ||
+       previous.listLastMesseges.length != current.listLastMesseges.length,
       builder: (context, state) {
-        final lastMessages = state.listLastMesseges;
+        final lastMessages = context.read<HomeBloc>().state.listLastMesseges;
         final users = state.users;
-
-        if (lastMessages.isEmpty) {
-          return const Center(child: Text('Нет доступных чатов'));
-        }
-
+        final location = GoRouter.of(context).routerDelegate.currentConfiguration.last.matchedLocation;
+        if (location != '/home'){
+          return SplashHomeScreen();
+        } 
         return ListView.builder(
           padding: const EdgeInsets.all(8),
           itemCount: lastMessages.length,
@@ -42,7 +42,7 @@ class ChatList extends StatelessWidget {
                 leading: CircleAvatar(
                   backgroundColor: Colors.blueGrey.shade300,
                   radius: 18,
-                  child: Image.network(chat?.typeChat == ChatType.direct ? (){
+                  backgroundImage:  NetworkImage(chat?.typeChat == ChatType.direct ? (){
                       final user = users.firstWhere((u)=> (u!.userId == lastMessages[index]?.contactId));
                       if (user?.avatarUrl == '' || user?.avatarUrl ==null )
                       {

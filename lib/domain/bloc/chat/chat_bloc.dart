@@ -1,28 +1,82 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tik_talk/data/websocket/websocket.dart';
+import 'package:tik_talk/data/websocket/ws_event_bus.dart';
 import 'package:tik_talk/domain/entities/chat_entitie.dart';
 import 'package:tik_talk/domain/entities/message_entitie.dart';
 import 'package:tik_talk/domain/entities/participant_entitie.dart';
 import 'package:tik_talk/domain/repositories/chat_repository.dart';
+import 'package:tik_talk/domain/repositories/sync_repository.dart';
+import 'package:tik_talk/internal/di.dart';
 part 'chat_event.dart';
 part 'chat_state.dart';
 
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
   final ChatRepository repository;
+  late final StreamSubscription _wsSub;
+  final SyncRepository syncRepo;
 
-  ChatBloc(this.repository) : super(ChatState.initial()) {
+  ChatBloc(this.repository, this.syncRepo) : super(ChatState.initial()) {
+
+    _wsSub = WsEventBus().stream.listen((event) async {
+      final type = event['type'];
+      final action = event['action'];
+
+      if (event['chat_id'].toString()!=state.chatId) return;
+
+      switch (type) {
+        case 'new_message':{
+          await syncRepo.syncMessages(event['chat_id'].toString());
+          add(LoadChatEvent(chatId:  state.chatId!));
+          } break;
+
+        case 'participant':{ 
+          switch (action) {
+            case 'entered':
+            case 'added':
+              await syncRepo.syncChat(event['chat_id']);
+              add(LoadChatEvent(chatId:  state.chatId!));
+              break;
+            case 'leaved':
+            case 'removed': {
+              await syncRepo.markParticipantDeleted(
+              event['chat_id'].toString(),
+              event['user_id'].toString()
+                );
+              add(LoadChatEvent(chatId:  state.chatId!));}
+            
+          }
+        
+        }
+      }
+    });
+
     on<LoadChatEvent>(_onLoadChat);
     on<LoadMessagesEvent>(_onLoadMessages);
     on<SendMessageEvent>(_onSendMessage);
     on<DeleteChatEvent>(_onDeleteChat);
     on<LeaveFromChat>(_onLeaveChat);
     on<UpdateMessegeEvent>(_onUpdateMessage);
-    on<UpdateEvent>(_onUpdateChat);
+    on<ChatUpdateEvent>(_onUpdateChat);
     on<StatusChangeEvent>(_onStatusChangeEvent);
+    on<EntryToChatEvent>(_onEntryToChat);
+    on<KickParticipantEvent>(_onKickParticipant);
+  }
+
+  @override
+  Future<void> close() {
+    _wsSub.cancel();
+    return super.close();
   }
 
   // Загрузка чата и его участников + сообщений
-  Future<void> _onLoadChat(
-      LoadChatEvent event, Emitter<ChatState> emit) async {
+  Future<void> _onLoadChat(LoadChatEvent event, Emitter<ChatState> emit) async {
+    final ws = DIContainer().container.get<WebSocketService>();
+    if(!ws.isConnecting) {
+      print('[WS]соединения с веб сокетом нет ');
+      await ws.connect();
+      }
     emit(state.copyWith(status: ChatStatus.loading));
     try {
       final chat = await repository.getChat(event.chatId);
@@ -38,6 +92,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         listMesseges: messages.whereType<MessageEntitie>().toList(),
       ));
     } catch (e) {
+      print(e);
       emit(state.copyWith(
           status: ChatStatus.failure,
           errorMessage: 'Ошибка при загрузке данных чата: $e'));
@@ -45,8 +100,12 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   // Загрузка сообщений (без обновления данных чата)
-  Future<void> _onLoadMessages(
-      LoadMessagesEvent event, Emitter<ChatState> emit) async {
+  Future<void> _onLoadMessages(LoadMessagesEvent event, Emitter<ChatState> emit) async {
+    final ws = DIContainer().container.get<WebSocketService>();
+    if(!ws.isConnecting) {
+      print('[WS]соединения с веб сокетом нет ');
+      await ws.connect();
+      }
     if (state.chatId == null) return;
     try {
       final messages = await repository.getMessage(state.chatId!);
@@ -55,6 +114,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         listMesseges: messages.whereType<MessageEntitie>().toList(),
       ));
     } catch (e) {
+      print(e);
       emit(state.copyWith(
           status: ChatStatus.failure,
           errorMessage: 'Ошибка загрузки сообщений: $e'));
@@ -69,6 +129,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       // После отправки обновляем список сообщений
       add(LoadMessagesEvent());
     } catch (e) {
+      print(e);
       emit(state.copyWith(
           status: ChatStatus.failure,
           errorMessage: 'Ошибка при отправке сообщения: $e'));
@@ -80,7 +141,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   // Обновление данных чата (например, при изменении имени или аватара)
-  Future<void> _onUpdateChat(UpdateEvent event, Emitter<ChatState> emit) async {
+  Future<void> _onUpdateChat(ChatUpdateEvent event, Emitter<ChatState> emit) async {
     emit(state.copyWith(status: ChatStatus.loading));
     if (state.chatModel == null) return;
     try {
@@ -90,6 +151,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         chatModel: updatedChat,
       ));
     } catch (e) {
+      print(e);
       emit(state.copyWith(
           status: ChatStatus.failure,
           errorMessage: 'Ошибка при обновлении чата: $e'));
@@ -97,13 +159,13 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   // Удаление чата
-  Future<void> _onDeleteChat(
-      DeleteChatEvent event, Emitter<ChatState> emit) async {
+  Future<void> _onDeleteChat(DeleteChatEvent event, Emitter<ChatState> emit) async {
     if (state.chatId == null) return;
     try {
       await repository.deleteChat(state.chatId!);
       emit(ChatState.initial().copyWith(status: ChatStatus.update));
     } catch (e) {
+      print(e);
       emit(state.copyWith(
           status: ChatStatus.failure,
           errorMessage: 'Ошибка при удалении чата: $e'));
@@ -111,20 +173,18 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   // Выход из чата
-  Future<void> _onLeaveChat(
-      LeaveFromChat event, Emitter<ChatState> emit) async {
+  Future<void> _onLeaveChat(LeaveFromChat event, Emitter<ChatState> emit) async {
     if (state.chatId == null) return;
     try {
       await repository.leaveChat(state.chatId!);
       emit(ChatState.initial().copyWith(status: ChatStatus.update));
     } catch (e) {
+      print(e);
       emit(state.copyWith(
           status: ChatStatus.failure,
           errorMessage: 'Ошибка при выходе из чата: $e'));
     }
   }
-
-
 
   // Изменение или удаление сообщения
   Future<void> _onUpdateMessage(
@@ -140,9 +200,34 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         listMesseges: updatedList,
       ));
     } catch (e) {
+      print(e);
       emit(state.copyWith(
           status: ChatStatus.failure,
           errorMessage: 'Ошибка при обновлении сообщения: $e'));
+    }
+  }
+
+  Future<void> _onEntryToChat(EntryToChatEvent event, Emitter emit)async{
+    try {
+      
+    } catch (e) {
+      print(e);
+      emit(state.copyWith(
+        status: ChatStatus.failure,
+        errorMessage: 'Ошибка вступления в группу/канал: $e',
+      ));
+    }
+  }
+
+  Future<void> _onKickParticipant(KickParticipantEvent event, Emitter emit)async{
+    try{
+      await repository.removeFromChat(event.part.chatId, event.part.userId);
+    } catch(e){
+      print(e);
+      emit(state.copyWith(
+        status: ChatStatus.failure,
+        errorMessage: 'Ошибка исключения участника: $e',
+      ));
     }
   }
 }

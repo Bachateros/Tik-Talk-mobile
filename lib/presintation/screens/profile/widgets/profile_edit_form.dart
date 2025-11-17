@@ -32,9 +32,9 @@ class _ProfileEditFormState extends State<ProfileEditForm> {
     final profile = context.read<ProfileBloc>().state.profile;
     if (profile != null) {
       _avatarController.text = profile.avatarUrl ?? '';
-      _nameController.text = profile.name ?? '';
-      _surnameController.text = profile.surname ?? '';
-      _tgController.text = profile.tgUsername ?? '';
+      _nameController.text = profile.name;
+      _surnameController.text = profile.surname;
+      _tgController.text = profile.tgUsername;
       _aboutController.text = profile.aboutMe ?? '';
       if (profile.birthdayDate != null) {
         _pickedDate = profile.birthdayDate;
@@ -60,7 +60,7 @@ class _ProfileEditFormState extends State<ProfileEditForm> {
     final picked = await showDatePicker(
       context: context,
       initialDate: initial,
-      firstDate: DateTime(1900),
+      firstDate: DateTime(2000),
       lastDate: now,
     );
     if (picked != null) {
@@ -72,18 +72,24 @@ class _ProfileEditFormState extends State<ProfileEditForm> {
   }
 
   void _openAvatarUrlDialog() {
-    final tmp = TextEditingController(text: _avatarController.text);
+    final tmp = TextEditingController();
+    final avatar =  _avatarController.text;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('URL аватарки'),
-        content: TextField(controller: tmp, decoration: const InputDecoration(hintText: 'https://...')),
+        content: TextField(controller: tmp,style: TextStyle(color: Colors.white), decoration: const InputDecoration(hintText: 'https://...')),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Отмена')),
           TextButton(
             onPressed: () {
               setState(() {
-                _avatarController.text = tmp.text;
+                if (tmp.text == '' || tmp.text == 'https://...')
+                {
+                  _avatarController.text = avatar;
+                }else{
+                  _avatarController.text = tmp.text;
+                }
               });
               Navigator.pop(ctx);
             },
@@ -94,35 +100,24 @@ class _ProfileEditFormState extends State<ProfileEditForm> {
     );
   }
 
-  void _onSave() {
-    if (!_formKey.currentState!.validate()) return;
-    // подготовить событие обновления профиля и диспатчить в блок
-    final updated = /* собрать вашу сущность, например ProfileEntity */ {
-      'avatarUrl': _avatarController.text,
-      'name': _nameController.text,
-      'surname': _surnameController.text,
-      'tg': _tgController.text,
-      'about': _aboutController.text,
-      'birth': _pickedDate,
-    };
-    // context.read<ProfileBloc>().add(UpdateProfileEvent(updated)); // <- подключите ваше событие
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Сохранено (заглушка)')));
-  }
-
   @override
   Widget build(BuildContext context) {
     return _ProfileBaseLayout(
       avatar: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircleAvatar(
-            radius: 50,
+          ElevatedButton(
+            onPressed:  _openAvatarUrlDialog, 
+            child: CircleAvatar(
+            radius: 80,
             backgroundImage: _avatarController.text.isNotEmpty
                 ? NetworkImage(_avatarController.text)
-                : AssetImage(ThemeAssets.noAvatarUser(context)) as ImageProvider,
+                : NetworkImage(ThemeAssets.noAvatarUser(context)),
+            
+            ),
           ),
           const SizedBox(height: 8),
-          ElevatedButton(onPressed: _openAvatarUrlDialog, child: const Text('Изменить')),
+          // ElevatedButton(onPressed:, child: const Text('Изменить')),
         ],
       ),
       nameRow: Form(
@@ -132,6 +127,8 @@ class _ProfileEditFormState extends State<ProfileEditForm> {
             Expanded(
               child: TextFormField(
                 controller: _nameController,
+                readOnly: true,
+                style: TextStyle(color: Colors.white),
                 decoration: const InputDecoration(labelText: 'Имя'),
                 validator: (v) => v == null || v.trim().isEmpty ? 'Обязательное поле' : null,
               ),
@@ -140,6 +137,8 @@ class _ProfileEditFormState extends State<ProfileEditForm> {
             Expanded(
               child: TextFormField(
                 controller: _surnameController,
+                readOnly: true,
+                style: TextStyle(color: Colors.white),
                 decoration: const InputDecoration(labelText: 'Фамилия'),
                 validator: (v) => v == null || v.trim().isEmpty ? 'Обязательное поле' : null,
               ),
@@ -149,6 +148,8 @@ class _ProfileEditFormState extends State<ProfileEditForm> {
       ),
       tgRow: TextFormField(
         controller: _tgController,
+        style: TextStyle(color: Colors.white),
+        readOnly: true,
         decoration: const InputDecoration(labelText: 'Telegram username'),
       ),
       aboutRow: Row(
@@ -156,6 +157,7 @@ class _ProfileEditFormState extends State<ProfileEditForm> {
           Expanded(
             child: TextFormField(
               controller: _aboutController,
+              style: TextStyle(color: Colors.white),
               decoration: const InputDecoration(labelText: 'О себе'),
             ),
           ),
@@ -163,6 +165,7 @@ class _ProfileEditFormState extends State<ProfileEditForm> {
           Expanded(
             child: TextFormField(
               controller: _birthController,
+              style: TextStyle(color: Colors.white),
               readOnly: true,
               decoration: const InputDecoration(labelText: 'Дата рождения'),
               onTap: _pickDate,
@@ -177,11 +180,11 @@ class _ProfileEditFormState extends State<ProfileEditForm> {
           children: [
             ElevatedButton.icon(
               onPressed: () {
-                // context.read<AuthBloc>().add(LogoutEvent());
+                context.read<AuthBloc>().add(LogoutEvent());
               },
               icon: const Icon(Icons.logout),
               label: const Text('Выход'),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+              style: ElevatedButton.styleFrom(backgroundColor: AppColors.accent),
             ),
             Row(
               children: [

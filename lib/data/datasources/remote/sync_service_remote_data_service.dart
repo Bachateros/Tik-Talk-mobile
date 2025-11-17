@@ -69,7 +69,7 @@ class SyncServiceRemoteDataService {
   }) async {
     try{
       final response = await apiClient
-          .getJson('/chat/participants/?id=$chatId&since=$since');
+          .getJson('/chat/participants/?id=$chatId');//&since=$since
 
       if (response.containsKey('participants')) {
         final list = response['participants'] as List<dynamic>;
@@ -97,7 +97,7 @@ class SyncServiceRemoteDataService {
   }) async {
     try{
       final response =
-          await apiClient.getJson('/chat/messages?id=$chatId&since=$since');
+          await apiClient.getJson('/chat/messages?id=$chatId');//&since=$since
 
       if (response.containsKey('messages')) {
         final list = response['messages'] as List<dynamic>;
@@ -117,5 +117,25 @@ class SyncServiceRemoteDataService {
     } catch (e) {
       throw Exception('Сетевая ошибка: $e');
     }
+  }
+
+  
+  Future<ChatDTO> fetchChat(String chatId) async {
+    try{
+      final response = await apiClient.getJson('/chat/$chatId');
+      if (response.containsKey('chat')) {
+        return _chatMapper.fromResponse(response['chat']);
+      } else {
+        throw Exception(response['error'] ?? 'Ошибка получения информации о чате');
+      }
+    } on ApiException catch (e) {
+      if (e.statusCode == 401) {
+        throw Exception('Сессия истекла. Авторизуйтесь заново.');
+      } else {
+        throw Exception('Ошибка API [${e.statusCode}]: ${e.body}');
+      }
+    } catch (e) {
+      throw Exception('Сетевая ошибка: $e');
+    }  
   }
 }

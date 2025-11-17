@@ -22,28 +22,19 @@ class _MessageFormState extends State<MessageForm> {
     super.dispose();
   }
 
-  // Future<void> _pickFile() async {
-  //   final result = await FilePicker.platform.pickFiles(
-  //     allowMultiple: false,
-  //     withData: true,
-  //   );
-  //   if (result != null && result.files.isNotEmpty) {
-  //     final file = result.files.first;
-  //     debugPrint('Файл выбран: ${file.name}, размер: ${file.size}');
-  //     // Здесь можно отправить файл через Bloc (ChatBloc -> SendMessageFile)
-  //   }
-  // }
-
   void _sendMessage() {
     final chat = context.read<ChatBloc>().state.chatModel;
     final id = context.read<HomeBloc>().state.user!.userId;
     final text = _controller.text.trim();
+    final clientId = context.read<HomeBloc>().state.user!.clientId;
     final date = DateTime.now();
     if (text.isEmpty) return;
-    final msg = MessageEntitie(
+    final msg = MessageEntitie(    
       idChat: chat!.idChat, 
-      idUser: id, 
+      idUser: id,
+      replyToId: null,
       content: text, 
+      clientId: clientId,
       typeMessage: MessageType.text, 
       createdAt: date,
       isDeleted: false
@@ -54,7 +45,7 @@ class _MessageFormState extends State<MessageForm> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context){ 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       decoration: BoxDecoration(
@@ -66,10 +57,9 @@ class _MessageFormState extends State<MessageForm> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          // Кнопка добавить файл
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: /* _pickFile */ _sendMessage,//TODO: разобраться с сообщениями в которых есть файл
+            onPressed: _sendMessage,
           ),
 
           Expanded(
@@ -84,6 +74,7 @@ class _MessageFormState extends State<MessageForm> {
                   maxLines: null, 
                   minLines: 1,
                   keyboardType: TextInputType.multiline,
+                  style: TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     hintText: 'Введите сообщение...',
                     contentPadding: const EdgeInsets.symmetric(

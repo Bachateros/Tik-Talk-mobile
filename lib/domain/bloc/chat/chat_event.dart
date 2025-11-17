@@ -8,7 +8,9 @@ class LoadChatEvent extends ChatEvent{
   LoadChatEvent({required this.chatId}); //обновляем данные по id (здесь именно чат и участники)
 }
 
-class UpdateEvent extends ChatEvent{} //обновляем после отправки или получения сообщения должен срабатывать при изменении с данными
+class EntryToChatEvent extends ChatEvent{}
+
+class ChatUpdateEvent extends ChatEvent{} //обновляем после отправки или получения сообщения должен срабатывать при изменении с данными
                                       //обновление всего чата
 class LoadMessagesEvent extends ChatEvent{}//загрузка сообщений (здесь только сообщения)
 
@@ -17,21 +19,23 @@ class SendMessageEvent extends ChatEvent{
   SendMessageEvent({required this.message});
 }
 
+class KickParticipantEvent extends ChatEvent{
+  ParticipantEntitie part;
+  KickParticipantEvent({required this.part});
+}
+
 //пока не знаю будет ли работать
 class UpdateMessegeEvent extends ChatEvent{ //удаление сообщения или его изменение для этого можно добавить флаг сообщению что оно удалено или изменено
   final MessageEntitie message;
   UpdateMessegeEvent({required this.message});
 }
 
-// Инициализаци личного чата direct в котором есть только мы
-class CreateDirectEvent extends ChatEvent{ //создание личного чата сделано автоматически новым
-  final ChatEntitie chat;
-  CreateDirectEvent({required this.chat});
-}
 class StatusChangeEvent extends ChatEvent{
   final ChatStatus status;
   StatusChangeEvent({required this.status});
 }
+
+
 //ChatPage/Settings
 class DeleteChatEvent extends ChatEvent{} //удалить чат из памяти автоматический Leave из него (подходит для direct)
 

@@ -8,6 +8,7 @@ class MessageEntitie {
   final String? replyToId;
   final String? fileUrl;
   final String? fileName;
+  final String? clientId;
   final int? fileSize;
   final String? mimeType;
   final String? status;
@@ -18,6 +19,7 @@ class MessageEntitie {
     required this.idChat,
     required this.idUser,
     required this.content,
+    required this.clientId,
     this.typeMessage,
     required this.createdAt,
     this.replyToId,
@@ -38,6 +40,7 @@ class MessageEntitie {
     String? mimeType,
     String? status,
     bool? isDeleted,
+    String? clientId,
   }) {
     return MessageEntitie(
       idMessage: idMessage,
@@ -45,6 +48,7 @@ class MessageEntitie {
       idUser: idUser,
       content: content,
       typeMessage: typeMessage,
+      clientId: clientId,
       createdAt: createdAt,
       replyToId: replyToId ?? this.replyToId,
       fileUrl: fileUrl ?? this.fileUrl,

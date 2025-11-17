@@ -29,7 +29,12 @@ class AuthView extends StatelessWidget {
             case AuthStatus.verify:
               return VerifyForm();
           default:
-            return SplashScreen();
+            return  Padding(
+              padding: EdgeInsetsGeometry.only(top: 230),
+              child: Center(
+                child: CircularProgressIndicator()
+              ),
+            );   
           }
         }
       );

@@ -247,7 +247,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
         leading: Builder(
           builder: (context) => IconButton(
             icon: Image.asset(ThemeAssets.logo(context)),
-            // onPressed: () => context.push('/api-tester'),
+            // onPressed: () => print(context.read<HomeBloc>().state.user!.clientId),
             onPressed: () => Scaffold.of(context).openDrawer(), //TODO:
           ),
         ),

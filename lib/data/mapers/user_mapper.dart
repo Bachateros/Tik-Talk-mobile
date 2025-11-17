@@ -24,8 +24,8 @@ class UserMapper
                    ? json['avatar'].toString() 
                    : 'https://cdn-icons-png.flaticon.com/512/149/149071.png',
     bio:json['bio']?.toString() ?? '',
-    dateOfBirth:json['dateOfBirth']?.toString() != null
-                        ? DateTime.tryParse(json['dateOfBirth'].toString())
+    dateOfBirth:json['date_of_birth']?.toString() != null
+                        ? DateTime.tryParse(json['date_of_birth'].toString())
                         : null,
     createdAt: json['CreatedAt']?.toString() != null
                         ? DateTime.tryParse(json['createdAt'].toString())

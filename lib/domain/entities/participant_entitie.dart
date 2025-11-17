@@ -1,5 +1,5 @@
 class ParticipantEntitie{
-  final String id;
+  final String? id;
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final DateTime? deletedAt;

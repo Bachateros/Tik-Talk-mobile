@@ -1,5 +1,5 @@
 class MessageDTO {
-  final String id;
+  final String? id;
   final String chatId;
   final String userId;
   final String content;

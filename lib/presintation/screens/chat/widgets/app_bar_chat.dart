@@ -24,6 +24,7 @@ class _AppBarChatState extends State<AppBarChat> {
     final status = context.read<ChatBloc>().state.status;
     String chatName = '';
     final String? avatar;
+    String? chatContactId = '';
     if (chat?.typeChat != ChatType.direct){
        chatName = chat?.nameChat ?? '';
        avatar = chat?.avatarUrl ?? ThemeAssets.noAvatarChat(context);
@@ -36,9 +37,15 @@ class _AppBarChatState extends State<AppBarChat> {
       if(user == null){
          chatName = '';
          avatar = null;
+         chatContactId = '';
       }else{
-         chatName = "${user.surname} ${user.name}";
-         avatar = user.avatarUrl;
+        chatName = "${user.surname} ${user.name}";
+        if (user.avatarUrl == ''){
+          avatar = ThemeAssets.noAvatarUser(context);
+        }else {
+          avatar = user.avatarUrl;
+        }
+        chatContactId = user.userId;
       }
     }
     return Container(
@@ -52,8 +59,7 @@ class _AppBarChatState extends State<AppBarChat> {
       child: AppBar(
         leading: Builder(
           builder: (context) => IconButton(
-            icon: Icon(Icons.arrow_back_ios),
-              
+            icon: Icon(Icons.arrow_back_ios),              
               onPressed: () {
                 if (status == ChatStatus.setting){
                   return context.read<ChatBloc>().add(StatusChangeEvent(status: ChatStatus.update));
@@ -63,13 +69,19 @@ class _AppBarChatState extends State<AppBarChat> {
                 },
           ),
         ),
-        title: Row(
+        title: TextButton(
+          onPressed: (){
+            if (chat?.typeChat == ChatType.direct){
+              context.push('/home/profile/:$chatContactId');
+            }
+          }, 
+          child:  Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               CircleAvatar(
                 radius: 18,
-                backgroundImage: avatar != null
-                    ? NetworkImage(avatar)
+                backgroundImage: avatar != null || avatar != ''
+                    ? NetworkImage(avatar!)
                     : AssetImage(ThemeAssets.noAvatarChat(context)) as ImageProvider,
               ),
               const SizedBox(width: 10),
@@ -86,7 +98,7 @@ class _AppBarChatState extends State<AppBarChat> {
                 ),
               ),
             ]
-        ),
+        )),
         backgroundColor: Colors.transparent,
         centerTitle: true,
         actions: [

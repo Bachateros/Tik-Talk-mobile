@@ -38,7 +38,9 @@ class _ChatPageState extends State<ChatPage> {
         }
       },
       child:  BlocBuilder<ChatBloc,ChatState>(
-      buildWhen:(previous, current) => current.chatId != null && previous.status != current.status ,
+      buildWhen:(previous, current) => current.chatId != null && previous.status != current.status || 
+      current.listMesseges.length != previous.listMesseges.length ||
+      current.listParticipant.length != previous.listParticipant.length,
       builder: (context, state) => SafeArea(
         child: (){
           if (state.status == ChatStatus.update){

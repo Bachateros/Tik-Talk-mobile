@@ -2,7 +2,6 @@ import 'package:tik_talk/domain/repositories/auth_repository.dart';
 import 'package:tik_talk/domain/entities/user_entitie.dart';
 import 'package:tik_talk/data/datasources/local/auth_local_data_source.dart';
 import 'package:tik_talk/data/datasources/remote/auth_service_remote_data_source.dart';
-import 'package:tik_talk/internal/di.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remote;
@@ -100,8 +99,8 @@ class AuthRepositoryImpl implements AuthRepository {
         // игнорируем ошибку при logout на сервере
       }
     }
-    final id = await local.getUserId();
-    await DIContainer().deleteUserDb(id!);
+    // final id = await local.getUserId();
+    // await DIContainer().deleteUserDb(id!);
 
     await local.clearTokens();
   }

@@ -12,7 +12,7 @@ class ParticipantsDao extends DatabaseAccessor<AppDb> with _$ParticipantsDaoMixi
     final now = DateTime.now();
     await into(participants).insertOnConflictUpdate(
       ParticipantsCompanion(
-        id: Value(participantDTO.id),
+        id: Value(participantDTO.id!),
         chatId: Value(participantDTO.chatId),
         userId: Value(participantDTO.userId),
         role: Value(participantDTO.role),
@@ -60,7 +60,11 @@ class ParticipantsDao extends DatabaseAccessor<AppDb> with _$ParticipantsDaoMixi
 
   // Достать участников по chatId
   Future<List<Participant>> getParticipantsByChat(String chatId) async {
-    return (select(participants)..where((p) => p.chatId.equals(chatId))).get();
+    return (select(participants)
+          ..where((p) => p.chatId.equals(chatId))
+          ..where((p) => p.deletedAt.isNull())
+          ..where((p) => p.isDeleted.equals(false)))
+          .get();
   }
 
   // Достать всех уникальных участников (DISTINCT userId)
@@ -86,6 +90,18 @@ class ParticipantsDao extends DatabaseAccessor<AppDb> with _$ParticipantsDaoMixi
       ParticipantsCompanion(
         isDeleted: Value(true),
         deletedAt: Value(DateTime.now())
+        ),
+    );
+  }
+
+  Future<int> deleteByChatAndUser(String userid, String chatId) async {
+    return (update(participants)
+                ..where((p) => (p.userId.equals(userid)))
+                ..where((p)=> (p.chatId.equals(chatId))))
+                .write(
+      ParticipantsCompanion(
+        isDeleted: Value(true),
+        deletedAt: Value(DateTime.now(),)
         ),
     );
   }

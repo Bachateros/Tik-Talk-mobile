@@ -23,12 +23,14 @@ import 'package:tik_talk/data/mapers/participant_mapper.dart';
 import 'package:tik_talk/data/mapers/user_mapper.dart';
 import 'package:tik_talk/data/repositories/auth_repository_IMPL.dart';
 import 'package:tik_talk/data/repositories/chat_repository_IMPL.dart';
+import 'package:tik_talk/data/repositories/create_chat_repository_IMPL.dart';
 import 'package:tik_talk/data/repositories/home_repository_IMPL.dart';
 import 'package:tik_talk/data/repositories/profile_repository_IMPL.dart';
 import 'package:tik_talk/data/repositories/sync_repository_IMPL.dart';
 import 'package:tik_talk/data/websocket/websocket.dart';
 import 'package:tik_talk/domain/repositories/auth_repository.dart';
 import 'package:tik_talk/domain/repositories/chat_repository.dart';
+import 'package:tik_talk/domain/repositories/create_chat_repository.dart';
 import 'package:tik_talk/domain/repositories/home_repository.dart';
 import 'package:tik_talk/domain/repositories/profile_repository.dart';
 import 'package:tik_talk/domain/repositories/sync_repository.dart';
@@ -123,7 +125,7 @@ class DIContainer {
       final db = _container.get<AppDb>();
       await db.close();
       await db.deleteFile(); // удаляет физически
-      _container.unregister<AppDb>();
+      // _container.unregister<AppDb>();
     } else {
       // даже если база не зарегистрирована — подстрахуемся
       final dir = await getApplicationDocumentsDirectory();
@@ -198,18 +200,24 @@ class DIContainer {
 
     container.registerLazySingleton(
       () => ChatsServiceRemoteSource(
+        chatMapper: container.get<ChatMapper>(),
+        participantMapper: container.get<ParticipantMapper>(),
         apiClient:  container.get<ApiClient>()
         ),
     );
 
     container.registerLazySingleton(
       () => MessageServiceRemoteSource(
+        messageMapper: container.get<MessageMapper>(),
         apiClient:  container.get<ApiClient>()
         )
     );
 
     container.registerLazySingleton(
-      () => ParticipiantServiceRemoteSource(apiClient:  container.get<ApiClient>())
+      () => ParticipiantServiceRemoteSource(
+        apiClient:  container.get<ApiClient>(),
+        mapper: container.get<ParticipantMapper>()
+        ),
     );
 
     container.registerLazySingleton(
@@ -240,12 +248,18 @@ class DIContainer {
 
     container.registerLazySingleton<ChatRepository>(
       () => ChatRepositoryImpl(
+        chatMapper: container.get<ChatMapper>(),
+        participantMapper: container.get<ParticipantMapper>(),
+        messageMapper: container.get<MessageMapper>(),
         chatsDao: container.get<ChatsDao>(),
         messagesDao: container.get<MessagesDao>(),
         participantsDao: container.get<ParticipantsDao>(),
         chatsService: container.get<ChatsServiceRemoteSource>(),
         messageService: container.get<MessageServiceRemoteSource>(),
-        participantService: container.get<ParticipiantServiceRemoteSource>()),
+        participantService: container.get<ParticipiantServiceRemoteSource>(), 
+        syncService: container.get<SyncServiceRemoteDataService>()
+        ),
+        
     );
 
     container.registerLazySingleton<ProfileRepository>(
@@ -254,6 +268,15 @@ class DIContainer {
         userRepo: container.get<UserServiceRemoteSource>(),
         usersDao: container.get<UsersDao>(),
         )
+    );
+
+    container.registerLazySingleton<CreateChatRepository>(
+      ()=>CreateChatRepositoryImpl(
+        participantMapper: container.get<ParticipantMapper>(), 
+        chatsDao: container.get<ChatsDao>(), 
+        participantsDao: container.get<ParticipantsDao>(), 
+        chatsService: container.get<ChatsServiceRemoteSource>(), 
+        chatMapper: container.get<ChatMapper>())
     );
   }
 

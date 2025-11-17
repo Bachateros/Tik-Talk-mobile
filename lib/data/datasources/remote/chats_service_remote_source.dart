@@ -1,33 +1,41 @@
+import 'package:tik_talk/data/DTO/chat_DTO.dart';
+import 'package:tik_talk/data/DTO/participant_DTO.dart';
 import 'package:tik_talk/data/api_remote/ApiClient.dart';
-import 'package:tik_talk/domain/entities/chat_entitie.dart';
+import 'package:tik_talk/data/mapers/chat_mapper.dart';
+import 'package:tik_talk/data/mapers/participant_mapper.dart';
 
 class ChatsServiceRemoteSource {
-
+  ChatMapper chatMapper;
+  ParticipantMapper participantMapper;
   final ApiClient apiClient;
 
-  ChatsServiceRemoteSource({required this.apiClient});
+  ChatsServiceRemoteSource({required this.apiClient, required this.chatMapper, required this.participantMapper});
 
-  Future<String> createChat({
-    required String name,
-    required String? description,
-    required ChatType type,
-    required String? avatarUrl,
-    required bool isPrivate,
-    required List<Map<String, String>> participants,
-  }) async {
+  Future<String?> createChat(ChatDTO chatDto, List<ParticipantDto?> participants) async {
     try {
-       final response = await apiClient.postJson('/chat/create', {
-        'name': name,
-        'description': description,
-        'type': type.toString(),
-        'avatarUrl': avatarUrl,
-        'is_private': isPrivate,
-        'participants': participants,
+      // 1. Конвертируем участников в JSON для запроса
+      final participantsJson = participants
+          .where((e) => e != null)
+          .map((p) => participantMapper.toResponse(p!))
+          .toList();
+
+      // 2. Формируем JSON для чата через мапер
+      final chatBody = chatMapper.toResponse(chatDto);
+
+      final response = await apiClient.postJson('/chat/create', {
+        ...chatBody,
+        'participants': participantsJson,
       });
-      if (response['chat_id']){
-        return response['chat_id'];
+
+      if (response.containsKey('chat')) {
+        final chatDto = chatMapper.fromResponse(response['chat']);
+        if (chatDto.id != null || chatDto.id != ''){
+          return chatDto.id;
+        }else{
+          return null;
+        }
       } else {
-        return response['error'];
+        throw Exception(response['error'] ?? 'Ошибка создания чата');
       }
     } on ApiException catch (e) {
       if (e.statusCode == 401) {
@@ -38,15 +46,15 @@ class ChatsServiceRemoteSource {
     } catch (e) {
       throw Exception('Сетевая ошибка: $e');
     }
-   
   }
+
 
   Future<bool> deleteChat(String chatId) async {
     try {
-      final response = await apiClient.deleteJson('/chat/', {"chat_id": chatId});
-      if (response.containsKey('success') && response['success'] == true) {
-      final resultValue = response['result'] ?? response['success'] ?? response['ok'];
-      if (resultValue == 'ok' || resultValue == true) {
+      final response = await apiClient.deleteJson('/chat', {"chat_id": chatId});
+      if (response.containsKey('result')) {
+        final resultValue = response['result'];
+      if (resultValue == 'chat deleted') {
         return true;
       } 
       else {
@@ -66,23 +74,17 @@ class ChatsServiceRemoteSource {
     }
   }
 
-  Future<String> updateChat({
-    required String chatId,
-    required String? name,
-    required String? description,
-    required String? avatarUrl,
-    required bool? isPrivate,
-  }) async {
+  Future<ChatDTO> updateChat(ChatDTO chatDTO) async {
       try {
         final response = await apiClient.putJson('/chat/', {
-          'chat_id': chatId,
-          if (name != null) 'name': name,
-          if (description != null) 'description': description,
-          if (avatarUrl != null) 'avatarUrl': avatarUrl,
-          if (isPrivate != null) 'is_private': isPrivate,
+          'chat_id': chatDTO.id,
+          if (chatDTO.name != '') 'name': chatDTO.name,
+          if (chatDTO.description != null) 'description': chatDTO.description,
+          if (chatDTO.avatarUrl != null) 'avatarUrl': chatDTO.avatarUrl,
+          if (chatDTO.isPrivate != '') 'is_private': chatDTO.isPrivate,
         });
         if (response.containsKey('chat_id')) {
-          return response['chat_id'] as String;
+          return chatMapper.fromResponse(response);
         } else {
           throw Exception(response['error'] ?? 'Ошибка удаления чата');
         }

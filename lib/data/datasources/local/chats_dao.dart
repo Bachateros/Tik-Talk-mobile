@@ -12,7 +12,7 @@ class ChatsDao extends DatabaseAccessor<AppDb> with _$ChatsDaoMixin {
     final now = DateTime.now();
     await into(chats).insertOnConflictUpdate(
       ChatsCompanion(
-        id: Value(chatDTO.id),
+        id: Value(chatDTO.id!),
         name: Value(chatDTO.name),
         description: Value(chatDTO.description),
         type: Value(chatDTO.type),
@@ -45,20 +45,30 @@ class ChatsDao extends DatabaseAccessor<AppDb> with _$ChatsDaoMixin {
     );
   }
 
-  // Получить ID всех чатов
-  Future<List<String?>> getAllChatIds() async {
-    final q = await selectOnly(chats)..addColumns([chats.id]);
+  Future<List<String>> getAllChatIds() async {
+    final q = selectOnly(chats)
+      ..addColumns([chats.id])
+      ..where(chats.deletedAt.isNull())
+      ..where(chats.isDeleted.equals(false));
+
     final rows = await q.get();
-    return rows.map((r) => r.read(chats.id)).toList();
+    return rows.map((r) => r.read(chats.id)!).toList();
   }
 
+
   // Получить все чаты
-  Future<List<Chat>> getAllChats() => select(chats).get();
+  Future<List<Chat>> getAllChats() async{
+    final chats = db.chats.select()
+    ..where((chat) => chat.deletedAt.isNull())
+    ..where((chat) => chat.isDeleted.equals(false));
+  
+    return await chats.get();
+  }
 
   // Пометить чат удалённым (isPrivate -> true, или добавь поле isDeleted)
   Future<int> markChatDeleted(String id) async {
     return (update(chats)..where((c) => c.id.equals(id))).write(
-      ChatsCompanion(description: const Value('[deleted]'), updatedAt: Value(DateTime.now())),
+      ChatsCompanion(description: const Value('[deleted]'), updatedAt: Value(DateTime.now()), isDeleted: Value(true)),
     );
   }
 }

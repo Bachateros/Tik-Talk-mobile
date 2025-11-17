@@ -45,18 +45,23 @@ class ChatMapper implements BaseMapper<Map<String, dynamic>, ChatDTO, ChatEntiti
 // "maxMembers"
 // "lastActivityAt"
   @override
-  Map<String, dynamic> toResponse(ChatDTO dto) => {
-        // 'id': dto.id,
-        // 'title': dto.title,
-        // 'type': dto.type,
-        // 'last_message_id': dto.lastMessageId,
-        // 'created_at': dto.createdAt.toIso8601String(),
-        // 'updated_at': dto.updatedAt?.toIso8601String(),
-      };
+  Map<String, dynamic> toResponse(ChatDTO dto) {
+    return {
+      if (dto.id != null) 'chat_id': dto.id,  
+      'name': dto.name,
+      'description': dto.description,
+      'type': dto.type,                      // "direct" | "group" | "channel"
+      'avatarUrl': dto.avatarUrl,
+      'is_private': dto.isPrivate,
+      'createdBy': dto.createdBy,
+      'maxMembers': dto.maxMembers,
+    };
+  }
+
 
   @override
   ChatEntitie toEntity(ChatDTO dto) => ChatEntitie(
-        idChat: dto.id,
+        idChat: dto.id ?? '',
         nameChat: dto.name,
         avatarUrl: dto.avatarUrl,
         descriptionChat: dto.description,
