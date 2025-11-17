@@ -72,11 +72,11 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
   // Загрузка чата и его участников + сообщений
   Future<void> _onLoadChat(LoadChatEvent event, Emitter<ChatState> emit) async {
-    final ws = DIContainer().container.get<WebSocketService>();
-    if(!ws.isConnecting) {
-      print('[WS]соединения с веб сокетом нет ');
-      await ws.connect();
-      }
+    // final ws = DIContainer().container.get<WebSocketService>();
+    // if(!ws.isConnecting) {
+    //   print('[WS]соединения с веб сокетом нет ');
+    //   await ws.connect();
+    //   }
     emit(state.copyWith(status: ChatStatus.loading));
     try {
       final chat = await repository.getChat(event.chatId);
@@ -101,11 +101,11 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
   // Загрузка сообщений (без обновления данных чата)
   Future<void> _onLoadMessages(LoadMessagesEvent event, Emitter<ChatState> emit) async {
-    final ws = DIContainer().container.get<WebSocketService>();
-    if(!ws.isConnecting) {
-      print('[WS]соединения с веб сокетом нет ');
-      await ws.connect();
-      }
+    // final ws = DIContainer().container.get<WebSocketService>();
+    // if(!ws.isConnecting) {
+    //   print('[WS]соединения с веб сокетом нет ');
+    //   await ws.connect();
+    //   }
     if (state.chatId == null) return;
     try {
       final messages = await repository.getMessage(state.chatId!);

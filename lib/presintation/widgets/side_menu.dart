@@ -71,7 +71,7 @@ class ListViewSideMenu extends StatelessWidget {
             ListTile(
               title: Row(spacing: 10 ,children: [Icon(Icons.settings, size: 25), Text('Настройки', style: TextStyle(color: Colors.white),)]),
               onTap: () {
-                context.push('/home/settings');
+                context.push('/home/settengs');
               },
             ),
             Container(

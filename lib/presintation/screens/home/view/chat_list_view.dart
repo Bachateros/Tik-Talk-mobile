@@ -8,7 +8,10 @@ class ChatListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    context.read<HomeBloc>().add(UpdateEvent());
-    return ChatList();
+    return BlocBuilder<HomeBloc,HomeState>(
+      buildWhen: (previous, current) => 
+        previous.listLastMesseges.length != current.listLastMesseges.length,
+      builder:(context, state) =>  ChatList()
+      );
   }
 }

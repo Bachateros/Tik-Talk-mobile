@@ -19,8 +19,10 @@ import 'package:tik_talk/domain/bloc/chat/chat_bloc.dart';
 import 'package:tik_talk/domain/bloc/create_chat_bloc/create_chat_bloc.dart';
 import 'package:tik_talk/domain/bloc/home/home_bloc.dart';
 import 'package:tik_talk/domain/bloc/profile/profile_bloc.dart';
+import 'package:tik_talk/domain/bloc/setting/settings_bloc.dart';
 import 'package:tik_talk/domain/repositories/create_chat_repository.dart';
 import 'package:tik_talk/domain/repositories/profile_repository.dart';
+import 'package:tik_talk/domain/repositories/settings_repository.dart';
 import 'package:tik_talk/domain/repositories/sync_repository.dart';
 import 'package:tik_talk/internal/di.dart';
 import 'package:tik_talk/presintation/screens/chat/view/chat_page.dart';
@@ -30,6 +32,7 @@ import 'package:tik_talk/presintation/screens/home/view/home_page.dart';
 import 'package:tik_talk/presintation/screens/login/view/auth_page.dart';
 import 'package:tik_talk/presintation/screens/login/widgets/login_form.dart';
 import 'package:tik_talk/presintation/screens/profile/view/profile_page.dart';
+import 'package:tik_talk/presintation/screens/setting/view/setting_page.dart';
 import 'package:tik_talk/presintation/screens/splash/splash_screen.dart';
 
 class AppRouter {
@@ -130,13 +133,17 @@ final GoRouter _router = GoRouter(
             );
           },
         ),
-        // GoRoute(
-        //   path: '/home/chat/:chatId/setting_chat',
-        //   builder: (context, state) {
-        //     final chatId = state.pathParameters['chatId']!;
-        //     return ChatSettingsPage(chatId: chatId);
-        //   },
-        // ),
+        GoRoute(
+          path: '/home/settengs',
+          builder: (context, state) {
+            return  BlocProvider(
+              create:(context) => SettingsBloc(
+                repo: DIContainer().container.get<SettingsRepository>(),
+                ),
+                child: SettingsPage(),
+            );
+          },
+        ),
         GoRoute(
           path: '/home/profile',
           builder: (context, state) {

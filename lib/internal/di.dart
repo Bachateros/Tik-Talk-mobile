@@ -26,6 +26,7 @@ import 'package:tik_talk/data/repositories/chat_repository_IMPL.dart';
 import 'package:tik_talk/data/repositories/create_chat_repository_IMPL.dart';
 import 'package:tik_talk/data/repositories/home_repository_IMPL.dart';
 import 'package:tik_talk/data/repositories/profile_repository_IMPL.dart';
+import 'package:tik_talk/data/repositories/settings_repository_IMPL.dart';
 import 'package:tik_talk/data/repositories/sync_repository_IMPL.dart';
 import 'package:tik_talk/data/websocket/websocket.dart';
 import 'package:tik_talk/domain/repositories/auth_repository.dart';
@@ -33,6 +34,7 @@ import 'package:tik_talk/domain/repositories/chat_repository.dart';
 import 'package:tik_talk/domain/repositories/create_chat_repository.dart';
 import 'package:tik_talk/domain/repositories/home_repository.dart';
 import 'package:tik_talk/domain/repositories/profile_repository.dart';
+import 'package:tik_talk/domain/repositories/settings_repository.dart';
 import 'package:tik_talk/domain/repositories/sync_repository.dart';
 import 'package:path/path.dart' as p;
 
@@ -277,6 +279,10 @@ class DIContainer {
         participantsDao: container.get<ParticipantsDao>(), 
         chatsService: container.get<ChatsServiceRemoteSource>(), 
         chatMapper: container.get<ChatMapper>())
+    );
+
+    container.registerLazySingleton<SettingsRepository>(
+      ()=>SettingsRepositoryImpl(),
     );
   }
 

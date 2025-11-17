@@ -26,8 +26,8 @@ class WebSocketService {
         headers: {
           'Authorization': 'Bearer $token',
         },
-        // pingInterval: null,  
-      pingInterval: const Duration(seconds: 30),
+        pingInterval: null,  
+      // pingInterval: const Duration(seconds: 30),
       );
       print('[WS] Connected to $baseUrl');
 
